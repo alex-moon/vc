@@ -1,4 +1,4 @@
-FROM nvidia/cuda:devel2
+FROM nvidia/cuda:11.4.0-devel-ubuntu18.04
 
 WORKDIR /app
 
@@ -19,5 +19,4 @@ RUN mkdir checkpoints
 RUN curl -L -o checkpoints/vqgan_imagenet_f16_16384.yaml -C - 'http://mirror.io.community/blob/vqgan/vqgan_imagenet_f16_16384.yaml' #ImageNet 16384
 RUN curl -L -o checkpoints/vqgan_imagenet_f16_16384.ckpt -C - 'http://mirror.io.community/blob/vqgan/vqgan_imagenet_f16_16384.ckpt' #ImageNet 16384
 
-CMD './docker.vc.sh'
-
+CMD './local-wrapper.sh'
