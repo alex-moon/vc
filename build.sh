@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo apt install python3-venv ffmpeg
+
 python3 -m venv venv
 source venv/bin/activate
 python3 -m pip install --upgrade pip
