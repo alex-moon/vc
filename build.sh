@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo apt install python3-venv ffmpeg
+sudo apt install python3-venv ffmpeg zip
 
 python3 -m venv venv
 source venv/bin/activate
