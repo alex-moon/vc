@@ -6,4 +6,5 @@ if [[ -z "$@" ]]; then
 fi
 
 source venv/bin/activate
-python3 generate.py -p "$@"
+python3 generate.py -p "$@" -s 720 720 --video
+
