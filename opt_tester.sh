@@ -26,7 +26,7 @@ function do_optimiser_test () {
   do
     PADDED_COUNT=$(printf "%03d" "$COUNT")
     echo "Loop for $OPTIMISER - $LR"
-    python generate.py -p "$TEXT" -in pixels -o "$OUT_DIR"/"$PADDED_COUNT"-"$OPTIMISER"-"$LR"-"$NPW".png -opt "$OPTIMISER" -lr "$LR" -i "$ITERATIONS" -se "$SAVE_EVERY" -s "$HEIGHT" "$WIDTH" --seed "$SEED" -d True -iw 1 -nps 666 -npw "$NPW" -d True
+    python3 generate.py -p "$TEXT" -in pixels -o "$OUT_DIR"/"$PADDED_COUNT"-"$OPTIMISER"-"$LR"-"$NPW".png -opt "$OPTIMISER" -lr "$LR" -i "$ITERATIONS" -se "$SAVE_EVERY" -s "$HEIGHT" "$WIDTH" --seed "$SEED" -d True -iw 1 -nps 666 -npw "$NPW" -d True
     LR=$(echo $LR + $STEP | bc)
     ((COUNT++))
   done
