@@ -45,7 +45,7 @@ ls "$FRAMES_IN" | while read file; do
    echo "Style text: $TEXT"
    echo "Output file: $FILENAME"
 
-   python generate.py -p "$TEXT" -ii "$FRAMES_IN"/"$file" -o "$FILENAME" -opt "$OPTIMISER" -lr "$LR" -i "$ITERATIONS" -se "$SAVE_EVERY" -s "$HEIGHT" "$WIDTH" -sd "$SEED" -d True
+   python3 generate.py -p "$TEXT" -ii "$FRAMES_IN"/"$file" -o "$FILENAME" -opt "$OPTIMISER" -lr "$LR" -i "$ITERATIONS" -se "$SAVE_EVERY" -s "$HEIGHT" "$WIDTH" -sd "$SEED" -d True
 done
 
 ffmpeg -y -i "$FRAMES_OUT"/frame-%04d.jpg-out.jpg -b:v 8M -c:v h264_nvenc -pix_fmt yuv420p -strict -2 -filter:v "minterpolate='mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=60'" style_video.mp4

@@ -1,70 +1,12 @@
 #!/bin/bash
 
-# helper functions
-function confirm() {
-    while true; do
-        read -p "[Y/n] " YESNO
-        case "$YESNO" in
-            [Yy]*|"" ) return 0;;
-            [Nn]* ) return 1;;
-            * ) printf "Try again hotshot. " ;;
-        esac
-    done
-}
-
-red="$(tput setaf 1)"
-green="$(tput setaf 2)"
-yellow="$(tput setaf 3)"
-reset="$(tput sgr0)"
-function red() { echo "${red}${@}${reset}"; }
-function green() { echo "${green}${@}${reset}"; }
-function yellow() { echo "${yellow}${@}${reset}"; }
-
-# vars
-machine=vc
-
-echo "First let's get your root login cached..."
-sudo echo "Done"
-
-docker-machine rm -f $machine
-
-# let's do it!
-if [[ -z "$(docker-machine ls -q | grep $machine)" ]]; then
-    green "Creating docker machine"
-    docker-machine create --driver virtualbox --virtualbox-boot2docker-url \
-        "https://github.com/boot2docker/boot2docker/releases/download/v18.06.0-ce/boot2docker.iso" \
-        --virtualbox-memory 2048 $machine
-fi
-
-if [[ "$(docker-machine status $machine)" = "Error" ]]; then
-    green "Rebuilding docker machine"
-    docker-machine rm -f $machine
-    docker-machine start $machine
-fi
-
-if [[ "$(docker-machine status $machine)" != "Running" ]]; then
-    green "Starting docker machine"
-    docker-machine start $machine
-fi
-
-# green "Regenerating certs"
-yes | docker-machine regenerate-certs $machine
-
-green "Mounting NFS"
-docker-machine-nfs $machine -s=`pwd`
-
-green "Loading env"
-eval $(docker-machine env $machine)
-
-green "Removing docker containers"
-docker rm -f $(docker ps -a -q)
-
-ip=$(docker-machine ip $machine)
-green "Done - your IP is $ip - auto-adding to /etc/hosts..."
-sudo sed -i '' '/vc.local/d' /etc/hosts
-echo "$ip vc.local" | sudo tee -a /etc/hosts
-
-docker-compose build
-
-green Done
-
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -r requirements.txt
+# pip3 install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
+# pip3 install ftfy regex tqdm omegaconf pytorch-lightning IPython kornia imageio imageio-ffmpeg einops pytorch-lightning
+git clone https://github.com/openai/CLIP
+git clone https://github.com/CompVis/taming-transformers.git
+mkdir checkpoints
+curl -L -o checkpoints/vqgan_imagenet_f16_16384.yaml -C - 'http://mirror.io.community/blob/vqgan/vqgan_imagenet_f16_16384.yaml' #ImageNet 16384
+curl -L -o checkpoints/vqgan_imagenet_f16_16384.ckpt -C - 'http://mirror.io.community/blob/vqgan/vqgan_imagenet_f16_16384.ckpt' #ImageNet 16384

@@ -32,7 +32,7 @@ do
    pickword "${styles[@]}"
    TEXT+=" and "$UPDATE
 
-   python generate.py -p "$TEXT" -o "$number".png
+   python3 generate.py -p "$TEXT" -o "$number".png
 done
 
 
