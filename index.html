@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>VQGAN+CLIP test results</title>
+        <script type="text/javascript">
+            function Handler() {
+                this.autoreload = false;
+                this.timeout = null;
+                this.setAutoReload = (event) => {
+                    this.autoreload = event.target.checked;
+                    if (this.autoreload) {
+                        this.setTimeout();
+                    } else {
+                        clearTimeout(this.timeout);
+                    }
+                };
+
+                this.setTimeout = () => {
+                    this.timeout = setTimeout(
+                        this.refreshImages.bind(this),
+                        10000
+                    );
+                };
+
+                this.refreshImages = () => {
+                    const script = document.createElement('script');
+                    script.setAttribute('src', 'images.js');
+                    document.head.appendChild(script);
+
+                    if (this.autoreload) {
+                        this.setTimeout();
+                    }
+                };
+
+                this.drawImages = () => {
+                    const target = document.getElementById('images');
+                    target.innerHTML = '';
+
+                    let col = 0;
+                    let row, div, img, caption;
+
+                    for (let i=0; i < window.imagePaths.length; i++) {
+                        if (col === 0) {
+                            row = document.createElement('div');
+                            row.setAttribute('class', 'row');
+                        }
+
+                        const filename = window.imagePaths[i];
+                        const summary = filename.replace('results/', '').replaceAll('-', ' ').replace('.png', '');
+
+                        div = document.createElement('div');
+                        div.setAttribute('class', 'image');
+
+                        img = document.createElement('img');
+                        img.setAttribute('src', filename);
+                        div.appendChild(img);
+
+                        caption = document.createElement('div');
+                        caption.setAttribute('class', 'caption');
+                        caption.appendChild(document.createTextNode(summary));
+                        div.appendChild(caption);
+
+                        row.appendChild(div);
+
+                        col ++;
+                        if (col === 4) {
+                            target.appendChild(row);
+                            col = 0;
+                        }
+                    }
+                };
+            }
+            document.addEventListener("DOMContentLoaded", function() {
+                window.handler = new Handler();
+                window.handler.refreshImages();
+            });
+        </script>
+        <style type="text/css">
+            body, html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                width: 100%;
+                font-family: sans-serif;
+            }
+            
+            .content {
+                height: 100%;
+                width: 100%;
+                box-sizing: border-box;
+                position: relative;
+            }
+            
+            .content .controls {
+                position: absolute;
+                top: 4px;
+                right: 4px;
+                padding: 4px;
+                background: white;
+                border: solid 1px black;
+            }
+
+            .row {
+                display: flex;
+                height: 25vw;
+            }
+
+            .row .image {
+                flex-basis: 25%;
+                flex-grow: 1;
+                position: relative;
+            }
+
+            .row .image img {
+                width: 100%;
+                height: 100%;
+            }
+
+            .row .image .caption {
+                position: absolute;
+                bottom: 4px;
+                right: 4px;
+                background: rgba(0, 0, 0, 0.8);
+                text-align: right;
+                color: white;
+                padding: 4px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                width: 20vw;
+                max-height: 20%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="content">
+            <div id="images"></div>
+            <div class="controls">
+                <label>
+                    <input type="checkbox" onchange="window.handler.setAutoReload(event)" />
+                    auto-reload
+                </label>
+            </div>
+        </div>
+    </body>
+</html>
+
