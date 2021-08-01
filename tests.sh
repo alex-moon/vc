@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cmd=$0
+cmd=$1
 if [[ -z "$cmd" ]]; then
     cmd=image
 fi
@@ -8,6 +8,11 @@ fi
 IFS=$'\n'
 for test in $(cat tests.txt); do
     ./$cmd.sh "$test"
-    ./$cmd.sh "$test | unreal engine"
+    for style in $(cat styles.txt); do
+	if [[ -z "$style" ]]; then
+	    break
+        fi
+        ./$cmd.sh "$test | $style"
+    done
 done
 
