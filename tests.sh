@@ -8,7 +8,8 @@ fi
 IFS=$'\n'
 LR=0.1
 OPTIMISER=Adam
-MAX_ITERATIONS=25
+MAX_ITERATIONS=50
+MAX_EPOCHS=10
 SEED=`shuf -i 1-9999999999 -n 1`
 FILENAME=input.png
 FILENAME_NO_EXT=input
@@ -20,19 +21,21 @@ function images() {
 
 i=0
 function zoom() {
-    padded_count=$(printf "%04d" "$i")
-    python3 generate.py -p="$@" \
-        -opt="$OPTIMISER" \
-        -lr=$LR \
-        -i=$MAX_ITERATIONS \
-        -se=$MAX_ITERATIONS \
-        --seed=$SEED \
-        -ii="$FILENAME" \
-        -o="$FILENAME"
-    cp "$FILENAME" "$FILENAME_NO_EXT"-"$padded_count"."$FILE_EXTENSION"
-    convert "$FILENAME" -distort SRT 1.01,0 -gravity center "$FILENAME"	# Zoom
-    convert "$FILENAME" -distort SRT 1 -gravity center "$FILENAME"	# Rotate
-    (( i ++ ))
+    for (( j=1; j<=$MAX_EPOCHS; j++ )); do
+        padded_count=$(printf "%04d" "$i")
+        python3 generate.py -p="$@" \
+            -opt="$OPTIMISER" \
+            -lr=$LR \
+            -i=$MAX_ITERATIONS \
+            -se=$MAX_ITERATIONS \
+            --seed=$SEED \
+            -ii="$FILENAME" \
+            -o="$FILENAME"
+        cp "$FILENAME" "$FILENAME_NO_EXT"-"$padded_count"."$FILE_EXTENSION"
+        convert "$FILENAME" -distort SRT 1.01,0 -gravity center "$FILENAME"	# Zoom
+        convert "$FILENAME" -distort SRT 1 -gravity center "$FILENAME"	# Rotate
+        (( i ++ ))
+    done
 }
 
 for test in $(cat tests.txt); do
