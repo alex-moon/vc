@@ -28,7 +28,7 @@ do
   python3 generate.py -p="$TEXT" -opt="$OPTIMISER" -lr=$LR -i=$MAX_ITERATIONS -se=$MAX_ITERATIONS --seed=$SEED -ii="$FILENAME" -o="$FILENAME"
   cp "$FILENAME" "$FILENAME_NO_EXT"-"$padded_count"."$FILE_EXTENSION"    
   convert "$FILENAME" -distort SRT 1.01,0 -gravity center "$FILENAME" # Zoom
-  convert "$FILENAME" -distort SRT 1 -gravity center "$FILENAME"	# Rotate
+  convert "$FILENAME" -distort SRT 1 -gravity center "$FILENAME" # Rotate
 done
 
 # Make video - Nvidia GPU expected
