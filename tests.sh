@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mode=$0
+mode=$1
 if [[ -z "$mode" ]]; then
     mode=images
 fi
@@ -15,11 +15,11 @@ FILENAME_NO_EXT=input
 FILE_EXTENSION=png
 
 function images() {
-    ./image.sh "$0"
+    ./image.sh "$@"
 }
 
 function zoom() {
-    python3 generate.py -p="$0" -opt="$OPTIMISER" -lr=$LR -i=$MAX_ITERATIONS -se=$MAX_ITERATIONS --seed=$SEED -o="$FILENAME"
+    python3 generate.py -p="$@" -opt="$OPTIMISER" -lr=$LR -i=$MAX_ITERATIONS -se=$MAX_ITERATIONS --seed=$SEED -o="$FILENAME"
     cp "$FILENAME" "$FILENAME_NO_EXT"-0000."$FILE_EXTENSION"
     convert "$FILENAME" -distort SRT 1.01,0 -gravity center "$FILENAME"	# Zoom
     convert "$FILENAME" -distort SRT 1 -gravity center "$FILENAME"	# Rotate
