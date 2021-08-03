@@ -11,7 +11,7 @@ function dowrite () {
 }
 
 while true; do
-    rsync -av vc:/opt/vc/results/ results/
+    rsync -a vc:/opt/vc/results/ results/
     dowrite > images.js
     sleep 10
 done
