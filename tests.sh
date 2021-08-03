@@ -9,7 +9,7 @@ IFS=$'\n'
 LR=0.1
 OPTIMISER=Adam
 MAX_ITERATIONS=50
-MAX_EPOCHS=10
+MAX_EPOCHS=5
 SEED=`shuf -i 1-9999999999 -n 1`
 FILENAME=input.png
 FILENAME_NO_EXT=input
@@ -32,8 +32,9 @@ function zoom() {
             -ii="$FILENAME" \
             -o="$FILENAME"
         cp "$FILENAME" "$FILENAME_NO_EXT"-"$padded_count"."$FILE_EXTENSION"
-        convert "$FILENAME" -distort SRT 1.01,0 -gravity center "$FILENAME"	# Zoom
-        convert "$FILENAME" -distort SRT 1 -gravity center "$FILENAME"	# Rotate
+
+        # scale, rotate, translate: <coords from>, <scale (multiple)>, <rotate (degrees)>, <coords to>
+        convert "$FILENAME" -distort SRT "0,0 1.01 1 10,0" -gravity center "$FILENAME"
         (( i ++ ))
     done
 }
