@@ -6,12 +6,14 @@ CLIP
 checkpoints
 taming
 steps
+BoostingMonocularDepth
+model.pt
 results
 tests.txt
 .idea
 images.js
 input*.png
 results.zip
+video
 video.mp4
 tests
-

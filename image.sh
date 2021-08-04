@@ -15,4 +15,3 @@ fi
 
 python3 generate.py -p "$@" -s 400 400
 mv output.png results/$slug.png
-
