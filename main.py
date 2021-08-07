@@ -1,30 +1,27 @@
-import numpy as np
 import argparse
-import glob
-import os
-from functools import partial
-import vispy
-import scipy.misc as misc
-from tqdm import tqdm
-import yaml
-import time
-import sys
-from mesh import write_ply, read_ply, output_3d_photo
-from utils import get_MiDaS_samples, read_MiDaS_depth
-import torch
-import cv2
-from skimage.transform import resize
-import imageio
 import copy
-from networks import Inpaint_Color_Net, Inpaint_Depth_Net, Inpaint_Edge_Net
-from MiDaS.run import run_depth
-from boostmonodepth_utils import run_boostmonodepth
-from MiDaS.monodepth_net import MonoDepthNet
+import os
+import time
+
+import cv2
+import imageio
+import numpy as np
+import torch
+import vispy
+import yaml
+from tqdm import tqdm
+
 import MiDaS.MiDaS_utils as MiDaS_utils
+from MiDaS.monodepth_net import MonoDepthNet
+from MiDaS.run import run_depth
 from bilateral_filtering import sparse_bilateral_filtering
+from boostmonodepth_utils import run_boostmonodepth
+from mesh import write_ply, read_ply, output_3d_photo
+from networks import Inpaint_Color_Net, Inpaint_Depth_Net, Inpaint_Edge_Net
+from utils import get_MiDaS_samples, read_MiDaS_depth
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--config', type=str, default='argument.yml',help='Configure of post processing')
+parser.add_argument('--config', type=str, default='argument.yml', help='Configuration of post processing')
 args = parser.parse_args()
 config = yaml.load(open(args.config, 'r'))
 if config['offscreen_rendering'] is True:
