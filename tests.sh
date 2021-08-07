@@ -24,7 +24,7 @@ function generate() {
 
 function zoom() {
     for (( j=1; j<=$MAX_EPOCHS; j++ )); do
-        generate
+        generate "$@"
 
         # scale, rotate, translate: <coords from>, <scale (multiple)>, <rotate (degrees)>, <coords to>
         convert "input/input.png" -distort SRT "0,0 1.01 1 10,0" -gravity center "input/input.png"
@@ -33,7 +33,7 @@ function zoom() {
 
 function zoom3d() {
     for (( j=1; j<=$MAX_EPOCHS; j++ )); do
-        generate
+        generate "$@"
 
         python3 zoom3d.py "input/input.png"
         mv output/input.png input/input.png
