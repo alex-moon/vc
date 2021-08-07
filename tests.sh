@@ -36,7 +36,7 @@ function zoom3d() {
         generate "$1"
 
         python3 zoom3d.py "input/input.png"
-        mv output/input.png input/input.png
+        mv results/input.png input/input.png
     done
 }
 
@@ -50,4 +50,4 @@ for test in $(cat tests.txt); do
     done
 done
 
-ffmpeg -y -i "input/input-%04d.png" -b:v 8M -c:v h264_nvenc -pix_fmt yuv420p -strict -2 -filter:v "minterpolate='mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=60'" video-$(date -Iseconds | sed 's/[^0-9]/-/g').mp4
+ffmpeg -y -i "input/input-%04d.png" -b:v 8M -c:v h264_nvenc -pix_fmt yuv420p -strict -2 -filter:v "minterpolate='mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=60'" results/video-$(date -Iseconds | sed 's/[^0-9]/-/g').mp4
