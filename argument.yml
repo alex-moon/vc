@@ -4,18 +4,18 @@ rgb_feat_model_ckpt: checkpoints/color-model.pth
 MiDaS_model_ckpt: MiDaS/model.pt
 use_boostmonodepth: True
 fps: 40
-num_frames: 240
-x_shift_range: [0.00, 0.00, -0.015, -0.015]
-y_shift_range: [0.00, 0.00, -0.015, -0.00]
-z_shift_range: [-0.05, -0.05, -0.05, -0.05]
-traj_types: ['double-straight-line', 'double-straight-line', 'circle', 'circle']
-video_postfix: ['dolly-zoom-in', 'zoom-in', 'circle', 'swing']
+num_frames: 2
+x_shift_range: [0.00]
+y_shift_range: [0.00]
+z_shift_range: [-0.05]
+traj_types: ['double-straight-line']
+video_postfix: ['zoom-in']
 specific: ''
-longer_side_len: 960
+longer_side_len: 400
 src_folder: input
 depth_folder: depth
 mesh_folder: mesh
-video_folder: video
+video_folder: output
 load_ply: False
 save_ply: True
 inference_video: True
@@ -45,3 +45,5 @@ extrapolation_thickness: 60
 repeat_inpaint_edge: True
 crop_border: [0.03, 0.03, 0.05, 0.03]
 anti_flickering: True
+
+

@@ -21,6 +21,7 @@ from inpainting.networks import Inpaint_Color_Net, Inpaint_Depth_Net, Inpaint_Ed
 from inpainting.utils import get_MiDaS_samples, read_MiDaS_depth
 
 parser = argparse.ArgumentParser()
+parser.add_argument('samples', type=str, default='input/input.png', help='File(s) to process')
 parser.add_argument('--config', type=str, default='argument.yml', help='Configuration of post processing')
 args = parser.parse_args()
 config = yaml.load(open(args.config, 'r'))
@@ -29,7 +30,7 @@ if config['offscreen_rendering'] is True:
 os.makedirs(config['mesh_folder'], exist_ok=True)
 os.makedirs(config['video_folder'], exist_ok=True)
 os.makedirs(config['depth_folder'], exist_ok=True)
-sample_list = get_MiDaS_samples(config, image_folder=config['src_folder'])
+sample_list = get_MiDaS_samples(config, image_files=args.samples)
 normal_canvas, all_canvas = None, None
 
 if isinstance(config["gpu_ids"], int) and (config["gpu_ids"] >= 0):
@@ -102,15 +103,17 @@ for idx in tqdm(range(len(sample_list))):
 
 
         print(f"Writing depth ply (and basically doing everything) at {time.time()}")
-        rt_info = write_ply(image,
-                              depth,
-                              sample['int_mtx'],
-                              mesh_fi,
-                              config,
-                              rgb_model,
-                              depth_edge_model,
-                              depth_edge_model,
-                              depth_feat_model)
+        rt_info = write_ply(
+            image,
+            depth,
+            sample['int_mtx'],
+            mesh_fi,
+            config,
+            rgb_model,
+            depth_edge_model,
+            depth_edge_model,
+            depth_feat_model
+        )
 
         if rt_info is False:
             continue
@@ -125,13 +128,13 @@ for idx in tqdm(range(len(sample_list))):
         verts, colors, faces, Height, Width, hFov, vFov = rt_info
 
 
-    print(f"Making video at {time.time()}")
+    print(f"Converting input at {time.time()}")
     videos_poses, video_basename = copy.deepcopy(sample['tgts_poses']), sample['tgt_name']
     top = (config.get('original_h') // 2 - sample['int_mtx'][1, 2] * config['output_h'])
     left = (config.get('original_w') // 2 - sample['int_mtx'][0, 2] * config['output_w'])
     down, right = top + config['output_h'], left + config['output_w']
     border = [int(xx) for xx in [top, down, left, right]]
-    normal_canvas, all_canvas = output_3d_photo(
+    output_3d_photo(
         verts.copy(),
         colors.copy(),
         faces.copy(),
@@ -149,5 +152,7 @@ for idx in tqdm(range(len(sample_list))):
         border=border,
         normal_canvas=normal_canvas,
         all_canvas=all_canvas,
-        mean_loc_depth=mean_loc_depth
+        mean_loc_depth=mean_loc_depth,
+        mode='frame'
     )
+

@@ -1,23 +1,11 @@
 #!/bin/bash
 
-mode=$1
-if [[ -z "$mode" ]]; then
-    mode=zoom3d
-fi
-
 IFS=$'\n'
 LR=0.1
 OPTIMISER=Adam
 MAX_ITERATIONS=50
 MAX_EPOCHS=5
 SEED=`shuf -i 1-9999999999 -n 1`
-FILENAME=input.png
-FILENAME_NO_EXT=input
-FILE_EXTENSION=png
-
-function images() {
-    ./image.sh "$@"
-}
 
 i=0
 function generate() {
@@ -28,9 +16,9 @@ function generate() {
         -i=$MAX_ITERATIONS \
         -se=$MAX_ITERATIONS \
         --seed=$SEED \
-        -ii="input.png" \
-        -o="input.png"
-    cp "input.png" "input-$padded_count.png"
+        -ii="input/input.png" \
+        -o="input/input.png"
+    cp "input/input.png" "input/input-$padded_count.png"
     (( i ++ ))
 }
 
@@ -39,7 +27,7 @@ function zoom() {
         generate
 
         # scale, rotate, translate: <coords from>, <scale (multiple)>, <rotate (degrees)>, <coords to>
-        convert "input.png" -distort SRT "0,0 1.01 1 10,0" -gravity center "input.png"
+        convert "input/input.png" -distort SRT "0,0 1.01 1 10,0" -gravity center "input/input.png"
     done
 }
 
@@ -47,22 +35,18 @@ function zoom3d() {
     for (( j=1; j<=$MAX_EPOCHS; j++ )); do
         generate
 
-        # scale, rotate, translate: <coords from>, <scale (multiple)>, <rotate (degrees)>, <coords to>
-        # convert "input.png" -distort SRT "0,0 1.01 1 10,0" -gravity center "input.png"
-        python3 inpainting/main.py --config inpainting/argument.yml
+        python3 zoom3d.py "input/input.png"
     done
 }
 
 for test in $(cat tests.txt); do
-    $mode "$test"
+    zoom3d "$test"
     for style in $(cat styles.txt); do
         if [[ -z "$style" ]]; then
             break
         fi
-        $mode "$test | $style"
+        zoom3d "$test | $style"
     done
 done
 
-if [[ "$mode" -eq "zoom" ]]; then
-    ffmpeg -y -i "input-%04d.png" -b:v 8M -c:v h264_nvenc -pix_fmt yuv420p -strict -2 -filter:v "minterpolate='mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=60'" video-$(date -Iseconds | sed 's/[^0-9]/-/g').mp4
-fi
+ffmpeg -y -i "input/input-%04d.png" -b:v 8M -c:v h264_nvenc -pix_fmt yuv420p -strict -2 -filter:v "minterpolate='mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=60'" video-$(date -Iseconds | sed 's/[^0-9]/-/g').mp4

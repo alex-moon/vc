@@ -19,6 +19,7 @@ from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
 from collections import namedtuple
 
+
 def path_planning(num_frames, x, y, z, path_type=''):
     if path_type == 'straight-line':
         corner_points = np.array([[0, 0, 0], [(0 + x) * 0.5, (0 + y) * 0.5, (0 + z) * 0.5], [x, y, z]])
@@ -828,26 +829,50 @@ def clean_far_edge(mask_edge, mask_edge_with_id, context_edge, mask, info_on_pix
 
     return far_edge, uncleaned_far_edge, far_edge_with_id, near_edge_with_id
 
-def get_MiDaS_samples(image_folder, depth_folder, config, specific=None, aft_certain=None):
-    lines = [os.path.splitext(os.path.basename(xx))[0] for xx in glob.glob(os.path.join(image_folder, '*' + config['img_format']))]
+
+def get_MiDaS_samples(config, image_folder=None, image_files=None, aft_certain=None):
+    depth_folder = config['depth_folder']
+    specific = config['specific']
+    if image_files is not None:
+        if isinstance(image_files, str):
+            image_files = [image_files]
+
+        for image_file in image_files:
+            image_folder = os.path.dirname(image_file)
+        files_glob = glob.glob(' '.join(image_files))
+    else:
+        files_glob = glob.glob(os.path.join(image_folder, '*' + config['img_format']))
+    lines = [os.path.splitext(os.path.basename(xx))[0] for xx in files_glob]
     samples = []
     generic_pose = np.eye(4)
-    assert len(config['traj_types']) == len(config['x_shift_range']) ==\
-           len(config['y_shift_range']) == len(config['z_shift_range']) == len(config['video_postfix']), \
-           "The number of elements in 'traj_types', 'x_shift_range', 'y_shift_range', 'z_shift_range' and \
-               'video_postfix' should be equal."
-    tgt_pose = [[generic_pose * 1]]
+
+    assert len(config['traj_types']) \
+           == len(config['x_shift_range']) \
+           == len(config['y_shift_range']) \
+           == len(config['z_shift_range']) \
+           == len(config['video_postfix']), \
+           ' '.join([
+               "The number of elements in 'traj_types',",
+               "'x_shift_range', 'y_shift_range', 'z_shift_range'",
+               "and 'video_postfix' should be equal."
+           ])
+
     tgts_poses = []
     for traj_idx in range(len(config['traj_types'])):
         tgt_poses = []
-        sx, sy, sz = path_planning(config['num_frames'], config['x_shift_range'][traj_idx], config['y_shift_range'][traj_idx],
-                                   config['z_shift_range'][traj_idx], path_type=config['traj_types'][traj_idx])
+        sx, sy, sz = path_planning(
+            config['num_frames'],
+            config['x_shift_range'][traj_idx],
+            config['y_shift_range'][traj_idx],
+            config['z_shift_range'][traj_idx],
+            path_type=config['traj_types'][traj_idx]
+        )
         for xx, yy, zz in zip(sx, sy, sz):
             tgt_poses.append(generic_pose * 1.)
             tgt_poses[-1][:3, -1] = np.array([xx, yy, zz])
         tgts_poses += [tgt_poses]    
     tgt_pose = generic_pose * 1
-    
+
     aft_flag = True
     if aft_certain is not None and len(aft_certain) > 0:
         aft_flag = False
@@ -878,6 +903,7 @@ def get_MiDaS_samples(image_folder, depth_folder, config, specific=None, aft_cer
 
     return samples
 
+
 def get_valid_size(imap):
     x_max = np.where(imap.sum(1).squeeze() > 0)[0].max() + 1
     x_min = np.where(imap.sum(1).squeeze() > 0)[0].min()
@@ -886,6 +912,7 @@ def get_valid_size(imap):
     size_dict = {'x_max':x_max, 'y_max':y_max, 'x_min':x_min, 'y_min':y_min}
     
     return size_dict
+
 
 def dilate_valid_size(isize_dict, imap, dilate=[0, 0]):
     osize_dict = copy.deepcopy(isize_dict)
@@ -896,12 +923,14 @@ def dilate_valid_size(isize_dict, imap, dilate=[0, 0]):
 
     return osize_dict
 
+
 def crop_maps_by_size(size, *imaps):
     omaps = []
     for imap in imaps:
         omaps.append(imap[size['x_min']:size['x_max'], size['y_min']:size['y_max']].copy())
     
     return omaps
+
 
 def smooth_cntsyn_gap(init_depth_map, mask_region, context_region, init_mask_region=None):
     if init_mask_region is not None:
@@ -932,6 +961,7 @@ def smooth_cntsyn_gap(init_depth_map, mask_region, context_region, init_mask_reg
 
     return depth_map
 
+
 def read_MiDaS_depth(disp_fi, disp_rescale=10., h=None, w=None):
     if 'npy' in os.path.splitext(disp_fi)[-1]:
         disp = np.load(disp_fi)
@@ -945,6 +975,7 @@ def read_MiDaS_depth(disp_fi, disp_rescale=10., h=None, w=None):
     depth = 1. / np.maximum(disp, 0.05)
 
     return depth
+
 
 def follow_image_aspect_ratio(depth, image):
     H, W = image.shape[:2]
@@ -964,6 +995,7 @@ def follow_image_aspect_ratio(depth, image):
     
     return depth
 
+
 def depth_resize(depth, origin_size, image_size):
     if origin_size[0] is not 0:
         max_depth = depth.max()
@@ -977,7 +1009,8 @@ def depth_resize(depth, origin_size, image_size):
         depth = depth * max_depth
 
     return depth
-    
+
+
 def filter_irrelevant_edge(self_edge, other_edges, other_edges_with_id, current_edge_id, context, edge_ccs, mesh, anchor):
     other_edges = other_edges.squeeze()
     other_edges_with_id = other_edges_with_id.squeeze()
@@ -986,7 +1019,6 @@ def filter_irrelevant_edge(self_edge, other_edges, other_edges_with_id, current_
     dilate_self_edge = cv2.dilate(self_edge.astype(np.uint8), np.array([[1,1,1],[1,1,1],[1,1,1]]).astype(np.uint8), iterations=1)
     edge_ids = collections.Counter(other_edges_with_id.flatten()).keys()
     other_edges_info = []
-    # import ipdb
     # ipdb.set_trace()
     for edge_id in edge_ids:
         edge_id = int(edge_id)
@@ -1047,12 +1079,14 @@ def filter_irrelevant_edge(self_edge, other_edges, other_edges_with_id, current_
 
     return other_edges, other_edges_info
 
+
 def require_depth_edge(context_edge, mask):
     dilate_mask = cv2.dilate(mask, np.array([[1,1,1],[1,1,1],[1,1,1]]).astype(np.uint8), iterations=1)
     if (dilate_mask * context_edge).max() == 0:
         return False
     else:
         return True
+
 
 def refine_color_around_edge(mesh, info_on_pix, edge_ccs, config, spdb=False):
     H, W = mesh.graph['H'], mesh.graph['W']
@@ -1214,6 +1248,7 @@ def refine_color_around_edge(mesh, info_on_pix, edge_ccs, config, spdb=False):
 
     return mesh, info_on_pix
 
+
 def refine_depth_around_edge(mask_depth, far_edge, uncleaned_far_edge, near_edge, mask, all_depth, config):
     if isinstance(mask_depth, torch.Tensor):
         if mask_depth.is_cuda:
@@ -1309,7 +1344,6 @@ def refine_depth_around_edge(mask_depth, far_edge, uncleaned_far_edge, near_edge
     return mask_depth
 
 
-
 def vis_depth_edge_connectivity(depth, config):
     disp = 1./depth
     u_diff = (disp[1:, :] - disp[:-1, :])[:-1, 1:-1]
@@ -1343,7 +1377,6 @@ def vis_depth_edge_connectivity(depth, config):
     return edge_label
 
 
-
 def max_size(mat, value=0):
     if not (mat and mat[0]): return (0, 0)
     it = iter(mat)
@@ -1354,6 +1387,7 @@ def max_size(mat, value=0):
         max_size = max(max_size, max_rectangle_size(hist), key=get_area)
         prev = hist                                               
     return max_size
+
 
 def max_rectangle_size(histogram):
     Info = namedtuple('Info', 'start height')
@@ -1380,8 +1414,10 @@ def max_rectangle_size(histogram):
 
     return max_size
 
+
 def get_area(size):
     return reduce(mul, size)
+
 
 def find_anchors(matrix):
     matrix = [[*x] for x in matrix]
@@ -1392,6 +1428,7 @@ def find_anchors(matrix):
         for j in range(matrix.shape[1] + 1 - mw):
             if matrix[i:i + mh, j:j + mw].max() == 0:
                 return i, i + mh, j, j + mw
+
 
 def find_largest_rect(dst_img, bg_color=(128, 128, 128)):
     valid = np.any(dst_img[..., :3] != bg_color, axis=-1) 

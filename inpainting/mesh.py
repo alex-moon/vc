@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from vispy import scene
 from vispy.scene import visuals
 from vispy.visuals.filters import Alpha
+from vispy.io import write_png
 import cv2
 from moviepy.editor import ImageSequenceClip
 import copy
@@ -2162,9 +2163,27 @@ class Canvas_view():
         self.view.camera.view_changed()
 
 
-def output_3d_photo(verts, colors, faces, Height, Width, hFov, vFov, tgt_poses, video_traj_types, ref_pose,
-                    output_dir, ref_image, int_mtx, config, image, videos_poses, video_basename, original_H=None, original_W=None,
-                    border=None, depth=None, normal_canvas=None, all_canvas=None, mean_loc_depth=None):
+def output_3d_photo(
+    verts,
+    colors,
+    faces,
+    Height,
+    Width,
+    video_traj_types,
+    ref_pose,
+    output_dir,
+    int_mtx,
+    config,
+    videos_poses,
+    video_basename,
+    original_H=None,
+    original_W=None,
+    border=None,
+    normal_canvas=None,
+    all_canvas=None,
+    mean_loc_depth=None,
+    mode='video'
+):
 
     cam_mesh = netx.Graph()
     cam_mesh.graph['H'] = Height
@@ -2267,6 +2286,13 @@ def output_3d_photo(verts, colors, faces, Height, Width, hFov, vFov, tgt_poses, 
                 top, buttom, left, right = find_largest_rect(img, bg_color=(128, 128, 128))
                 tops.append(top); buttoms.append(buttom); lefts.append(left); rights.append(right)
             """
+            if mode == 'frame':
+                print("Overwriting image muhahaha >:)")
+                if isinstance(video_basename, list):
+                    video_basename = video_basename[0]
+                write_png(os.path.join(output_dir, video_basename + '_debug.png'), img)
+                return
+
             stereos.append(img[..., :3])
             normal_canvas.translate(-rel_pose[:3,3])
             normal_canvas.rotate(axis=axis, angle=-(angle*180)/np.pi)
