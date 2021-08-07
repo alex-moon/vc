@@ -3,7 +3,7 @@
 function dowrite () {
     echo "window.imagePaths = [";
 
-    for i in `ls -1t results/*.png`; do
+    for i in `ls -1t results/*.{png,mp4}`; do
         echo "'$i',";
     done
     
