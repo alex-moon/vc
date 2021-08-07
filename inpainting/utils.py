@@ -861,7 +861,7 @@ def get_MiDaS_samples(config, image_folder=None, image_files=None, aft_certain=N
     for traj_idx in range(len(config['traj_types'])):
         tgt_poses = []
         sx, sy, sz = path_planning(
-            config['num_frames'],
+            len(image_files) + 1 if image_files else config['num_frames'],
             config['x_shift_range'][traj_idx],
             config['y_shift_range'][traj_idx],
             config['z_shift_range'][traj_idx],
