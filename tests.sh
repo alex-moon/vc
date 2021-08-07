@@ -22,7 +22,7 @@ function images() {
 i=0
 function generate() {
     padded_count=$(printf "%04d" "$i")
-    python3 vqgan_clip/generate.py -p="$@" \
+    python3 generate.py -p="$@" \
         -opt="$OPTIMISER" \
         -lr=$LR \
         -i=$MAX_ITERATIONS \

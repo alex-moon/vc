@@ -6,7 +6,7 @@ if [[ -z "$@" ]]; then
 fi
 
 source venv/bin/activate
-python3 vqgan_clip/generate.py -p "$@" -s 400 400 --video
+python3 generate.py -p "$@" -s 400 400 --video
 slug=$(echo "$@" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9][^a-z0-9]*/-/g')
 mv output.mp4 results/$slug.mp4
 mv steps/500.png results/$slug.png
