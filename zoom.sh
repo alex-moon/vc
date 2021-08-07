@@ -13,5 +13,5 @@ if [[ -f "results/$slug.png" ]]; then
     exit
 fi
 
-python3 generate.py -p "$@" -s 400 400
+python3 vqgan_clip/generate.py -p "$@" -s 400 400
 mv output.png results/$slug.png
