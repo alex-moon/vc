@@ -4,10 +4,10 @@ rgb_feat_model_ckpt: checkpoints/color-model.pth
 MiDaS_model_ckpt: MiDaS/model.pt
 use_boostmonodepth: True
 fps: 40
-num_frames: 2
+num_frames: 200
 x_shift_range: [0.00]
 y_shift_range: [0.00]
-z_shift_range: [-0.05]
+z_shift_range: [-0.5]
 traj_types: ['double-straight-line']
 video_postfix: ['zoom-in']
 specific: ''
@@ -15,7 +15,7 @@ longer_side_len: 400
 src_folder: input
 depth_folder: depth
 mesh_folder: mesh
-video_folder: output
+video_folder: results
 load_ply: False
 save_ply: True
 inference_video: True
