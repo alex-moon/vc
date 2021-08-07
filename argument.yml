@@ -12,7 +12,7 @@ traj_types: ['double-straight-line', 'double-straight-line', 'circle', 'circle']
 video_postfix: ['dolly-zoom-in', 'zoom-in', 'circle', 'swing']
 specific: ''
 longer_side_len: 960
-src_folder: results
+src_folder: input
 depth_folder: depth
 mesh_folder: mesh
 video_folder: video
