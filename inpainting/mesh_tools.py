@@ -1,36 +1,20 @@
-import os
 import numpy as np
 try:
     import cynetworkx as netx
 except ImportError:
     import networkx as netx
 
-import json
 import scipy.misc as misc
 #import OpenEXR
-import scipy.signal as signal
 import matplotlib.pyplot as plt
-import cv2
-import scipy.misc as misc
-from skimage import io
-from functools import partial
-from vispy import scene, io
-from vispy.scene import visuals
 from functools import reduce
 # from moviepy.editor import ImageSequenceClip
-import scipy.misc as misc
-from vispy.visuals.filters import Alpha
 import cv2
-from skimage.transform import resize
 import copy
 import torch
-import os
-from utils import refine_depth_around_edge, smooth_cntsyn_gap
-from utils import require_depth_edge, filter_irrelevant_edge_new, open_small_mask
-from skimage.feature import canny
-from scipy import ndimage
-import time
-import transforms3d
+from .utils import refine_depth_around_edge, smooth_cntsyn_gap
+from .utils import require_depth_edge, filter_irrelevant_edge_new, open_small_mask
+
 
 def relabel_node(mesh, nodes, cur_node, new_node):
     if cur_node == new_node:

@@ -1,8 +1,8 @@
+import glob
 import os
 import cv2
-import glob
-import numpy as np
 import imageio
+import numpy as np
 from MiDaS.MiDaS_utils import write_depth
 
 BOOST_BASE = 'BoostingMonocularDepth'

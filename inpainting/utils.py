@@ -1,28 +1,21 @@
-import os
 import glob
-import cv2
-import scipy.misc as misc
-from skimage.transform import resize
-import numpy as np
+import os
 from functools import reduce
 from operator import mul
+
+import cv2
+import numpy as np
 import torch
-from torch import nn
-import matplotlib.pyplot as plt
-import re
+from skimage.transform import resize
+
 try:
     import cynetworkx as netx
 except ImportError:
     import networkx as netx
-from scipy.ndimage import gaussian_filter
-from skimage.feature import canny
 import collections
-import shutil
 import imageio
 import copy
 from matplotlib import pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import time
 from scipy.interpolate import interp1d
 from collections import namedtuple
 

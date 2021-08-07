@@ -1,28 +1,26 @@
-import os
 import numpy as np
 try:
     import cynetworkx as netx
 except ImportError:
     import networkx as netx
 import matplotlib.pyplot as plt
-from functools import partial
-from vispy import scene, io
+from vispy import scene
 from vispy.scene import visuals
 from vispy.visuals.filters import Alpha
 import cv2
 from moviepy.editor import ImageSequenceClip
-from skimage.transform import resize
-import time
 import copy
 import torch
 import os
-from utils import path_planning, open_small_mask, clean_far_edge, refine_depth_around_edge
-from utils import refine_color_around_edge, filter_irrelevant_edge_new, require_depth_edge, clean_far_edge_new
-from utils import create_placeholder, refresh_node, find_largest_rect
-from mesh_tools import get_depth_from_maps, get_map_from_ccs, get_edge_from_nodes, get_depth_from_nodes, get_rgb_from_nodes, crop_maps_by_size, convert2tensor, recursive_add_edge, update_info, filter_edge, relabel_node, depth_inpainting
-from mesh_tools import refresh_bord_depth, enlarge_border, fill_dummy_bord, extrapolate, fill_missing_node, incomplete_node, get_valid_size, dilate_valid_size, size_operation
+from .utils import open_small_mask, refine_depth_around_edge
+from .utils import refine_color_around_edge, filter_irrelevant_edge_new, require_depth_edge, clean_far_edge_new
+from .utils import create_placeholder, refresh_node
+from .mesh_tools import get_depth_from_maps, get_map_from_ccs, get_edge_from_nodes, \
+    get_rgb_from_nodes, crop_maps_by_size, convert2tensor, recursive_add_edge, update_info, filter_edge, \
+    depth_inpainting
+from .mesh_tools import refresh_bord_depth, enlarge_border, fill_dummy_bord, extrapolate, fill_missing_node, \
+    get_valid_size, dilate_valid_size, size_operation
 import transforms3d
-import random
 from functools import reduce
 
 def create_mesh(depth, image, int_mtx, config):
