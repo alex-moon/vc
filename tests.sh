@@ -36,6 +36,7 @@ function zoom3d() {
         generate
 
         python3 zoom3d.py "input/input.png"
+        mv output/input.png input/input.png
     done
 }
 

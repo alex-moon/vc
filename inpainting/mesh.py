@@ -2287,10 +2287,10 @@ def output_3d_photo(
                 tops.append(top); buttoms.append(buttom); lefts.append(left); rights.append(right)
             """
             if mode == 'frame':
-                print("Overwriting image muhahaha >:)")
+                print("Writing output image muhahaha >:)")
                 if isinstance(video_basename, list):
                     video_basename = video_basename[0]
-                write_png(os.path.join(output_dir, video_basename + '_debug.png'), img)
+                write_png(os.path.join(output_dir, video_basename + '.png'), img)
                 return
 
             stereos.append(img[..., :3])
