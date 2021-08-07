@@ -3,8 +3,9 @@
 IFS=$'\n'
 LR=0.1
 OPTIMISER=Adam
-MAX_ITERATIONS=10
+MAX_ITERATIONS=300
 MAX_EPOCHS=10
+MAX_REPEATS=10
 SEED=`shuf -i 1-9999999999 -n 1`
 
 i=0
@@ -40,6 +41,7 @@ function zoom3d() {
     done
 }
 
+for (( repeat=1; repeat<=$MAX_REPEATS; repeat++ )); do
 for test in $(cat tests.txt); do
     zoom3d "$test"
     for style in $(cat styles.txt); do
@@ -48,6 +50,7 @@ for test in $(cat tests.txt); do
         fi
         zoom3d "$test | $style"
     done
+done
 done
 
 ffmpeg -y -i "input/input-%04d.png" -b:v 8M -c:v h264_nvenc -pix_fmt yuv420p -strict -2 -filter:v "minterpolate='mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=60'" results/video-$(date -Iseconds | sed 's/[^0-9]/-/g').mp4

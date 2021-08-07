@@ -7,7 +7,7 @@ fps: 40
 num_frames: 200
 x_shift_range: [0.00]
 y_shift_range: [0.00]
-z_shift_range: [0.1]
+z_shift_range: [0.05]
 traj_types: ['double-straight-line']
 video_postfix: ['zoom-in']
 specific: ''
