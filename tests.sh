@@ -10,7 +10,7 @@ SEED=`shuf -i 1-9999999999 -n 1`
 i=0
 function generate() {
     padded_count=$(printf "%04d" "$i")
-    python3 generate.py -p="$@" \
+    python3 generate.py -p="$1" \
         -opt="$OPTIMISER" \
         -lr=$LR \
         -i=$MAX_ITERATIONS \
@@ -24,7 +24,7 @@ function generate() {
 
 function zoom() {
     for (( j=1; j<=$MAX_EPOCHS; j++ )); do
-        generate "$@"
+        generate "$1"
 
         # scale, rotate, translate: <coords from>, <scale (multiple)>, <rotate (degrees)>, <coords to>
         convert "input/input.png" -distort SRT "0,0 1.01 1 10,0" -gravity center "input/input.png"
@@ -33,7 +33,7 @@ function zoom() {
 
 function zoom3d() {
     for (( j=1; j<=$MAX_EPOCHS; j++ )); do
-        generate "$@"
+        generate "$1"
 
         python3 zoom3d.py "input/input.png"
         mv output/input.png input/input.png
