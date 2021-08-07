@@ -82,6 +82,9 @@
                         if (col === 4) {
                             target.appendChild(row);
                             col = 0;
+                            if (i > 100) {
+                                return;
+                            }
                         }
                     }
                 };

@@ -44,6 +44,4 @@ extrapolate_border: True
 extrapolation_thickness: 60
 repeat_inpaint_edge: True
 crop_border: [0.03, 0.03, 0.05, 0.03]
-anti_flickering: True
-
-
+anti_flickering: False
