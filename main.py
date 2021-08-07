@@ -14,7 +14,7 @@ from tqdm import tqdm
 import MiDaS.MiDaS_utils as MiDaS_utils
 from MiDaS.monodepth_net import MonoDepthNet
 from MiDaS.run import run_depth
-from bilateral_filtering import sparse_bilateral_filtering
+from inpainting.bilateral_filtering import sparse_bilateral_filtering
 from boostmonodepth_utils import run_boostmonodepth
 from mesh import write_ply, read_ply, output_3d_photo
 from networks import Inpaint_Color_Net, Inpaint_Depth_Net, Inpaint_Edge_Net

@@ -49,7 +49,7 @@ function zoom3d() {
 
         # scale, rotate, translate: <coords from>, <scale (multiple)>, <rotate (degrees)>, <coords to>
         # convert "input.png" -distort SRT "0,0 1.01 1 10,0" -gravity center "input.png"
-        python3 3d_photo_inpainting/main.py --config 3d_photo_inpainting/argument.yml
+        python3 inpainting/main.py --config inpainting/argument.yml
     done
 }
 
