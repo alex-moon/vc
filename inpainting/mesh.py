@@ -2223,7 +2223,8 @@ def output_3d_photo(
         normal_canvas.reinit_camera(fov)
     img = normal_canvas.render()
     backup_img, backup_all_img, all_img_wo_bound = img.copy(), img.copy() * 0, img.copy() * 0
-    img = cv2.resize(img, (int(img.shape[1] / init_factor), int(img.shape[0] / init_factor)), interpolation=cv2.INTER_AREA)
+    if init_factor != 1:
+        img = cv2.resize(img, (int(img.shape[1] / init_factor), int(img.shape[0] / init_factor)), interpolation=cv2.INTER_AREA)
     if border is None:
         border = [0, img.shape[0], 0, img.shape[1]]
     H, W = cam_mesh.graph['H'], cam_mesh.graph['W']
@@ -2263,8 +2264,9 @@ def output_3d_photo(
                 normal_canvas.reinit_camera(fov)
             normal_canvas.view_changed()
             img = normal_canvas.render()
-            img = cv2.GaussianBlur(img,(int(init_factor//2 * 2 + 1), int(init_factor//2 * 2 + 1)), 0)
-            img = cv2.resize(img, (int(img.shape[1] / init_factor), int(img.shape[0] / init_factor)), interpolation=cv2.INTER_AREA)
+            if init_factor != 1:
+                img = cv2.GaussianBlur(img,(int(init_factor//2 * 2 + 1), int(init_factor//2 * 2 + 1)), 0)
+                img = cv2.resize(img, (int(img.shape[1] / init_factor), int(img.shape[0] / init_factor)), interpolation=cv2.INTER_AREA)
             img = img[anchor[0]:anchor[1], anchor[2]:anchor[3]]
             img = img[int(border[0]):int(border[1]), int(border[2]):int(border[3])]
 
