@@ -12,7 +12,7 @@ traj_types: ['double-straight-line', 'double-straight-line', 'circle', 'circle']
 video_postfix: ['dolly-zoom-in', 'zoom-in', 'circle', 'swing']
 specific: ''
 longer_side_len: 960
-src_folder: image
+src_folder: results
 depth_folder: depth
 mesh_folder: mesh
 video_folder: video
@@ -21,7 +21,7 @@ save_ply: True
 inference_video: True
 gpu_ids: 0
 offscreen_rendering: False
-img_format: '.jpg'
+img_format: '.png'
 depth_format: '.npy'
 require_midas: True
 depth_threshold: 0.04

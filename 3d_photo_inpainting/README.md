@@ -5,7 +5,7 @@
 ### [[Paper](https://arxiv.org/abs/2004.04727)] [[Project Website](https://shihmengli.github.io/3D-Photo-Inpainting/)] [[Google Colab](https://colab.research.google.com/drive/1706ToQrkIZshRSJSHvZ1RuCiM__YX3Bz)]
 
 <p align='center'>
-<img src='https://filebox.ece.vt.edu/~jbhuang/project/3DPhoto/3DPhoto_teaser.jpg' width='900'/>
+<img src='https://filebox.ece.vt.edu/~jbhuang/project/3DPhoto/3DPhoto_teaser.png' width='900'/>
 </p>
 
 We propose a method for converting a single RGB-D input image into a 3D photo, i.e., a multi-layer representation for novel view synthesis that contains hallucinated color and depth structures in regions occluded in the original view. We use a Layered Depth Image with explicit pixel connectivity as underlying representation, and present a learning-based inpainting model that iteratively synthesizes new local color-and-depth content into the occluded region in a spatial context-aware manner. The resulting 3D photos can be efficiently rendered with motion parallax using standard graphics engines. We validate the effectiveness of our method on a wide range of challenging everyday scenes and show fewer artifacts when compared with the state-of-the-arts.
@@ -48,8 +48,8 @@ This should allow to execute our results.
 For more detailed instructions, please refer to [`DOCUMENTATION.md`](DOCUMENTATION.md).
 
 ## Execute
-1. Put ```.jpg``` files (e.g., test.jpg) into the ```image``` folder. 
-    - E.g., `image/moon.jpg`
+1. Put ```.png``` files (e.g., test.png) into the ```image``` folder. 
+    - E.g., `results/moon.png`
 2. Run the following command
     ```bash
     python main.py --config argument.yml
