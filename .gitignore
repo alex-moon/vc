@@ -17,3 +17,7 @@ results.zip
 video
 video.mp4
 tests
+__pycache__
+depth
+mesh
+
