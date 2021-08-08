@@ -11,9 +11,9 @@ function dowrite () {
 }
 
 while true; do
-    echo "index.sh: last pull:" $(date)
     rsync -a vc:/opt/vc/results/ results/
     dowrite > images.js
+    echo "index.sh: last pull:" $(date)
     sleep 150
     clear
 done
