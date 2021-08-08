@@ -1,19 +1,25 @@
 #!/bin/bash
 
-function dowrite () {
-    echo "window.imagePaths = [";
+function doit () {
+  rsync -a vc:/opt/vc/results/ results/
 
-    for i in `ls -1t results/*.{png,mp4}`; do
-        echo "'$i',";
-    done
-    
-    echo "];window.handler.drawImages();"
+  echo "window.imagePaths = ["  > images.js
+
+  for i in $(ls -1t results/*.{png,mp4}); do
+    echo "'$i'," >> images.js
+  done
+
+  echo "];window.handler.drawImages();" >> images.js
+
+  echo "index.sh: last pull:" $(date)
 }
 
-while true; do
-    rsync -a vc:/opt/vc/results/ results/
-    dowrite > images.js
-    echo "index.sh: last pull:" $(date)
-    sleep 150
-    clear
-done
+if [[ -z "$1" ]]; then
+  doit
+else
+  while true; do
+      doit
+      sleep 150
+      clear
+  done
+fi
