@@ -3,17 +3,15 @@
 IFS=$'\n'
 LR=0.1
 OPTIMISER=Adam
-MAX_ITERATIONS=300
-MAX_EPOCHS=10
-MAX_REPEATS=10
+MAX_ITERATIONS=150
+MAX_EPOCHS=24
+MAX_REPEATS=2
 SEED=`shuf -i 1-9999999999 -n 1`
 
 i=0
 function generate() {
     padded_count=$(printf "%04d" "$i")
     python3 generate.py -p="$1" \
-        -opt="$OPTIMISER" \
-        -lr=$LR \
         -i=$MAX_ITERATIONS \
         -se=$MAX_ITERATIONS \
         --seed=$SEED \
