@@ -20,6 +20,9 @@ model = ns.model('Generation Request', {
     'completed': fields.DateTime(),
     'failed': fields.DateTime(),
 })
+post_model = ns.model('Generation Request', {
+    'spec': fields.Raw,
+})
 
 
 @ns.route('/')
@@ -39,7 +42,7 @@ class GenerationRequestsController(Resource):
         return self.manager.all()
 
     @ns.marshal_with(model)
-    @ns.expect(model, validate=True)
+    @ns.expect(post_model, validate=True)
     def post(self):
         try:
             return self.manager.create(request)
