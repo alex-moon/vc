@@ -21,4 +21,5 @@ tests
 __pycache__
 depth
 mesh
+.env
 
