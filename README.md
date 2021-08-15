@@ -1,7 +1,10 @@
 # VC
 
-VC ("virtual content") is a tiny JEMSCI app built on top of a collection of machine vision libraries.
-It generates explorable dream worlds.
+VC ("virtual content") is a tiny JEMSCI app that generates explorable dream worlds. It's built on top
+of the following machine vision libraries:
+
+https://github.com/vt-vl-lab/3d-photo-inpainting
+https://github.com/nerdyrodent/VQGAN-CLIP
 
 ## Set-up
 
@@ -37,4 +40,16 @@ cd /opt/vc
 git clone https://github.com/alex-moon/vc.git .
 ./build.sh
 ```
-5. Visit https://static.ip.goes.here in your browser
+5. This will prompt you for a database password. You can make this whatever you'd like. Whatever you
+   choose, `cp .env.example .env` and then edit `.env` appropriately, e.g. if you chose
+   `5up3r53cr37` as your DB password, your `.env` would look like this:
+```bash
+SQLALCHEMY_DATABASE_URI=postgresql://vc:5up3r53cr37@127.0.0.1:5432/vc
+SQLALCHEMY_TRACK_MODIFICATIONS=False
+RQ_DEFAULT_HOST=127.0.0.1
+```
+6. Copy your nginx and supervisor config files into place:
+```bash
+# @todo
+```
+7. Visit https://static.ip.goes.here in your browser
