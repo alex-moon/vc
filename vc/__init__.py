@@ -12,7 +12,8 @@ from .controller import init_app
 
 def fix_bug(app):
     # @see https://stackoverflow.com/questions/67629887/flaskinjector-runtimeerror-working-outside-of-request-context-with-flask-2-0
-    app.jinja_env.globals = {}
+    # app.jinja_env.globals = {}
+    pass
 
 
 def create_app():
