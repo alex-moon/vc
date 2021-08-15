@@ -50,13 +50,13 @@ RQ_DEFAULT_HOST=127.0.0.1
 ```
 6. Move your nginx conf into place:
 ```
-sudo cp nginx.conf /etc/nginx/sites-enabled/vc.conf
+sudo cp nginx.unsecure.conf /etc/nginx/sites-enabled/vc.conf
 sudo service nginx restart
 ```
 6. Move your supervisor conf into place:
 ```
 sudo cp supervisord.conf /etc/supervisor/conf.d/vc.conf
-sudo supervisorctl reload
+sudo service supervisor restart
 ```
 7. Visit http://static.ip.goes.here in your browser
 
@@ -73,4 +73,12 @@ sudo snap install --classic certbot
 sudo ln -s /snap/bin/certbot /usr/bin/certbot
 sudo certbot certonly --nginx
 ```
-2. Modify `/etc/nginx/sites-enabled/vc.conf` to match your hostname and certificate filepaths.
+2. Copy the secure conf into place:
+```
+sudo cp nginx.conf /etc/nginx/sites-enabled/vc.conf
+```
+3. Modify `/etc/nginx/sites-enabled/vc.conf` to match your hostname and certificate filepaths.
+4. Restart nginx:
+```
+sudo service nginx restart
+```
