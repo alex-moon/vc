@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo apt install -y python3-venv ffmpeg zip wget ca-certificates
+sudo apt install -y python3-venv ffmpeg zip wget ca-certificates redis-server redis-tools supervisor nginx
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
 sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ 'lsb_release -cs'-pgdg main" >> /etc/apt/sources.list.d/pgdg.list'
 sudo apt update -y

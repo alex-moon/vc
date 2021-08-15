@@ -48,8 +48,23 @@ SQLALCHEMY_DATABASE_URI=postgresql://vc:5up3r53cr37@127.0.0.1:5432/vc
 SQLALCHEMY_TRACK_MODIFICATIONS=False
 RQ_DEFAULT_HOST=127.0.0.1
 ```
-6. Copy your nginx and supervisor config files into place:
-```bash
-# @todo
+6. Move your nginx conf into place:
 ```
-7. Visit https://static.ip.goes.here in your browser
+cp nginx.conf.example /etc/nginx/sites-enabled/vc.conf
+```
+7. Visit http://static.ip.goes.here in your browser
+
+## SSL
+
+It's advisable to set up SSL certificates for your server. This requires you to have DNS set up
+and some familiarity with configuring nginx.
+
+1. Set up your SSL certs:
+```
+sudo snap install core
+sudo snap refresh core
+sudo snap install --classic certbot
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+sudo certbot certonly --nginx
+```
+2. Modify `/etc/nginx/sites-enabled/vc.conf` to match your hostname and certificate filepaths.
