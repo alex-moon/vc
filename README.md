@@ -3,8 +3,8 @@
 VC ("virtual content") is a tiny JEMSCI app that generates explorable dream worlds. It's built on top
 of the following machine vision libraries:
 
-https://github.com/vt-vl-lab/3d-photo-inpainting
-https://github.com/nerdyrodent/VQGAN-CLIP
+* VQGAN/CLIP: https://github.com/nerdyrodent/VQGAN-CLIP
+* 3D Photo Inpainting: https://github.com/vt-vl-lab/3d-photo-inpainting
 
 ## Set-up
 
@@ -18,15 +18,18 @@ instance is running. All you need to do is stop the instance when you're not usi
 idea to [associate an Elastic IP](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html)
 to your instance.
 
-2. Add to ~/.ssh/config:
+2. Add your new box to `~/.ssh/config`:
 ```
 Host vc
     HostName static.ip.goes.here
     User ubuntu
     IdentityFile path/to/your/key.pem
 ```
-3. `ssh vc`
-4. Set up work dir:
+3. SSH into the box:
+```
+ssh vc
+```
+4. Set up your work dir:
 ```
 sudo mkdir /opt/vc
 sudo chown ubuntu:ubuntu /opt/vc
@@ -50,13 +53,13 @@ RQ_DEFAULT_HOST=127.0.0.1
 ```
 6. Move your nginx conf into place:
 ```
-sudo cp nginx.conf /etc/nginx/sites-enabled/vc.conf
+sudo cp nginx.unsecure.conf /etc/nginx/sites-enabled/vc.conf
 sudo service nginx restart
 ```
 6. Move your supervisor conf into place:
 ```
 sudo cp supervisord.conf /etc/supervisor/conf.d/vc.conf
-sudo supervisorctl reload
+sudo service supervisor restart
 ```
 7. Visit http://static.ip.goes.here in your browser
 
@@ -73,4 +76,12 @@ sudo snap install --classic certbot
 sudo ln -s /snap/bin/certbot /usr/bin/certbot
 sudo certbot certonly --nginx
 ```
-2. Modify `/etc/nginx/sites-enabled/vc.conf` to match your hostname and certificate filepaths.
+2. Copy the secure conf into place:
+```
+sudo cp nginx.conf /etc/nginx/sites-enabled/vc.conf
+```
+3. Modify `/etc/nginx/sites-enabled/vc.conf` to match your hostname and certificate filepaths.
+4. Restart nginx:
+```
+sudo service nginx restart
+```
