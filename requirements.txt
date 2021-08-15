@@ -76,3 +76,25 @@ opencv-python==4.2.0.32
 moviepy==1.0.2
 transforms3d==0.3.1
 networkx==2.3
+
+# @todo
+Flask<2
+Flask-Injector
+flask-restplus
+flask-rq
+Flask-SQLAlchemy
+uWSGI
+Werkzeug<1
+ipdb
+jsonschema
+psycopg2
+python-dateutil
+python-dotenv
+pytz
+redis
+rq
+SQLAlchemy
+whistle
+injector
+cryptography
+boto3
