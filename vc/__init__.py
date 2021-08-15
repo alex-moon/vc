@@ -1,14 +1,13 @@
 from dotenv import dotenv_values
 from flask import Flask
 from flask_injector import FlaskInjector
-from werkzeug.middleware.proxy_fix import ProxyFix
 
 from .api import api
-from .db import db
-from .q import q
-from .injector import injector
-from .services import modules
 from .controller import init_app
+from .db import db
+from .injector import injector
+from .q import q
+from .services import modules
 
 
 def create_app():
@@ -25,4 +24,4 @@ def create_app():
     app.app_context().push()
     db.create_all()
     FlaskInjector(app=app, modules=modules, injector=injector)
-    return ProxyFix(app)
+    return app
