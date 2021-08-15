@@ -1,6 +1,7 @@
 from dotenv import dotenv_values
 from flask import Flask
 from flask_injector import FlaskInjector
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from .api import api
 from .db import db
@@ -10,17 +11,12 @@ from .services import modules
 from .controller import init_app
 
 
-def fix_bug(app):
-    # @see https://stackoverflow.com/questions/67629887/flaskinjector-runtimeerror-working-outside-of-request-context-with-flask-2-0
-    app.jinja_env.globals = {}
-
-
 def create_app():
     # initialise the app
     app = Flask(__name__)
     config = dict(dotenv_values())
     app.config.update(config)
-    fix_bug(app)
+    app.wsgi_app = ProxyFix(app.wsgi_app)
 
     # spin everything up
     api.init_app(app)

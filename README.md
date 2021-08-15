@@ -50,7 +50,8 @@ RQ_DEFAULT_HOST=127.0.0.1
 ```
 6. Move your nginx conf into place:
 ```
-cp nginx.conf.example /etc/nginx/sites-enabled/vc.conf
+sudo cp nginx.conf /etc/nginx/sites-enabled/vc.conf
+sudo service nginx restart
 ```
 7. Visit http://static.ip.goes.here in your browser
 
