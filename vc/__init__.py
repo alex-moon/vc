@@ -25,9 +25,9 @@ def create_app():
     # spin everything up
     api.init_app(app)
     db.init_app(app)
-    db.create_all()
     controller.init_app(app)
     q.init_app(app)
     app.app_context().push()
+    db.create_all()
     FlaskInjector(app=app, modules=modules, injector=injector)
     return app
