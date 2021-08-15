@@ -1,8 +1,6 @@
 from injector import inject
 
-from vc.job.categories import CategoriesJob
-from vc.job.sentiment import SentimentJob
-from vc.job.keywords import KeywordsJob
+from vc.job.generation import GenerationJob
 from vc.service.job import JobService
 from vc.event import GenerationRequestCreatedEvent
 from vc.event_listener.base import VcEventListener
@@ -17,14 +15,6 @@ class GenerationRequestCreatedEventListener(VcEventListener):
 
     def on(self, event: GenerationRequestCreatedEvent):
         self.job_service.enqueue(
-            CategoriesJob,
-            event.generation_request.id
-        )
-        self.job_service.enqueue(
-            SentimentJob,
-            event.generation_request.id
-        )
-        self.job_service.enqueue(
-            KeywordsJob,
+            GenerationJob,
             event.generation_request.id
         )

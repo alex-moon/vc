@@ -8,7 +8,7 @@ from vc.service.generation import GenerationService
 from vc.job.base import Job
 
 
-class GenerationRequestJob(Job):
+class GenerationJob(Job):
     service: GenerationService
     manager: GenerationRequestManager
 
