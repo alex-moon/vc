@@ -53,6 +53,11 @@ RQ_DEFAULT_HOST=127.0.0.1
 sudo cp nginx.conf /etc/nginx/sites-enabled/vc.conf
 sudo service nginx restart
 ```
+6. Move your supervisor conf into place:
+```
+sudo cp supervisord.conf /etc/supervisor/conf.d/vc.conf
+sudo supervisorctl reload
+```
 7. Visit http://static.ip.goes.here in your browser
 
 ## SSL
