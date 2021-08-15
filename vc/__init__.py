@@ -16,7 +16,6 @@ def create_app():
     app = Flask(__name__)
     config = dict(dotenv_values())
     app.config.update(config)
-    app.wsgi_app = ProxyFix(app.wsgi_app)
 
     # spin everything up
     api.init_app(app)
@@ -26,4 +25,4 @@ def create_app():
     app.app_context().push()
     db.create_all()
     FlaskInjector(app=app, modules=modules, injector=injector)
-    return app
+    return ProxyFix(app)
