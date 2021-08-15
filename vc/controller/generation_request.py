@@ -11,7 +11,7 @@ ns = api.namespace(
     'generation-request',
     description='Generation requests'
 )
-model = ns.model('Model', {
+model = ns.model('Generation Request', {
     'id': fields.Integer,
     'spec': fields.Raw,
     'created': fields.DateTime(),
@@ -39,6 +39,7 @@ class GenerationRequestsController(Resource):
         return self.manager.all()
 
     @ns.marshal_with(model)
+    @ns.expect(model, validate=True)
     def post(self):
         try:
             return self.manager.create(request)
