@@ -1,8 +1,7 @@
-# Virtual Content
+# VC
 
-Virtual Content ("content" as in "manifest" vs "latent" "content") is a tiny JEMSCI
-(job-event-manager-service-controller-injector) app, built on top of a collection of machine vision
-libraries, which generates explorable dream worlds.
+VC ("virtual content") is a tiny JEMSCI app built on top of a collection of machine vision libraries.
+It generates explorable dream worlds.
 
 ## Set-up
 
@@ -17,12 +16,12 @@ idea to [associate an Elastic IP](https://docs.aws.amazon.com/AWSEC2/latest/User
 to your instance.
 
 2. Add to ~/.ssh/config:
-
+```
 Host vc
     HostName static.ip.goes.here
     User ubuntu
     IdentityFile path/to/your/key.pem
-
+```
 3. `ssh vc`
 4. Set up work dir:
 ```
