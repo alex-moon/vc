@@ -631,8 +631,12 @@ class VqganClipService:
 
         if args.init_weight:
             # result.append(F.mse_loss(z, z_orig) * args.init_weight / 2)
-            result.append(F.mse_loss(z, torch.zeros_like(z_orig)) * (
-                    (1 / torch.tensor(i * 2 + 1)) * args.init_weight) / 2)
+            result.append(F.mse_loss(
+                z,
+                torch.zeros_like(z_orig)
+            ) * (
+                (1 / torch.tensor(i * 2 + 1)) * args.init_weight
+            ) / 2)
 
         for prompt in pms:
             result.append(prompt(iii))
