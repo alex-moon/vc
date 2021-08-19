@@ -3,19 +3,15 @@ import math
 import os
 import sys
 from dataclasses import dataclass, field, asdict
-# from email.policy import default
 from urllib.request import urlopen
 from injector import inject
 from typing import List
 from tqdm import tqdm
 
-# pip install taming-transformers works with Gumbel, but does not work with coco etc
-# appending the path works with Gumbel, but gives ModuleNotFoundError: No module named 'transformers' for coco etc
 sys.path.append('taming-transformers')
 
 from omegaconf import OmegaConf
 from taming.models import cond_transformer, vqgan
-#import taming.modules
 
 import torch
 from torch import nn, optim
@@ -23,13 +19,11 @@ from torch.nn import functional as F
 from torchvision import transforms
 from torchvision.transforms import functional as TF
 
-torch.backends.cudnn.benchmark = False		     # NR: True is a bit faster, but can lead to OOM. False is more deterministic.
-#torch.use_deterministic_algorithms(True)	     # NR: grid_sampler_2d_backward_cuda does not have a deterministic implementation
+torch.backends.cudnn.benchmark = False
 
 from torch_optimizer import DiffGrad, AdamP, RAdam
 
 from CLIP import clip
-import kornia.augmentation as K
 import numpy as np
 import imageio
 
@@ -39,164 +33,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 from subprocess import Popen, PIPE
 import re
 
-
-class ReplaceGrad(torch.autograd.Function):
-    @staticmethod
-    def forward(ctx, x_forward, x_backward):
-        ctx.shape = x_backward.shape
-        return x_forward
-
-    @staticmethod
-    def backward(ctx, grad_in):
-        return None, grad_in.sum_to_size(ctx.shape)
-
-
-class ClampWithGrad(torch.autograd.Function):
-    @staticmethod
-    def forward(ctx, input, min, max):
-        ctx.min = min
-        ctx.max = max
-        ctx.save_for_backward(input)
-        return input.clamp(min, max)
-
-    @staticmethod
-    def backward(ctx, grad_in):
-        input, = ctx.saved_tensors
-        return grad_in * (grad_in * (input - input.clamp(ctx.min, ctx.max)) >= 0), None, None
-
-
-class Prompt(nn.Module):
-    def __init__(self, embed, weight=1., stop=float('-inf')):
-        super().__init__()
-        self.register_buffer('embed', embed)
-        self.register_buffer('weight', torch.as_tensor(weight))
-        self.register_buffer('stop', torch.as_tensor(stop))
-
-    def forward(self, input):
-        input_normed = F.normalize(input.unsqueeze(1), dim=2)
-        embed_normed = F.normalize(self.embed.unsqueeze(0), dim=2)
-        dists = input_normed.sub(embed_normed).norm(dim=2).div(2).arcsin().pow(2).mul(2)
-        dists = dists * self.weight.sign()
-        return self.weight.abs() * self.replace_grad(dists, torch.maximum(dists, self.stop)).mean()
-
-
-class MakeCutouts(nn.Module):
-    def __init__(self, augments, cut_size, cutn, cut_pow=1.):
-        super().__init__()
-        self.cut_size = cut_size
-        self.cutn = cutn
-        self.cut_pow = cut_pow
-
-        # Pick your own augments & their order
-        augment_list = []
-        for item in augments[0]:
-            if item == 'Ji':
-                augment_list.append(
-                    K.ColorJitter(
-                        brightness=0.1,
-                        contrast=0.1,
-                        saturation=0.05,
-                        hue=0.05,
-                        p=0.5
-                    )
-                )
-            elif item == 'Sh':
-                augment_list.append(K.RandomSharpness(sharpness=0.4, p=0.7))
-            elif item == 'Gn':
-                augment_list.append(
-                    K.RandomGaussianNoise(mean=0.0, std=1., p=0.5))
-            elif item == 'Pe':
-                augment_list.append(
-                    K.RandomPerspective(distortion_scale=0.7, p=0.7))
-            elif item == 'Ro':
-                augment_list.append(K.RandomRotation(degrees=15, p=0.7))
-            elif item == 'Af':
-                augment_list.append(
-                    K.RandomAffine(
-                        degrees=15,
-                        translate=0.1,
-                        p=0.7,
-                        padding_mode='border'
-                    )
-                )
-            elif item == 'Et':
-                augment_list.append(K.RandomElasticTransform(p=0.7))
-            elif item == 'Ts':
-                augment_list.append(
-                    K.RandomThinPlateSpline(scale=0.3, same_on_batch=False,
-                                            p=0.7))
-            elif item == 'Cr':
-                augment_list.append(
-                    K.RandomCrop(size=(self.cut_size, self.cut_size), p=0.5))
-            elif item == 'Er':
-                augment_list.append(
-                    K.RandomErasing((.1, .4), (.3, 1 / .3), same_on_batch=True,
-                                    p=0.7))
-            elif item == 'Re':
-                augment_list.append(
-                    K.RandomResizedCrop(
-                        size=(self.cut_size, self.cut_size),
-                        scale=(0.1, 1),
-                        ratio=(0.75, 1.333),
-                        cropping_mode='resample',
-                        p=0.5
-                    )
-                )
-
-        print(augment_list)
-
-        self.augs = nn.Sequential(*augment_list)
-
-        '''
-        self.augs = nn.Sequential(
-            # Original:
-            # K.RandomHorizontalFlip(p=0.5),
-            # K.RandomVerticalFlip(p=0.5),
-            # K.RandomSolarize(0.01, 0.01, p=0.7),
-            # K.RandomSharpness(0.3,p=0.4),
-            # K.RandomResizedCrop(size=(self.cut_size,self.cut_size), scale=(0.1,1),  ratio=(0.75,1.333), cropping_mode='resample', p=0.5),
-            # K.RandomCrop(size=(self.cut_size,self.cut_size), p=0.5), 
-
-            # Updated colab:
-            K.RandomAffine(degrees=15, translate=0.1, p=0.7, padding_mode='border'),
-            K.RandomPerspective(0.7,p=0.7),
-            K.ColorJitter(hue=0.1, saturation=0.1, p=0.7),
-            K.RandomErasing((.1, .4), (.3, 1/.3), same_on_batch=True, p=0.7),        
-            )
-        '''
-
-        self.noise_fac = 0.1
-        # self.noise_fac = False
-
-        # Pooling
-        self.av_pool = nn.AdaptiveAvgPool2d((self.cut_size, self.cut_size))
-        self.max_pool = nn.AdaptiveMaxPool2d((self.cut_size, self.cut_size))
-
-    def forward(self, input):
-        # sideY, sideX = input.shape[2:4]
-        # max_size = min(sideX, sideY)
-        # min_size = min(sideX, sideY, self.cut_size)
-        cutouts = []
-
-        for _ in range(self.cutn):
-            # size = int(torch.rand([])**self.cut_pow * (max_size - min_size) + min_size)
-            # offsetx = torch.randint(0, sideX - size + 1, ())
-            # offsety = torch.randint(0, sideY - size + 1, ())
-            # cutout = input[:, :, offsety:offsety + size, offsetx:offsetx + size]
-            # cutouts.append(resample(cutout, (self.cut_size, self.cut_size)))
-            # cutout = transforms.Resize(size=(self.cut_size, self.cut_size))(input)
-
-            # Use Pooling
-            cutout = (self.av_pool(input) + self.max_pool(input)) / 2
-            cutouts.append(cutout)
-
-        batch = self.augs(torch.cat(cutouts, dim=0))
-
-        if self.noise_fac:
-            facs = batch.new_empty([self.cutn, 1, 1, 1]).uniform_(0,
-                                                                  self.noise_fac)
-            batch = batch + facs * torch.randn_like(batch)
-        return batch
+from .torch.helper import TorchHelper, Prompt, MakeCutouts
 
 
 @dataclass
@@ -234,9 +71,7 @@ class VqganClipService:
 
     def handle(self, args: VqganClipOptions):
         print("VQGAN/CLIP starting with spec:")
-        print("=================================================")
         print(json.dumps(asdict(args), indent=4))
-        print("=================================================")
 
         if args.cudnn_determinism:
             torch.backends.cudnn.deterministic = True
@@ -276,7 +111,7 @@ class VqganClipService:
 
         # clock=deepcopy(perceptor.visual.positional_embedding.data)
         # perceptor.visual.positional_embedding.data = clock/clock.max()
-        # perceptor.visual.positional_embedding.data=clamp_with_grad(clock,0,1)
+        # perceptor.visual.positional_embedding.data=TorchHelper.clamp_with_grad(clock,0,1)
 
         f = 2 ** (model.decoder.num_resolutions - 1)
 
@@ -514,39 +349,6 @@ class VqganClipService:
         random_image = Image.fromarray(np.uint8(array))
         return random_image
 
-    # Not used?
-    def resample(self, input, size, align_corners=True):
-        n, c, h, w = input.shape
-        dh, dw = size
-
-        input = input.view([n * c, 1, h, w])
-
-        if dh < h:
-            kernel_h = self.lanczos(self.ramp(dh / h, 2), 2).to(input.device, input.dtype)
-            pad_h = (kernel_h.shape[0] - 1) // 2
-            input = F.pad(input, (0, 0, pad_h, pad_h), 'reflect')
-            input = F.conv2d(input, kernel_h[None, None, :, None])
-
-        if dw < w:
-            kernel_w = self.lanczos(self.ramp(dw / w, 2), 2).to(input.device, input.dtype)
-            pad_w = (kernel_w.shape[0] - 1) // 2
-            input = F.pad(input, (pad_w, pad_w, 0, 0), 'reflect')
-            input = F.conv2d(input, kernel_w[None, None, None, :])
-
-        input = input.view([n, c, h, w])
-        return F.interpolate(
-            input,
-            size,
-            mode='bicubic',
-            align_corners=align_corners
-        )
-
-    def replace_grad(self, *args, **kwargs):
-        return ReplaceGrad.apply(*args, **kwargs)
-
-    def clamp_with_grad(self, *args, **kwargs):
-        return ClampWithGrad.apply(*args, **kwargs)
-
     def normalize(self, *args, **kwargs):
         return transforms.Normalize(
             mean=[0.48145466, 0.4578275, 0.40821073],
@@ -565,7 +367,7 @@ class VqganClipService:
         d = x.pow(2).sum(dim=-1, keepdim=True) + codebook.pow(2).sum(dim=1) - 2 * x @ codebook.T
         indices = d.argmin(-1)
         x_q = F.one_hot(indices, codebook.shape[0]).to(d.dtype) @ codebook
-        return self.replace_grad(x_q, x)
+        return TorchHelper.replace_grad(x_q, x)
 
     def parse_prompt(self, prompt):
         vals = prompt.rsplit(':', 2)
@@ -612,7 +414,7 @@ class VqganClipService:
                 z.movedim(1, 3),
                 model.quantize.embedding.weight
             ).movedim(3, 1)
-        return self.clamp_with_grad(model.decode(z_q).add(1).div(2), 0, 1)
+        return TorchHelper.clamp_with_grad(model.decode(z_q).add(1).div(2), 0, 1)
 
     @torch.no_grad()
     def checkin(self, model, z, prompts, output, i, losses):
