@@ -1,7 +1,8 @@
+import json
 import math
 import os
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 # from email.policy import default
 from urllib.request import urlopen
 from injector import inject
@@ -232,11 +233,10 @@ class VqganClipService:
         pass
 
     def handle(self, args: VqganClipOptions):
-        print("VQGAN/CLIP STARTING!")
+        print("VQGAN/CLIP starting with spec:")
         print("=================================================")
-        print(args)
+        print(json.dumps(asdict(args), indent=4))
         print("=================================================")
-        print("Let's do this...")
 
         if args.cudnn_determinism:
             torch.backends.cudnn.deterministic = True
@@ -253,6 +253,8 @@ class VqganClipService:
         if args.image_prompts:
             args.image_prompts = args.image_prompts.split("|")
             args.image_prompts = [image.strip() for image in args.image_prompts]
+        else:
+            args.image_prompts = []
 
         # Make video steps directory
         if args.make_video:
