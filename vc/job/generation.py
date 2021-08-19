@@ -1,3 +1,4 @@
+from dacite import from_dict
 from datetime import datetime
 from injector import inject
 
@@ -26,7 +27,10 @@ class GenerationJob(Job):
 
         self.mark_started(generation_request)
 
-        spec = GenerationSpec(**generation_request.spec)
+        spec = from_dict(
+            data_class=GenerationSpec,
+            data=generation_request.spec
+        )
         try:
             self.service.handle(spec)
             self.mark_completed(generation_request)

@@ -21,6 +21,7 @@ chardet==4.0.0
 charset-normalizer==2.0.3
 cryptography
 cynetworkx==2.2rc1.dev20180527181709
+dacite==1.6.0
 dataclasses==0.8
 decorator==5.0.9
 einops==0.3.0

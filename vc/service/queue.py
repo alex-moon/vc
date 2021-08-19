@@ -1,7 +1,7 @@
 import json
 from flask_rq import get_queue, get_connection
 from injector import Binder, inject
-from rq import Queue, Worker
+from rq import Queue, SimpleWorker, Worker
 
 
 class JobSerializer:
@@ -70,7 +70,9 @@ class QueueService:
     def get_worker(self):
         if self.worker is None:
             queue = self.get_queue()
-            self.worker = Worker(
+            # We have to use the non-forking SimpleWorker because we lean
+            # heavily on CUDA, which does not like forking...
+            self.worker = SimpleWorker(
                 [queue],
                 connection=get_connection(queue.name),
                 serializer=self.job_serializer

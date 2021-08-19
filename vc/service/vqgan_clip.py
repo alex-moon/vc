@@ -22,8 +22,8 @@ from torch.nn import functional as F
 from torchvision import transforms
 from torchvision.transforms import functional as TF
 
-torch.backends.cudnn.benchmark = False		# NR: True is a bit faster, but can lead to OOM. False is more deterministic.
-#torch.use_deterministic_algorithms(True)	# NR: grid_sampler_2d_backward_cuda does not have a deterministic implementation
+torch.backends.cudnn.benchmark = False		     # NR: True is a bit faster, but can lead to OOM. False is more deterministic.
+#torch.use_deterministic_algorithms(True)	     # NR: grid_sampler_2d_backward_cuda does not have a deterministic implementation
 
 from torch_optimizer import DiffGrad, AdamP, RAdam
 
@@ -225,11 +225,19 @@ class VqganClipOptions:
 
 
 class VqganClipService:
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
     @inject
     def __init__(self):
         pass
 
     def handle(self, args: VqganClipOptions):
+        print("VQGAN/CLIP STARTING!")
+        print("=================================================")
+        print(args)
+        print("=================================================")
+        print("Let's do this...")
+
         if args.cudnn_determinism:
             torch.backends.cudnn.deterministic = True
 
@@ -254,16 +262,15 @@ class VqganClipService:
         if args.size is None:
             args.size = [400, 400]
 
-        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         model = self.load_vqgan_model(
             args.vqgan_config,
             args.vqgan_checkpoint
-        ).to(device)
+        ).to(self.device)
         jit = True if float(torch.__version__[:3]) < 1.8 else False
         perceptor = clip.load(
             args.clip_model,
             jit=jit
-        )[0].eval().requires_grad_(False).to(device)
+        )[0].eval().requires_grad_(False).to(self.device)
 
         # clock=deepcopy(perceptor.visual.positional_embedding.data)
         # perceptor.visual.positional_embedding.data = clock/clock.max()
@@ -300,22 +307,22 @@ class VqganClipService:
             pil_image = img.convert('RGB')
             pil_image = pil_image.resize((sideX, sideY), Image.LANCZOS)
             pil_tensor = TF.to_tensor(pil_image)
-            z, *_ = model.encode(pil_tensor.to(device).unsqueeze(0) * 2 - 1)
+            z, *_ = model.encode(pil_tensor.to(self.device).unsqueeze(0) * 2 - 1)
         elif args.init_noise == 'pixels':
             img = self.random_noise_image(args.size[0], args.size[1])
             pil_image = img.convert('RGB')
             pil_image = pil_image.resize((sideX, sideY), Image.LANCZOS)
             pil_tensor = TF.to_tensor(pil_image)
-            z, *_ = model.encode(pil_tensor.to(device).unsqueeze(0) * 2 - 1)
+            z, *_ = model.encode(pil_tensor.to(self.device).unsqueeze(0) * 2 - 1)
         elif args.init_noise == 'gradient':
             img = self.random_gradient_image(args.size[0], args.size[1])
             pil_image = img.convert('RGB')
             pil_image = pil_image.resize((sideX, sideY), Image.LANCZOS)
             pil_tensor = TF.to_tensor(pil_image)
-            z, *_ = model.encode(pil_tensor.to(device).unsqueeze(0) * 2 - 1)
+            z, *_ = model.encode(pil_tensor.to(self.device).unsqueeze(0) * 2 - 1)
         else:
             one_hot = F.one_hot(
-                torch.randint(n_toks, [toksY * toksX], device=device),
+                torch.randint(n_toks, [toksY * toksX], device=self.device),
                 n_toks).float()
             # z = one_hot @ model.quantize.embedding.weight
             if gumbel:
@@ -335,23 +342,23 @@ class VqganClipService:
         # NR: Add alternate method
         for prompt in args.prompts:
             txt, weight, stop = self.parse_prompt(prompt)
-            embed = perceptor.encode_text(clip.tokenize(txt).to(device)).float()
-            pms.append(Prompt(embed, weight, stop).to(device))
+            embed = perceptor.encode_text(clip.tokenize(txt).to(self.device)).float()
+            pms.append(Prompt(embed, weight, stop).to(self.device))
 
         for prompt in args.image_prompts:
             path, weight, stop = self.parse_prompt(prompt)
             img = Image.open(path)
             pil_image = img.convert('RGB')
             img = self.resize_image(pil_image, (sideX, sideY))
-            batch = self.make_cutouts(args, perceptor, TF.to_tensor(img).unsqueeze(0).to(device))
+            batch = self.make_cutouts(args, perceptor, TF.to_tensor(img).unsqueeze(0).to(self.device))
             embed = perceptor.encode_image(self.normalize(batch)).float()
-            pms.append(Prompt(embed, weight, stop).to(device))
+            pms.append(Prompt(embed, weight, stop).to(self.device))
 
         for seed, weight in zip(args.noise_prompt_seeds, args.noise_prompt_weights):
             gen = torch.Generator().manual_seed(seed)
             embed = torch.empty([1, perceptor.visual.output_dim]).normal_(
                 generator=gen)
-            pms.append(Prompt(embed, weight).to(device))
+            pms.append(Prompt(embed, weight).to(self.device))
 
         # Set the optimiser
         if args.optimiser == "Adam":
@@ -372,7 +379,7 @@ class VqganClipService:
             raise RuntimeError("Unknown optimiser. Are choices broken?")
 
         # Output for the user
-        print('Using device:', device)
+        print('Using device:', self.device)
         print('Optimising using:', args.optimiser)
 
         if args.prompts:
