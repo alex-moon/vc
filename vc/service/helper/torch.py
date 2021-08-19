@@ -29,19 +29,10 @@ class ClampWithGrad(torch.autograd.Function):
         return grad_in * (grad_in * (input - input.clamp(ctx.min, ctx.max)) >= 0), None, None
 
 
-class TorchHelper:
-    @classmethod
-    def replace_grad(cls, *args, **kwargs):
-        return ReplaceGrad.apply(*args, **kwargs)
-
-    @classmethod
-    def clamp_with_grad(cls, *args, **kwargs):
-        return ClampWithGrad.apply(*args, **kwargs)
-
-
 class Prompt(nn.Module):
-    def __init__(self, embed, weight=1., stop=float('-inf')):
+    def __init__(self, torch_helper, embed, weight=1., stop=float('-inf')):
         super().__init__()
+        self.torch_helper = torch_helper
         self.register_buffer('embed', embed)
         self.register_buffer('weight', torch.as_tensor(weight))
         self.register_buffer('stop', torch.as_tensor(stop))
@@ -51,7 +42,10 @@ class Prompt(nn.Module):
         embed_normed = F.normalize(self.embed.unsqueeze(0), dim=2)
         dists = input_normed.sub(embed_normed).norm(dim=2).div(2).arcsin().pow(2).mul(2)
         dists = dists * self.weight.sign()
-        return self.weight.abs() * TorchHelper.replace_grad(dists, torch.maximum(dists, self.stop)).mean()
+        return self.weight.abs() * self.torch_helper.replace_grad(
+            dists,
+            torch.maximum(dists, self.stop)
+        ).mean()
 
 
 class MakeCutouts(nn.Module):
@@ -171,3 +165,17 @@ class MakeCutouts(nn.Module):
                                                                   self.noise_fac)
             batch = batch + facs * torch.randn_like(batch)
         return batch
+
+
+class TorchHelper:
+    def replace_grad(self, *args, **kwargs):
+        return ReplaceGrad.apply(*args, **kwargs)
+
+    def clamp_with_grad(self, *args, **kwargs):
+        return ClampWithGrad.apply(*args, **kwargs)
+
+    def prompt(self, embed, weight=1., stop=float('-inf')):
+        return Prompt(self, embed, weight, stop)
+
+    def make_cutouts(self, augments, cut_size, cutn, cut_pow=1.):
+        return MakeCutouts(augments, cut_size, cutn, cut_pow)

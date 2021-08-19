@@ -1,39 +1,29 @@
 import json
 import math
 import os
-import sys
 from dataclasses import dataclass, field, asdict
+from typing import List
 from urllib.request import urlopen
 from injector import inject
-from typing import List
 from tqdm import tqdm
 
-sys.path.append('taming-transformers')
-
-from omegaconf import OmegaConf
-from taming.models import cond_transformer, vqgan
-
+# @todo remove all torch imports
 import torch
-from torch import nn, optim
+from torch import optim
 from torch.nn import functional as F
 from torchvision import transforms
 from torchvision.transforms import functional as TF
-
-torch.backends.cudnn.benchmark = False
-
 from torch_optimizer import DiffGrad, AdamP, RAdam
 
 from CLIP import clip
 import numpy as np
 import imageio
-
 from PIL import ImageFile, Image, PngImagePlugin
-ImageFile.LOAD_TRUNCATED_IMAGES = True
-
 from subprocess import Popen, PIPE
 import re
 
-from .torch.helper import TorchHelper, Prompt, MakeCutouts
+from .helper.torch import TorchHelper
+from .helper.vqgan import VqganHelper
 
 
 @dataclass
@@ -63,11 +53,18 @@ class VqganClipOptions:
 
 
 class VqganClipService:
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    vqgan_helper: VqganHelper
+    torch_helper: TorchHelper
+    device = torch.device(
+        'cuda' if torch.cuda.is_available() else 'cpu'
+    )
 
     @inject
     def __init__(self):
-        pass
+        ImageFile.LOAD_TRUNCATED_IMAGES = True
+        torch.backends.cudnn.benchmark = False
+        self.vqgan_helper = VqganHelper()
+        self.torch_helper = TorchHelper()
 
     def handle(self, args: VqganClipOptions):
         print("VQGAN/CLIP starting with spec:")
@@ -99,26 +96,25 @@ class VqganClipService:
         if args.size is None:
             args.size = [400, 400]
 
-        model = self.load_vqgan_model(
+        # VQGAN
+        model = self.vqgan_helper.load_vqgan_model(
             args.vqgan_config,
             args.vqgan_checkpoint
         ).to(self.device)
+
+        # CLIP
         jit = True if float(torch.__version__[:3]) < 1.8 else False
         perceptor = clip.load(
             args.clip_model,
             jit=jit
         )[0].eval().requires_grad_(False).to(self.device)
 
-        # clock=deepcopy(perceptor.visual.positional_embedding.data)
-        # perceptor.visual.positional_embedding.data = clock/clock.max()
-        # perceptor.visual.positional_embedding.data=TorchHelper.clamp_with_grad(clock,0,1)
-
         f = 2 ** (model.decoder.num_resolutions - 1)
 
         toksX, toksY = args.size[0] // f, args.size[1] // f
         sideX, sideY = toksX * f, toksY * f
 
-        if gumbel:
+        if self.vqgan_helper.gumbel:
             e_dim = 256
             n_toks = model.quantize.n_embed
             z_min = model.quantize.embed.weight.min(dim=0).values[None, :, None, None]
@@ -128,12 +124,6 @@ class VqganClipService:
             n_toks = model.quantize.n_e
             z_min = model.quantize.embedding.weight.min(dim=0).values[None, :, None, None]
             z_max = model.quantize.embedding.weight.max(dim=0).values[None, :, None, None]
-
-        # z_min = model.quantize.embedding.weight.min(dim=0).values[None, :, None, None]
-        # z_max = model.quantize.embedding.weight.max(dim=0).values[None, :, None, None]
-
-        # normalize_imagenet = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-        #                                            std=[0.229, 0.224, 0.225])
 
         # Image initialisation
         if args.init_image:
@@ -161,26 +151,25 @@ class VqganClipService:
             one_hot = F.one_hot(
                 torch.randint(n_toks, [toksY * toksX], device=self.device),
                 n_toks).float()
-            # z = one_hot @ model.quantize.embedding.weight
-            if gumbel:
+            if self.vqgan_helper.gumbel:
                 z = one_hot @ model.quantize.embed.weight
             else:
                 z = one_hot @ model.quantize.embedding.weight
 
             z = z.view([-1, toksY, toksX, e_dim]).permute(0, 3, 1, 2)
-            # z = torch.rand_like(z)*2						# NR: check
 
         z_orig = z.clone()
         z.requires_grad_(True)
 
-        pms = []
+        prompts = []
 
         # CLIP tokenize/encode
-        # NR: Add alternate method
         for prompt in args.prompts:
             txt, weight, stop = self.parse_prompt(prompt)
             embed = perceptor.encode_text(clip.tokenize(txt).to(self.device)).float()
-            pms.append(Prompt(embed, weight, stop).to(self.device))
+            prompts.append(
+                self.torch_helper.prompt(embed, weight, stop).to(self.device)
+            )
 
         for prompt in args.image_prompts:
             path, weight, stop = self.parse_prompt(prompt)
@@ -189,13 +178,18 @@ class VqganClipService:
             img = self.resize_image(pil_image, (sideX, sideY))
             batch = self.make_cutouts(args, perceptor, TF.to_tensor(img).unsqueeze(0).to(self.device))
             embed = perceptor.encode_image(self.normalize(batch)).float()
-            pms.append(Prompt(embed, weight, stop).to(self.device))
+            prompts.append(
+                self.torch_helper.prompt(embed, weight, stop).to(self.device)
+            )
 
         for seed, weight in zip(args.noise_prompt_seeds, args.noise_prompt_weights):
             gen = torch.Generator().manual_seed(seed)
-            embed = torch.empty([1, perceptor.visual.output_dim]).normal_(
-                generator=gen)
-            pms.append(Prompt(embed, weight).to(self.device))
+            embed = torch.empty(
+                [1, perceptor.visual.output_dim]
+            ).normal_(generator=gen)
+            prompts.append(
+                self.torch_helper.prompt(embed, weight).to(self.device)
+            )
 
         # Set the optimiser
         if args.optimiser == "Adam":
@@ -235,15 +229,16 @@ class VqganClipService:
         torch.manual_seed(seed)
         print('Using seed:', seed)
 
+        # DO IT @todo put training in a separate Trainer class
         i = 0
         try:
             with tqdm() as pbar:
-                while True:
+                while i < args.max_iterations:
                     self.train(
                         model,
                         perceptor,
                         args,
-                        pms,
+                        prompts,
                         opt,
                         z,
                         z_min,
@@ -251,8 +246,6 @@ class VqganClipService:
                         z_orig,
                         i
                     )
-                    if i == args.max_iterations:
-                        break
                     i += 1
                     pbar.update()
         except KeyboardInterrupt:
@@ -320,13 +313,12 @@ class VqganClipService:
             cur += ratio
         return torch.cat([-out[1:].flip([0]), out])[1:-1]
 
-    # NR: Testing with different intital images
     def random_noise_image(self, w, h):
         random_image = Image.fromarray(
-            np.random.randint(0, 255, (w, h, 3), dtype=np.dtype('uint8')))
+            np.random.randint(0, 255, (w, h, 3), dtype=np.dtype('uint8'))
+        )
         return random_image
 
-    # create initial gradient image
     def gradient_2d(self, start, stop, width, height, is_horizontal):
         if is_horizontal:
             return np.tile(np.linspace(start, stop, width), (height, 1))
@@ -349,53 +341,30 @@ class VqganClipService:
         random_image = Image.fromarray(np.uint8(array))
         return random_image
 
-    def normalize(self, *args, **kwargs):
+    def normalize(self, batch):
         return transforms.Normalize(
             mean=[0.48145466, 0.4578275, 0.40821073],
             std=[0.26862954, 0.26130258, 0.27577711]
-        )(*args, **kwargs)
+        )(batch)
 
-    def make_cutouts(self, opts, perceptor, *args, **kwargs):
-        return MakeCutouts(
-            opts.augments,
+    def make_cutouts(self, args, perceptor, batch):
+        return self.torch_helper.make_cutouts(
+            args.augments,
             perceptor.visual.input_resolution,
-            opts.cutn,
-            cut_pow=opts.cut_pow
-        )(*args, **kwargs)
+            args.cutn,
+            cut_pow=args.cut_pow
+        )(batch)
 
     def vector_quantize(self, x, codebook):
         d = x.pow(2).sum(dim=-1, keepdim=True) + codebook.pow(2).sum(dim=1) - 2 * x @ codebook.T
         indices = d.argmin(-1)
         x_q = F.one_hot(indices, codebook.shape[0]).to(d.dtype) @ codebook
-        return TorchHelper.replace_grad(x_q, x)
+        return self.torch_helper.replace_grad(x_q, x)
 
     def parse_prompt(self, prompt):
         vals = prompt.rsplit(':', 2)
         vals = vals + ['', '1', '-inf'][len(vals):]
         return vals[0], float(vals[1]), float(vals[2])
-
-    def load_vqgan_model(self, config_path, checkpoint_path):
-        global gumbel
-        gumbel = False
-        config = OmegaConf.load(config_path)
-        if config.model.target == 'taming.models.vqgan.VQModel':
-            model = vqgan.VQModel(**config.model.params)
-            model.eval().requires_grad_(False)
-            model.init_from_ckpt(checkpoint_path)
-        elif config.model.target == 'taming.models.vqgan.GumbelVQ':
-            model = vqgan.GumbelVQ(**config.model.params)
-            model.eval().requires_grad_(False)
-            model.init_from_ckpt(checkpoint_path)
-            gumbel = True
-        elif config.model.target == 'taming.models.cond_transformer.Net2NetTransformer':
-            parent_model = cond_transformer.Net2NetTransformer(**config.model.params)
-            parent_model.eval().requires_grad_(False)
-            parent_model.init_from_ckpt(checkpoint_path)
-            model = parent_model.first_stage_model
-        else:
-            raise ValueError(f'unknown model type: {config.model.target}')
-        del model.loss
-        return model
 
     def resize_image(self, image, out_size):
         ratio = image.size[0] / image.size[1]
@@ -404,7 +373,7 @@ class VqganClipService:
         return image.resize(size, Image.LANCZOS)
 
     def synth(self, model, z):
-        if gumbel:
+        if self.vqgan_helper.gumbel:
             z_q = self.vector_quantize(
                 z.movedim(1, 3),
                 model.quantize.embed.weight
@@ -414,7 +383,11 @@ class VqganClipService:
                 z.movedim(1, 3),
                 model.quantize.embedding.weight
             ).movedim(3, 1)
-        return TorchHelper.clamp_with_grad(model.decode(z_q).add(1).div(2), 0, 1)
+        return self.torch_helper.clamp_with_grad(
+            model.decode(z_q).add(1).div(2),
+            0,
+            1
+        )
 
     @torch.no_grad()
     def checkin(self, model, z, prompts, output, i, losses):
@@ -425,8 +398,7 @@ class VqganClipService:
         info.add_text('comment', f'{prompts}')
         TF.to_pil_image(out[0].cpu()).save(output, pnginfo=info)
 
-    def ascend_txt(self, model, perceptor, args, pms, z_orig, z):
-        global i
+    def ascend_txt(self, model, perceptor, args, prompts, z_orig, z, i):
         out = self.synth(model, z)
         iii = perceptor.encode_image(
             self.normalize(
@@ -449,7 +421,7 @@ class VqganClipService:
                 (1 / torch.tensor(i * 2 + 1)) * args.init_weight
             ) / 2)
 
-        for prompt in pms:
+        for prompt in prompts:
             result.append(prompt(iii))
 
         if args.make_video:
@@ -461,9 +433,9 @@ class VqganClipService:
 
         return result
 
-    def train(self, model, perceptor, args, pms, opt, z, z_min, z_max, z_orig, i):
+    def train(self, model, perceptor, args, prompts, opt, z, z_min, z_max, z_orig, i):
         opt.zero_grad(set_to_none=True)
-        loss_all = self.ascend_txt(model, perceptor, args, pms, z_orig, z)
+        loss_all = self.ascend_txt(model, perceptor, args, prompts, z_orig, z, i)
 
         if i % args.display_freq == 0:
             self.checkin(model, z, args.prompts, args.output, i, loss_all)
