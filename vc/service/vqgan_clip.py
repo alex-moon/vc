@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import math
 import os
@@ -24,6 +25,7 @@ import re
 
 from .helper.torch import TorchHelper
 from .helper.vqgan import VqganHelper
+from vc.service import FileService
 
 
 @dataclass
@@ -53,6 +55,7 @@ class VqganClipOptions:
 
 
 class VqganClipService:
+    file_service: FileService
     vqgan_helper: VqganHelper
     torch_helper: TorchHelper
     device = torch.device(
@@ -60,11 +63,12 @@ class VqganClipService:
     )
 
     @inject
-    def __init__(self):
+    def __init__(self, file_service: FileService):
         ImageFile.LOAD_TRUNCATED_IMAGES = True
         torch.backends.cudnn.benchmark = False
         self.vqgan_helper = VqganHelper()
         self.torch_helper = TorchHelper()
+        self.file_service = file_service
 
     def handle(self, args: VqganClipOptions):
         print("VQGAN/CLIP starting with spec:")
@@ -251,6 +255,12 @@ class VqganClipService:
         except KeyboardInterrupt:
             pass
 
+        now = datetime.now()
+        self.file_service.put(args.output, '%s-%s' % (
+            now.strftime('%Y-%m-%d-%H-%M-%S'),
+            args.output
+        ))
+
         # Video generation
         if args.make_video:
             init_frame = 1  # This is the frame where the video will start
@@ -291,6 +301,10 @@ class VqganClipService:
                 im.save(p.stdin, 'PNG')
             p.stdin.close()
             p.wait()
+            self.file_service.put(output_file, '%s-%s' % (
+                now.strftime('%Y-%m-%d-%H-%M-%S'),
+                output_file
+            ))
 
     def sinc(self, x):
         return torch.where(

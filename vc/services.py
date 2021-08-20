@@ -14,10 +14,12 @@ def managers(binder: Binder):
 
 
 def services(binder: Binder):
+    # @todo none of this is necessary apparently...?
     bind_singleton(binder, service.ApiProvider)
     bind_singleton(binder, service.QueueService)
     bind_singleton(binder, service.JobService)
     bind_singleton(binder, service.JobSerializer)
+    bind_singleton(binder, service.FileService)
 
 
 def bind_event_listener(
