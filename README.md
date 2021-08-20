@@ -10,13 +10,32 @@ of the following machine vision libraries:
 
 1. Spin up a `g4dn.xlarge` EC2 instance from the Deep Learning Base AMI (Ubuntu 18):
 ```
-aws ec2 run-instances --image-id ami-0bdd0109e841ac9fc --count 1 --instance-type g4dn.xlarge --key-name MyKeyPair
+aws ec2 run-instances \
+   --image-id ami-0bdd0109e841ac9fc \
+   --count 1 \
+   --instance-type g4dn.xlarge \
+   --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=vc}]' \
+   --key-name MyKeyPair
 ```
 
 Bear in mind this costs more than 50c an hour, i.e. £9 a day or £270 per month, as long as the
 instance is running. All you need to do is stop the instance when you're not using it. It's a good
 idea to [associate an Elastic IP](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html)
 to your instance.
+
+To stop/start your instance:
+```
+id=$(aws ec2 describe-instances | jq -r '.[][].Instances[] | select(.Tags[].Key=="Name" and .Tags[].Value=="vc") | .InstanceId')
+aws ec2 stop-instances --instance-ids $id
+aws ec2 start-instances --instance-ids $id
+```
+
+or:
+
+```
+make start
+make stop
+```
 
 2. Add your new box to `~/.ssh/config`:
 ```
