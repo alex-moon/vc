@@ -12,10 +12,10 @@ class FileService:
     def __init__(self, app: Flask):
         self.client = boto3.client(
             's3',
-            aws_access_key_id=app.config.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=app.config.AWS_SECRET_ACCESS_KEY
+            aws_access_key_id=app.config.get('AWS_ACCESS_KEY_ID'),
+            aws_secret_access_key=app.config.get('AWS_SECRET_ACCESS_KEY')
         )
-        self.bucket = app.config.AWS_BUCKET_NAME
+        self.bucket = app.config.get('AWS_BUCKET_NAME')
 
     def put(self, local_file, filename):
         self.client.upload_file(local_file, self.bucket, filename)
