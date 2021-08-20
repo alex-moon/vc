@@ -1,11 +1,10 @@
 from injector import inject
 from flask import Flask
 import boto3
-from botocore.client import BaseClient
 
 
 class FileService:
-    client: BaseClient
+    client = None # @todo how to typehint this for the IDE?
     bucket: str
 
     @inject
@@ -18,4 +17,9 @@ class FileService:
         self.bucket = app.config.get('AWS_BUCKET_NAME')
 
     def put(self, local_file, filename):
-        self.client.upload_file(local_file, self.bucket, filename)
+        self.client.upload_file(
+            local_file,
+            self.bucket,
+            filename,
+            ExtraArgs={'ACL': 'public-read'}
+        )
