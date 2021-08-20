@@ -12,6 +12,9 @@ class GenerationService:
         self.vqgan_clip = vqgan_clip
 
     def handle(self, spec: GenerationSpec):
+        # @todo for each image, for each video, convert from ImageSpec
+        # and VideoSpec to VqganClipOptions - hide the config (or make it
+        # available under an "advanced" key or whatever)
         print('starting')
         self.vqgan_clip.handle(spec.images[0])
         print('done')

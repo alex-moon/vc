@@ -8,6 +8,7 @@ from vc.api import api
 
 @dataclass
 class ImageSpec(VqganClipOptions):
+    # @todo not quite - we want our own spec that hides most of this
     schema = api.model('Image Spec', {
         'prompts': fields.String,
         'image_prompts': fields.String,

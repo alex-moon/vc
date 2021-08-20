@@ -4,7 +4,7 @@ import boto3
 
 
 class FileService:
-    client = None # @todo how to typehint this for the IDE?
+    client = None  # @todo how to typehint this for the IDE?
     bucket: str
 
     @inject
