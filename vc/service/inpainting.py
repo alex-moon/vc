@@ -244,8 +244,8 @@ class InpaintingService:
                 verts, colors, faces, Height, Width, hFov, vFov = rt_info
 
             print(f"Making video at {time.time()}")
-            videos_poses, video_basename = copy.deepcopy(sample['tgts_poses']), \
-                                           sample['tgt_name']
+            videos_poses = copy.deepcopy(sample['tgts_poses'])
+            video_basename = sample['tgt_name']
             top = (args.original_h // 2 - sample['int_mtx'][1, 2] *
                    args.output_h)
             left = (args.original_w // 2 - sample['int_mtx'][0, 2] *

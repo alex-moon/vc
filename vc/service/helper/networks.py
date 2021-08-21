@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 # @todo put all in class and clean up
 
 class BaseNetwork(nn.Module):
@@ -18,7 +19,8 @@ class BaseNetwork(nn.Module):
 
         def init_func(m):
             classname = m.__class__.__name__
-            if hasattr(m, 'weight') and (classname.find('Conv') != -1 or classname.find('Linear') != -1):
+            if hasattr(m, 'weight') and (
+                classname.find('Conv') != -1 or classname.find('Linear') != -1):
                 if init_type == 'normal':
                     nn.init.normal_(m.weight.data, 0.0, gain)
                 elif init_type == 'xavier':
@@ -37,11 +39,13 @@ class BaseNetwork(nn.Module):
 
         self.apply(init_func)
 
+
 def weights_init(init_type='gaussian'):
     def init_fun(m):
         classname = m.__class__.__name__
         if (classname.find('Conv') == 0 or classname.find(
-                'Linear') == 0) and hasattr(m, 'weight'):
+            'Linear'
+        ) == 0) and hasattr(m, 'weight'):
             if init_type == 'gaussian':
                 nn.init.normal_(m.weight, 0.0, 0.02)
             elif init_type == 'xavier':
@@ -59,14 +63,21 @@ def weights_init(init_type='gaussian'):
 
     return init_fun
 
+
 class PartialConv(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, stride=1,
-                 padding=0, dilation=1, groups=1, bias=True):
+    def __init__(
+        self, in_channels, out_channels, kernel_size, stride=1,
+        padding=0, dilation=1, groups=1, bias=True
+    ):
         super().__init__()
-        self.input_conv = nn.Conv2d(in_channels, out_channels, kernel_size,
-                                    stride, padding, dilation, groups, bias)
-        self.mask_conv = nn.Conv2d(in_channels, out_channels, kernel_size,
-                                   stride, padding, dilation, groups, False)
+        self.input_conv = nn.Conv2d(
+            in_channels, out_channels, kernel_size,
+            stride, padding, dilation, groups, bias
+        )
+        self.mask_conv = nn.Conv2d(
+            in_channels, out_channels, kernel_size,
+            stride, padding, dilation, groups, False
+        )
         self.input_conv.apply(weights_init('kaiming'))
         self.slide_winsize = in_channels * kernel_size * kernel_size
 
@@ -83,7 +94,8 @@ class PartialConv(nn.Module):
         output = self.input_conv(input * mask)
         if self.input_conv.bias is not None:
             output_bias = self.input_conv.bias.view(1, -1, 1, 1).expand_as(
-                output)
+                output
+            )
         else:
             output_bias = torch.zeros_like(output)
 
@@ -94,7 +106,8 @@ class PartialConv(nn.Module):
 
         mask_sum = output_mask.masked_fill_(no_update_holes, 1.0)
 
-        output_pre = ((output - output_bias) * self.slide_winsize) / mask_sum + output_bias
+        output_pre = ((
+                          output - output_bias) * self.slide_winsize) / mask_sum + output_bias
         output = output_pre.masked_fill_(no_update_holes, 0.0)
 
         new_mask = torch.ones_like(output)
@@ -104,8 +117,10 @@ class PartialConv(nn.Module):
 
 
 class PCBActiv(nn.Module):
-    def __init__(self, in_ch, out_ch, bn=True, sample='none-3', activ='relu',
-                 conv_bias=False):
+    def __init__(
+        self, in_ch, out_ch, bn=True, sample='none-3', activ='relu',
+        conv_bias=False
+    ):
         super().__init__()
         if sample == 'down-5':
             self.conv = PartialConv(in_ch, out_ch, 5, 2, 2, bias=conv_bias)
@@ -131,6 +146,7 @@ class PCBActiv(nn.Module):
             h = self.activation(h)
         return h, h_mask
 
+
 class Inpaint_Depth_Net(nn.Module):
     def __init__(self, layer_size=7, upsampling_mode='nearest'):
         super().__init__()
@@ -139,7 +155,13 @@ class Inpaint_Depth_Net(nn.Module):
         self.freeze_enc_bn = False
         self.upsampling_mode = upsampling_mode
         self.layer_size = layer_size
-        self.enc_1 = PCBActiv(in_channels, 64, bn=False, sample='down-7', conv_bias=True)
+        self.enc_1 = PCBActiv(
+            in_channels,
+            64,
+            bn=False,
+            sample='down-7',
+            conv_bias=True
+        )
         self.enc_2 = PCBActiv(64, 128, sample='down-5', conv_bias=True)
         self.enc_3 = PCBActiv(128, 256, sample='down-5')
         self.enc_4 = PCBActiv(256, 512, sample='down-3')
@@ -153,55 +175,90 @@ class Inpaint_Depth_Net(nn.Module):
         self.dec_4 = PCBActiv(512 + 256, 256, activ='leaky')
         self.dec_3 = PCBActiv(256 + 128, 128, activ='leaky')
         self.dec_2 = PCBActiv(128 + 64, 64, activ='leaky')
-        self.dec_1 = PCBActiv(64 + in_channels, out_channels,
-                              bn=False, activ=None, conv_bias=True)
+        self.dec_1 = PCBActiv(
+            64 + in_channels, out_channels,
+            bn=False, activ=None, conv_bias=True
+        )
+
     def add_border(self, input, mask_flag, PCONV=True):
         with torch.no_grad():
             h = input.shape[-2]
             w = input.shape[-1]
             require_len_unit = 2 ** self.layer_size
-            residual_h = int(np.ceil(h / float(require_len_unit)) * require_len_unit - h) # + 2*require_len_unit
-            residual_w = int(np.ceil(w / float(require_len_unit)) * require_len_unit - w) # + 2*require_len_unit
-            enlarge_input = torch.zeros((input.shape[0], input.shape[1], h + residual_h, w + residual_w)).to(input.device)
+            residual_h = int(
+                np.ceil(h / float(require_len_unit)) * require_len_unit - h
+            )  # + 2*require_len_unit
+            residual_w = int(
+                np.ceil(w / float(require_len_unit)) * require_len_unit - w
+            )  # + 2*require_len_unit
+            enlarge_input = torch.zeros(
+                (input.shape[0], input.shape[1], h + residual_h, w + residual_w)
+            ).to(input.device)
             if mask_flag:
                 if PCONV is False:
                     enlarge_input += 1.0
                 enlarge_input = enlarge_input.clamp(0.0, 1.0)
             else:
                 enlarge_input[:, 2, ...] = 0.0
-            anchor_h = residual_h//2
-            anchor_w = residual_w//2
-            enlarge_input[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w] = input
+            anchor_h = residual_h // 2
+            anchor_w = residual_w // 2
+            enlarge_input[..., anchor_h:anchor_h + h,
+            anchor_w:anchor_w + w] = input
 
-        return enlarge_input, [anchor_h, anchor_h+h, anchor_w, anchor_w+w]
+        return enlarge_input, [anchor_h, anchor_h + h, anchor_w, anchor_w + w]
 
-    def forward_3P(self, mask, context, depth, edge, unit_length=128, cuda=None):
+    def forward_3P(
+        self,
+        mask,
+        context,
+        depth,
+        edge,
+        unit_length=128,
+        cuda=None
+    ):
         with torch.no_grad():
             input = torch.cat((depth, edge, context, mask), dim=1)
             n, c, h, w = input.shape
             residual_h = int(np.ceil(h / float(unit_length)) * unit_length - h)
             residual_w = int(np.ceil(w / float(unit_length)) * unit_length - w)
-            anchor_h = residual_h//2
-            anchor_w = residual_w//2
-            enlarge_input = torch.zeros((n, c, h + residual_h, w + residual_w)).to(cuda)
-            enlarge_input[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w] = input
+            anchor_h = residual_h // 2
+            anchor_w = residual_w // 2
+            enlarge_input = torch.zeros(
+                (n, c, h + residual_h, w + residual_w)
+            ).to(cuda)
+            enlarge_input[..., anchor_h:anchor_h + h,
+            anchor_w:anchor_w + w] = input
             # enlarge_input[:, 3] = 1. - enlarge_input[:, 3]
             depth_output = self.forward(enlarge_input)
-            depth_output = depth_output[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w]
+            depth_output = depth_output[..., anchor_h:anchor_h + h,
+                           anchor_w:anchor_w + w]
             # pass
 
         return depth_output
 
-    def forward(self, input_feat, refine_border=False, sample=False, PCONV=True):
+    def forward(
+        self,
+        input_feat,
+        refine_border=False,
+        sample=False,
+        PCONV=True
+    ):
         input = input_feat
-        input_mask = (input_feat[:, -2:-1] + input_feat[:, -1:]).clamp(0, 1).repeat(1, input.shape[1], 1, 1)
+        input_mask = (input_feat[:, -2:-1] + input_feat[:, -1:]).clamp(
+            0,
+            1
+        ).repeat(1, input.shape[1], 1, 1)
 
         vis_input = input.cpu().data.numpy()
         vis_input_mask = input_mask.cpu().data.numpy()
         H, W = input.shape[-2:]
         if refine_border is True:
             input, anchor = self.add_border(input, mask_flag=False)
-            input_mask, anchor = self.add_border(input_mask, mask_flag=True, PCONV=PCONV)
+            input_mask, anchor = self.add_border(
+                input_mask,
+                mask_flag=True,
+                PCONV=PCONV
+            )
         h_dict = {}  # for the output of enc_N
         h_mask_dict = {}  # for the output of enc_N
         h_dict['h_0'], h_mask_dict['h_0'] = input, input_mask
@@ -211,7 +268,8 @@ class Inpaint_Depth_Net(nn.Module):
             l_key = 'enc_{:d}'.format(i)
             h_key = 'h_{:d}'.format(i)
             h_dict[h_key], h_mask_dict[h_key] = getattr(self, l_key)(
-                h_dict[h_key_prev], h_mask_dict[h_key_prev])
+                h_dict[h_key_prev], h_mask_dict[h_key_prev]
+            )
             h_key_prev = h_key
 
         h_key = 'h_{:d}'.format(self.layer_size)
@@ -234,6 +292,7 @@ class Inpaint_Depth_Net(nn.Module):
 
         return output
 
+
 class Inpaint_Edge_Net(BaseNetwork):
     def __init__(self, residual_blocks=8, init_weights=True):
         super(Inpaint_Edge_Net, self).__init__()
@@ -242,20 +301,49 @@ class Inpaint_Edge_Net(BaseNetwork):
         self.encoder = []
         # 0
         self.encoder_0 = nn.Sequential(
-                            nn.ReflectionPad2d(3),
-                            spectral_norm(nn.Conv2d(in_channels=in_channels, out_channels=64, kernel_size=7, padding=0), True),
-                            nn.InstanceNorm2d(64, track_running_stats=False),
-                            nn.ReLU(True))
+            nn.ReflectionPad2d(3),
+            spectral_norm(
+                nn.Conv2d(
+                    in_channels=in_channels,
+                    out_channels=64,
+                    kernel_size=7,
+                    padding=0
+                ),
+                True
+            ),
+            nn.InstanceNorm2d(64, track_running_stats=False),
+            nn.ReLU(True)
+        )
         # 1
         self.encoder_1 = nn.Sequential(
-                            spectral_norm(nn.Conv2d(in_channels=64, out_channels=128, kernel_size=4, stride=2, padding=1), True),
-                            nn.InstanceNorm2d(128, track_running_stats=False),
-                            nn.ReLU(True))
+            spectral_norm(
+                nn.Conv2d(
+                    in_channels=64,
+                    out_channels=128,
+                    kernel_size=4,
+                    stride=2,
+                    padding=1
+                ),
+                True
+            ),
+            nn.InstanceNorm2d(128, track_running_stats=False),
+            nn.ReLU(True)
+        )
         # 2
         self.encoder_2 = nn.Sequential(
-                            spectral_norm(nn.Conv2d(in_channels=128, out_channels=256, kernel_size=4, stride=2, padding=1), True),
-                            nn.InstanceNorm2d(256, track_running_stats=False),
-                            nn.ReLU(True))
+            spectral_norm(
+                nn.Conv2d(
+                    in_channels=128,
+                    out_channels=256,
+                    kernel_size=4,
+                    stride=2,
+                    padding=1
+                ),
+                True
+            ),
+            nn.InstanceNorm2d(256, track_running_stats=False),
+            nn.ReLU(True)
+        )
         # 3
         blocks = []
         for _ in range(residual_blocks):
@@ -265,19 +353,44 @@ class Inpaint_Edge_Net(BaseNetwork):
         self.middle = nn.Sequential(*blocks)
         # + 3
         self.decoder_0 = nn.Sequential(
-                            spectral_norm(nn.ConvTranspose2d(in_channels=256+256, out_channels=128, kernel_size=4, stride=2, padding=1), True),
-                            nn.InstanceNorm2d(128, track_running_stats=False),
-                            nn.ReLU(True))
+            spectral_norm(
+                nn.ConvTranspose2d(
+                    in_channels=256 + 256,
+                    out_channels=128,
+                    kernel_size=4,
+                    stride=2,
+                    padding=1
+                ),
+                True
+            ),
+            nn.InstanceNorm2d(128, track_running_stats=False),
+            nn.ReLU(True)
+        )
         # + 2
         self.decoder_1 = nn.Sequential(
-                            spectral_norm(nn.ConvTranspose2d(in_channels=128+128, out_channels=64, kernel_size=4, stride=2, padding=1), True),
-                            nn.InstanceNorm2d(64, track_running_stats=False),
-                            nn.ReLU(True))
+            spectral_norm(
+                nn.ConvTranspose2d(
+                    in_channels=128 + 128,
+                    out_channels=64,
+                    kernel_size=4,
+                    stride=2,
+                    padding=1
+                ),
+                True
+            ),
+            nn.InstanceNorm2d(64, track_running_stats=False),
+            nn.ReLU(True)
+        )
         # + 1
         self.decoder_2 = nn.Sequential(
-                            nn.ReflectionPad2d(3),
-                            nn.Conv2d(in_channels=64+64, out_channels=out_channels, kernel_size=7, padding=0),
-                            )
+            nn.ReflectionPad2d(3),
+            nn.Conv2d(
+                in_channels=64 + 64,
+                out_channels=out_channels,
+                kernel_size=7,
+                padding=0
+            ),
+        )
 
         if init_weights:
             self.init_weights()
@@ -286,30 +399,52 @@ class Inpaint_Edge_Net(BaseNetwork):
         h = input.shape[-2]
         w = input.shape[-1]
         require_len_unit = 16
-        residual_h = int(np.ceil(h / float(require_len_unit)) * require_len_unit - h) # + 2*require_len_unit
-        residual_w = int(np.ceil(w / float(require_len_unit)) * require_len_unit - w) # + 2*require_len_unit
-        enlarge_input = torch.zeros((input.shape[0], input.shape[1], h + residual_h, w + residual_w)).to(input.device)
+        residual_h = int(
+            np.ceil(h / float(require_len_unit)) * require_len_unit - h
+        )  # + 2*require_len_unit
+        residual_w = int(
+            np.ceil(w / float(require_len_unit)) * require_len_unit - w
+        )  # + 2*require_len_unit
+        enlarge_input = torch.zeros(
+            (input.shape[0], input.shape[1], h + residual_h, w + residual_w)
+        ).to(input.device)
         if channel_pad_1 is not None:
             for channel in channel_pad_1:
                 enlarge_input[:, channel] = 1
-        anchor_h = residual_h//2
-        anchor_w = residual_w//2
-        enlarge_input[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w] = input
+        anchor_h = residual_h // 2
+        anchor_w = residual_w // 2
+        enlarge_input[..., anchor_h:anchor_h + h, anchor_w:anchor_w + w] = input
 
-        return enlarge_input, [anchor_h, anchor_h+h, anchor_w, anchor_w+w]
+        return enlarge_input, [anchor_h, anchor_h + h, anchor_w, anchor_w + w]
 
-    def forward_3P(self, mask, context, rgb, disp, edge, unit_length=128, cuda=None):
+    def forward_3P(
+        self,
+        mask,
+        context,
+        rgb,
+        disp,
+        edge,
+        unit_length=128,
+        cuda=None
+    ):
         with torch.no_grad():
-            input = torch.cat((rgb, disp/disp.max(), edge, context, mask), dim=1)
+            input = torch.cat(
+                (rgb, disp / disp.max(), edge, context, mask),
+                dim=1
+            )
             n, c, h, w = input.shape
             residual_h = int(np.ceil(h / float(unit_length)) * unit_length - h)
             residual_w = int(np.ceil(w / float(unit_length)) * unit_length - w)
-            anchor_h = residual_h//2
-            anchor_w = residual_w//2
-            enlarge_input = torch.zeros((n, c, h + residual_h, w + residual_w)).to(cuda)
-            enlarge_input[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w] = input
+            anchor_h = residual_h // 2
+            anchor_w = residual_w // 2
+            enlarge_input = torch.zeros(
+                (n, c, h + residual_h, w + residual_w)
+            ).to(cuda)
+            enlarge_input[..., anchor_h:anchor_h + h,
+            anchor_w:anchor_w + w] = input
             edge_output = self.forward(enlarge_input)
-            edge_output = edge_output[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w]
+            edge_output = edge_output[..., anchor_h:anchor_h + h,
+                          anchor_w:anchor_w + w]
 
         return edge_output
 
@@ -329,8 +464,16 @@ class Inpaint_Edge_Net(BaseNetwork):
 
         return x
 
+
 class Inpaint_Color_Net(nn.Module):
-    def __init__(self, layer_size=7, upsampling_mode='nearest', add_hole_mask=False, add_two_layer=False, add_border=False):
+    def __init__(
+        self,
+        layer_size=7,
+        upsampling_mode='nearest',
+        add_hole_mask=False,
+        add_two_layer=False,
+        add_border=False
+    ):
         super().__init__()
         self.freeze_enc_bn = False
         self.upsampling_mode = upsampling_mode
@@ -344,14 +487,20 @@ class Inpaint_Color_Net(nn.Module):
         self.enc_6 = PCBActiv(512, 512, sample='down-3')
         self.enc_7 = PCBActiv(512, 512, sample='down-3')
 
-        self.dec_7 = PCBActiv(512+512, 512, activ='leaky')
-        self.dec_6 = PCBActiv(512+512, 512, activ='leaky')
+        self.dec_7 = PCBActiv(512 + 512, 512, activ='leaky')
+        self.dec_6 = PCBActiv(512 + 512, 512, activ='leaky')
 
         self.dec_5A = PCBActiv(512 + 512, 512, activ='leaky')
         self.dec_4A = PCBActiv(512 + 256, 256, activ='leaky')
         self.dec_3A = PCBActiv(256 + 128, 128, activ='leaky')
         self.dec_2A = PCBActiv(128 + 64, 64, activ='leaky')
-        self.dec_1A = PCBActiv(64 + in_channels, 3, bn=False, activ=None, conv_bias=True)
+        self.dec_1A = PCBActiv(
+            64 + in_channels,
+            3,
+            bn=False,
+            activ=None,
+            conv_bias=True
+        )
         '''
         self.dec_5B = PCBActiv(512 + 512, 512, activ='leaky')
         self.dec_4B = PCBActiv(512 + 256, 256, activ='leaky')
@@ -359,6 +508,7 @@ class Inpaint_Color_Net(nn.Module):
         self.dec_2B = PCBActiv(128 + 64, 64, activ='leaky')
         self.dec_1B = PCBActiv(64 + 4, 1, bn=False, activ=None, conv_bias=True)
         '''
+
     def cat(self, A, B):
         return torch.cat((A, B), dim=1)
 
@@ -372,23 +522,31 @@ class Inpaint_Color_Net(nn.Module):
         with torch.no_grad():
             input = torch.cat((rgb, edge, context, mask), dim=1)
             n, c, h, w = input.shape
-            residual_h = int(np.ceil(h / float(unit_length)) * unit_length - h) # + 128
-            residual_w = int(np.ceil(w / float(unit_length)) * unit_length - w) # + 256
-            anchor_h = residual_h//2
-            anchor_w = residual_w//2
-            enlarge_input = torch.zeros((n, c, h + residual_h, w + residual_w)).to(cuda)
-            enlarge_input[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w] = input
+            residual_h = int(
+                np.ceil(h / float(unit_length)) * unit_length - h
+            )  # + 128
+            residual_w = int(
+                np.ceil(w / float(unit_length)) * unit_length - w
+            )  # + 256
+            anchor_h = residual_h // 2
+            anchor_w = residual_w // 2
+            enlarge_input = torch.zeros(
+                (n, c, h + residual_h, w + residual_w)
+            ).to(cuda)
+            enlarge_input[..., anchor_h:anchor_h + h,
+            anchor_w:anchor_w + w] = input
             # enlarge_input[:, 3] = 1. - enlarge_input[:, 3]
             enlarge_input = enlarge_input.to(cuda)
             rgb_output = self.forward(enlarge_input)
-            rgb_output = rgb_output[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w]
+            rgb_output = rgb_output[..., anchor_h:anchor_h + h,
+                         anchor_w:anchor_w + w]
 
         return rgb_output
 
     def forward(self, input, add_border=False):
         input_mask = (input[:, -2:-1] + input[:, -1:]).clamp(0, 1)
         H, W = input.shape[-2:]
-        f_0, h_0 = input, input_mask.repeat((1,input.shape[1],1,1))
+        f_0, h_0 = input, input_mask.repeat((1, input.shape[1], 1, 1))
         f_1, h_1 = self.enc_1(f_0, h_0)
         f_2, h_2 = self.enc_2(f_1, h_1)
         f_3, h_3 = self.enc_3(f_2, h_2)
@@ -427,32 +585,89 @@ class Inpaint_Color_Net(nn.Module):
                 if isinstance(module, nn.BatchNorm2d) and 'enc' in name:
                     module.eval()
 
+
 class Discriminator(BaseNetwork):
-    def __init__(self, use_sigmoid=True, use_spectral_norm=True, init_weights=True, in_channels=None):
+    def __init__(
+        self,
+        use_sigmoid=True,
+        use_spectral_norm=True,
+        init_weights=True,
+        in_channels=None
+    ):
         super(Discriminator, self).__init__()
         self.use_sigmoid = use_sigmoid
         self.conv1 = self.features = nn.Sequential(
-            spectral_norm(nn.Conv2d(in_channels=in_channels, out_channels=64, kernel_size=4, stride=2, padding=1, bias=not use_spectral_norm), use_spectral_norm),
+            spectral_norm(
+                nn.Conv2d(
+                    in_channels=in_channels,
+                    out_channels=64,
+                    kernel_size=4,
+                    stride=2,
+                    padding=1,
+                    bias=not use_spectral_norm
+                ),
+                use_spectral_norm
+            ),
             nn.LeakyReLU(0.2, inplace=True),
         )
 
         self.conv2 = nn.Sequential(
-            spectral_norm(nn.Conv2d(in_channels=64, out_channels=128, kernel_size=4, stride=2, padding=1, bias=not use_spectral_norm), use_spectral_norm),
+            spectral_norm(
+                nn.Conv2d(
+                    in_channels=64,
+                    out_channels=128,
+                    kernel_size=4,
+                    stride=2,
+                    padding=1,
+                    bias=not use_spectral_norm
+                ),
+                use_spectral_norm
+            ),
             nn.LeakyReLU(0.2, inplace=True),
         )
 
         self.conv3 = nn.Sequential(
-            spectral_norm(nn.Conv2d(in_channels=128, out_channels=256, kernel_size=4, stride=2, padding=1, bias=not use_spectral_norm), use_spectral_norm),
+            spectral_norm(
+                nn.Conv2d(
+                    in_channels=128,
+                    out_channels=256,
+                    kernel_size=4,
+                    stride=2,
+                    padding=1,
+                    bias=not use_spectral_norm
+                ),
+                use_spectral_norm
+            ),
             nn.LeakyReLU(0.2, inplace=True),
         )
 
         self.conv4 = nn.Sequential(
-            spectral_norm(nn.Conv2d(in_channels=256, out_channels=512, kernel_size=4, stride=1, padding=1, bias=not use_spectral_norm), use_spectral_norm),
+            spectral_norm(
+                nn.Conv2d(
+                    in_channels=256,
+                    out_channels=512,
+                    kernel_size=4,
+                    stride=1,
+                    padding=1,
+                    bias=not use_spectral_norm
+                ),
+                use_spectral_norm
+            ),
             nn.LeakyReLU(0.2, inplace=True),
         )
 
         self.conv5 = nn.Sequential(
-            spectral_norm(nn.Conv2d(in_channels=512, out_channels=1, kernel_size=4, stride=1, padding=1, bias=not use_spectral_norm), use_spectral_norm),
+            spectral_norm(
+                nn.Conv2d(
+                    in_channels=512,
+                    out_channels=1,
+                    kernel_size=4,
+                    stride=1,
+                    padding=1,
+                    bias=not use_spectral_norm
+                ),
+                use_spectral_norm
+            ),
         )
 
         if init_weights:
@@ -471,17 +686,38 @@ class Discriminator(BaseNetwork):
 
         return outputs, [conv1, conv2, conv3, conv4, conv5]
 
+
 class ResnetBlock(nn.Module):
     def __init__(self, dim, dilation=1):
         super(ResnetBlock, self).__init__()
         self.conv_block = nn.Sequential(
             nn.ReflectionPad2d(dilation),
-            spectral_norm(nn.Conv2d(in_channels=dim, out_channels=dim, kernel_size=3, padding=0, dilation=dilation, bias=not True), True),
+            spectral_norm(
+                nn.Conv2d(
+                    in_channels=dim,
+                    out_channels=dim,
+                    kernel_size=3,
+                    padding=0,
+                    dilation=dilation,
+                    bias=not True
+                ),
+                True
+            ),
             nn.InstanceNorm2d(dim, track_running_stats=False),
             nn.LeakyReLU(negative_slope=0.2),
 
             nn.ReflectionPad2d(1),
-            spectral_norm(nn.Conv2d(in_channels=dim, out_channels=dim, kernel_size=3, padding=0, dilation=1, bias=not True), True),
+            spectral_norm(
+                nn.Conv2d(
+                    in_channels=dim,
+                    out_channels=dim,
+                    kernel_size=3,
+                    padding=0,
+                    dilation=1,
+                    bias=not True
+                ),
+                True
+            ),
             nn.InstanceNorm2d(dim, track_running_stats=False),
         )
 

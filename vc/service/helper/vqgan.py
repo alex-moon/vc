@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append('taming-transformers')
 
 from omegaconf import OmegaConf
@@ -24,7 +25,9 @@ class VqganHelper:
             model.init_from_ckpt(checkpoint_path)
             self.gumbel = True
         elif config.model.target == 'taming.models.cond_transformer.Net2NetTransformer':
-            parent_model = cond_transformer.Net2NetTransformer(**config.model.params)
+            parent_model = cond_transformer.Net2NetTransformer(
+                **config.model.params
+            )
             parent_model.eval().requires_grad_(False)
             parent_model.init_from_ckpt(checkpoint_path)
             model = parent_model.first_stage_model
