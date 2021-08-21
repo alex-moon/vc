@@ -1,10 +1,15 @@
 from injector import inject
+from os.path import isfile
 
 from vc.service import VqganClipService, InpaintingService
+from vc.service.vqgan_clip import VqganClipOptions
+from vc.service.inpainting import InpaintingOptions
 from vc.value_object import GenerationSpec
 
 
 class GenerationService:
+    OUTPUT_FILENAME = 'output.png'
+
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
 
@@ -23,6 +28,20 @@ class GenerationService:
         # available under an "advanced" key or whatever)
         print('starting')
         for image in spec.images:
-            result = self.vqgan_clip.handle(image)
-            # result = self.inpainting.handle(image)
+            for text in image.texts:
+                for style in image.styles:
+                    self.vqgan_clip.handle(VqganClipOptions(**{
+                        'prompts': '%s | %s' % (text, style),
+                        'max_iterations': image.iterations,
+                        'init_image': (
+                            self.OUTPUT_FILENAME
+                            if isfile(self.OUTPUT_FILENAME)
+                            else None
+                        ),
+                    }))
+                    self.inpainting.handle(InpaintingOptions(**{
+                        'x_shift_range': [image.x_shift],
+                        'y_shift_range': [image.y_shift],
+                        'z_shift_range': [image.z_shift],
+                    }))
         print('done')

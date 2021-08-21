@@ -1,31 +1,27 @@
-from datetime import datetime
 import json
 import math
 import os
 from dataclasses import dataclass, field, asdict
+from datetime import datetime
 from typing import List
 from urllib.request import urlopen
-from injector import inject
-from tqdm import tqdm
 
+import numpy as np
 # @todo remove all torch imports
 import torch
+from PIL import ImageFile, Image, PngImagePlugin
+from injector import inject
 from torch import optim
 from torch.nn import functional as F
+from torch_optimizer import DiffGrad, AdamP, RAdam
 from torchvision import transforms
 from torchvision.transforms import functional as TF
-from torch_optimizer import DiffGrad, AdamP, RAdam
+from tqdm import tqdm
 
 from CLIP import clip
-import numpy as np
-import imageio
-from PIL import ImageFile, Image, PngImagePlugin
-from subprocess import Popen, PIPE
-import re
-
+from vc.service import FileService
 from .helper.torch import TorchHelper
 from .helper.vqgan import VqganHelper
-from vc.service import FileService
 
 
 @dataclass
@@ -35,8 +31,8 @@ class VqganClipOptions:
     max_iterations: int = 500
     display_freq: int = 50
     size: int = None
-    init_image: str = None
-    init_noise: str = 'pixels'
+    init_image: str = 'output.png'
+    init_noise: str = 'gradient'
     init_weight: float = 0.
     clip_model: str = 'ViT-B/32'
     vqgan_config: str = f'checkpoints/vqgan_imagenet_f16_16384.yaml'
@@ -82,8 +78,11 @@ class VqganClipService:
 
         # Split text prompts using the pipe character
         if args.prompts:
-            args.prompts = [phrase.strip() for phrase in
-                            args.prompts.split("|")]
+            args.prompts = [
+                phrase.strip()
+                for phrase
+                in args.prompts.split("|")
+            ]
 
         # Split target images using the pipe character
         if args.image_prompts:

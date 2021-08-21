@@ -40,6 +40,7 @@ class InpaintingOptions:
     video_postfix: List[str] = field(default=['zoom-in'])
     specific: str = ''
     longer_side_len: int = 400
+    input_file: str = 'output.png'
     src_folder: str = 'input'
     depth_folder: str = 'depth'
     mesh_folder: str = 'mesh'
@@ -85,11 +86,14 @@ class InpaintingService:
     def handle(self, args: InpaintingOptions):
         if args.offscreen_rendering is True:
             vispy.use(app='egl')
+
         os.makedirs(args.mesh_folder, exist_ok=True)
         os.makedirs(args.video_folder, exist_ok=True)
         os.makedirs(args.depth_folder, exist_ok=True)
-        sample_list = get_MiDaS_samples(args,
-                                        image_folder=args.src_folder)
+        sample_list = get_MiDaS_samples(
+            args,
+            image_files=args.input_file
+        )
         normal_canvas, all_canvas = None, None
 
         if isinstance(args.gpu_ids, int) and (args.gpu_ids >= 0):
