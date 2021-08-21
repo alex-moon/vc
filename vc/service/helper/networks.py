@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+# @todo put all in class and clean up
 
 class BaseNetwork(nn.Module):
     def __init__(self):

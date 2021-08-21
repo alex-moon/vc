@@ -19,6 +19,7 @@ from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
 from collections import namedtuple
 
+# @todo put all in class and clean up
 
 def path_planning(num_frames, x, y, z, path_type=''):
     if path_type == 'straight-line':
@@ -105,7 +106,7 @@ def filter_irrelevant_edge_new(self_edge, comp_edge, other_edges, other_edges_wi
 
     return other_edges, end_depth_maps, other_edges_info
 
-def clean_far_edge_new(input_edge, end_depth_maps, mask, context, global_mesh, info_on_pix, self_edge, inpaint_id, config):
+def clean_far_edge_new(input_edge, end_depth_maps, mask, context, global_mesh, info_on_pix, self_edge, inpaint_id, args):
     mesh = netx.Graph()
     hxs, hys = np.where(input_edge * mask > 0)
     valid_near_edge = (input_edge != 0).astype(np.uint8) * context
@@ -201,8 +202,8 @@ def clean_far_edge_new(input_edge, end_depth_maps, mask, context, global_mesh, i
                 else:
                     ratio_b = 0
                 npath_len = len(tmp_npath)
-                if npath_len > config['depth_edge_dilate_2'] * 2:
-                    npath_len = npath_len - (config['depth_edge_dilate_2'] * 1)
+                if npath_len > args.depth_edge_dilate_2 * 2:
+                    npath_len = npath_len - (args.depth_edge_dilate_2 * 1)
                 tmp_npath_a = tmp_npath[:int(np.floor(npath_len * ratio_a))]
                 tmp_npath_b = tmp_npath[::-1][:int(np.floor(npath_len * ratio_b))]
                 tmp_merge = []
@@ -830,9 +831,9 @@ def clean_far_edge(mask_edge, mask_edge_with_id, context_edge, mask, info_on_pix
     return far_edge, uncleaned_far_edge, far_edge_with_id, near_edge_with_id
 
 
-def get_MiDaS_samples(config, image_folder=None, image_files=None, aft_certain=None):
-    depth_folder = config['depth_folder']
-    specific = config['specific']
+def get_MiDaS_samples(args, image_folder=None, image_files=None, aft_certain=None):
+    depth_folder = args.depth_folder
+    specific = args.specific
     if image_files is not None:
         if isinstance(image_files, str):
             image_files = [image_files]
@@ -841,16 +842,16 @@ def get_MiDaS_samples(config, image_folder=None, image_files=None, aft_certain=N
             image_folder = os.path.dirname(image_file)
         files_glob = glob.glob(' '.join(image_files))
     else:
-        files_glob = glob.glob(os.path.join(image_folder, '*' + config['img_format']))
+        files_glob = glob.glob(os.path.join(image_folder, '*' + args.img_format))
     lines = [os.path.splitext(os.path.basename(xx))[0] for xx in files_glob]
     samples = []
     generic_pose = np.eye(4)
 
-    assert len(config['traj_types']) \
-           == len(config['x_shift_range']) \
-           == len(config['y_shift_range']) \
-           == len(config['z_shift_range']) \
-           == len(config['video_postfix']), \
+    assert len(args.traj_types) \
+           == len(args.x_shift_range) \
+           == len(args.y_shift_range) \
+           == len(args.z_shift_range) \
+           == len(args.video_postfix), \
            ' '.join([
                "The number of elements in 'traj_types',",
                "'x_shift_range', 'y_shift_range', 'z_shift_range'",
@@ -858,14 +859,14 @@ def get_MiDaS_samples(config, image_folder=None, image_files=None, aft_certain=N
            ])
 
     tgts_poses = []
-    for traj_idx in range(len(config['traj_types'])):
+    for traj_idx in range(len(args.traj_types)):
         tgt_poses = []
         sx, sy, sz = path_planning(
-            len(image_files) + 1 if image_files else config['num_frames'],
-            config['x_shift_range'][traj_idx],
-            config['y_shift_range'][traj_idx],
-            config['z_shift_range'][traj_idx],
-            path_type=config['traj_types'][traj_idx]
+            len(image_files) + 1 if image_files else args.num_frames,
+            args.x_shift_range[traj_idx],
+            args.y_shift_range[traj_idx],
+            args.z_shift_range[traj_idx],
+            path_type=args.traj_types[traj_idx]
         )
         for xx, yy, zz in zip(sx, sy, sz):
             tgt_poses.append(generic_pose * 1.)
@@ -887,8 +888,8 @@ def get_MiDaS_samples(config, image_folder=None, image_files=None, aft_certain=N
                 continue
         samples.append({})
         sdict = samples[-1]            
-        sdict['depth_fi'] = os.path.join(depth_folder, seq_dir + config['depth_format'])
-        sdict['ref_img_fi'] = os.path.join(image_folder, seq_dir + config['img_format'])
+        sdict['depth_fi'] = os.path.join(depth_folder, seq_dir + args.depth_format)
+        sdict['ref_img_fi'] = os.path.join(image_folder, seq_dir + args.img_format)
         H, W = imageio.imread(sdict['ref_img_fi']).shape[:2]
         sdict['int_mtx'] = np.array([[max(H, W), 0, W//2], [0, max(H, W), H//2], [0, 0, 1]]).astype(np.float32)
         if sdict['int_mtx'].max() > 1:
@@ -897,7 +898,7 @@ def get_MiDaS_samples(config, image_folder=None, image_files=None, aft_certain=N
         sdict['ref_pose'] = np.eye(4)
         sdict['tgt_pose'] = tgt_pose
         sdict['tgts_poses'] = tgts_poses
-        sdict['video_postfix'] = config['video_postfix']
+        sdict['video_postfix'] = args.video_postfix
         sdict['tgt_name'] = [os.path.splitext(os.path.basename(sdict['depth_fi']))[0]]
         sdict['src_pair_name'] = sdict['tgt_name'][0]
 
@@ -1088,7 +1089,7 @@ def require_depth_edge(context_edge, mask):
         return True
 
 
-def refine_color_around_edge(mesh, info_on_pix, edge_ccs, config, spdb=False):
+def refine_color_around_edge(mesh, info_on_pix, edge_ccs, args, spdb=False):
     H, W = mesh.graph['H'], mesh.graph['W']
     tmp_edge_ccs = copy.deepcopy(edge_ccs)
     for edge_id, edge_cc in enumerate(edge_ccs):
@@ -1249,7 +1250,7 @@ def refine_color_around_edge(mesh, info_on_pix, edge_ccs, config, spdb=False):
     return mesh, info_on_pix
 
 
-def refine_depth_around_edge(mask_depth, far_edge, uncleaned_far_edge, near_edge, mask, all_depth, config):
+def refine_depth_around_edge(mask_depth, far_edge, uncleaned_far_edge, near_edge, mask, all_depth, args):
     if isinstance(mask_depth, torch.Tensor):
         if mask_depth.is_cuda:
             mask_depth = mask_depth.cpu()
@@ -1286,7 +1287,7 @@ def refine_depth_around_edge(mask_depth, far_edge, uncleaned_far_edge, near_edge
     far_edge[dilate_near_edge == 0] = 0
     init_far_edge = far_edge.copy()
     init_near_edge = near_edge.copy()
-    for i in range(config['depth_edge_dilate_2']):
+    for i in range(args.depth_edge_dilate_2):
         init_far_edge = cv2.dilate(init_far_edge, kernel=np.array([[0,1,0],[1,1,1],[0,1,0]]).astype(np.uint8), iterations=1)
         init_far_edge[init_near_edge == 1] = 0
         init_near_edge = cv2.dilate(init_near_edge, kernel=np.array([[0,1,0],[1,1,1],[0,1,0]]).astype(np.uint8), iterations=1)
@@ -1344,16 +1345,16 @@ def refine_depth_around_edge(mask_depth, far_edge, uncleaned_far_edge, near_edge
     return mask_depth
 
 
-def vis_depth_edge_connectivity(depth, config):
+def vis_depth_edge_connectivity(depth, args):
     disp = 1./depth
     u_diff = (disp[1:, :] - disp[:-1, :])[:-1, 1:-1]
     b_diff = (disp[:-1, :] - disp[1:, :])[1:, 1:-1]
     l_diff = (disp[:, 1:] - disp[:, :-1])[1:-1, :-1]
     r_diff = (disp[:, :-1] - disp[:, 1:])[1:-1, 1:]
-    u_over = (np.abs(u_diff) > config['depth_threshold']).astype(np.float32)
-    b_over = (np.abs(b_diff) > config['depth_threshold']).astype(np.float32)
-    l_over = (np.abs(l_diff) > config['depth_threshold']).astype(np.float32)
-    r_over = (np.abs(r_diff) > config['depth_threshold']).astype(np.float32)
+    u_over = (np.abs(u_diff) > args.depth_threshold).astype(np.float32)
+    b_over = (np.abs(b_diff) > args.depth_threshold).astype(np.float32)
+    l_over = (np.abs(l_diff) > args.depth_threshold).astype(np.float32)
+    r_over = (np.abs(r_diff) > args.depth_threshold).astype(np.float32)
     concat_diff = np.stack([u_diff, b_diff, r_diff, l_diff], axis=-1)
     concat_over = np.stack([u_over, b_over, r_over, l_over], axis=-1)
     over_diff = concat_diff * concat_over

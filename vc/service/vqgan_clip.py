@@ -48,13 +48,13 @@ class VqganClipOptions:
     cut_pow: float = 1.
     seed: int = None
     optimiser: str = 'Adam'
-    output: str = "output.png"
-    make_video: bool = False
     cudnn_determinism: bool = False
     augments: str = None
 
 
 class VqganClipService:
+    OUTPUT_FILENAME = 'output.png'
+
     file_service: FileService
     vqgan_helper: VqganHelper
     torch_helper: TorchHelper
@@ -92,10 +92,9 @@ class VqganClipService:
         else:
             args.image_prompts = []
 
-        # Make video steps directory
-        if args.make_video:
-            if not os.path.exists('steps'):
-                os.mkdir('steps')
+        # Make video steps directory @todo do this elsewhere
+        if not os.path.exists('steps'):
+            os.mkdir('steps')
 
         if args.size is None:
             args.size = [400, 400]
@@ -256,55 +255,11 @@ class VqganClipService:
             pass
 
         now = datetime.now()
-        self.file_service.put(args.output, '%s-%s' % (
+        return self.file_service.put(self.OUTPUT_FILENAME, '%s-%s' % (
             now.strftime('%Y-%m-%d-%H-%M-%S'),
-            args.output
+            self.OUTPUT_FILENAME
         ))
 
-        # Video generation
-        if args.make_video:
-            init_frame = 1  # This is the frame where the video will start
-            last_frame = i  # You can change i to the number of the last frame you want to generate. It will raise an error if that number of frames does not exist.
-
-            min_fps = 10
-            max_fps = 60
-
-            total_frames = last_frame - init_frame
-
-            length = 15  # Desired time of the video in seconds
-
-            frames = []
-            tqdm.write('Generating video...')
-            for i in range(init_frame, last_frame):  #
-                frames.append(Image.open("./steps/" + str(i) + '.png'))
-
-            # fps = last_frame/10
-            fps = np.clip(total_frames / length, min_fps, max_fps)
-            output_file = re.compile('\.png$').sub('.mp4', args.output)
-            p = Popen([
-                'ffmpeg',
-                '-y',
-                '-f', 'image2pipe',
-                '-vcodec', 'png',
-                '-r', str(fps),
-                '-i',
-                '-',
-                '-vcodec', 'libx264',
-                '-r', str(fps),
-                '-pix_fmt', 'yuv420p',
-                '-crf', '17',
-                '-preset', 'veryslow',
-                '-metadata', f'comment={args.prompts}',
-                output_file
-            ], stdin=PIPE)
-            for im in tqdm(frames):
-                im.save(p.stdin, 'PNG')
-            p.stdin.close()
-            p.wait()
-            self.file_service.put(output_file, '%s-%s' % (
-                now.strftime('%Y-%m-%d-%H-%M-%S'),
-                output_file
-            ))
 
     def sinc(self, x):
         return torch.where(
@@ -427,7 +382,6 @@ class VqganClipService:
         result = []
 
         if args.init_weight:
-            # result.append(F.mse_loss(z, z_orig) * args.init_weight / 2)
             result.append(F.mse_loss(
                 z,
                 torch.zeros_like(z_orig)
@@ -438,12 +392,12 @@ class VqganClipService:
         for prompt in prompts:
             result.append(prompt(iii))
 
-        if args.make_video:
-            img = np.array(
-                out.mul(255).clamp(0, 255)[0].cpu().detach().numpy().astype(
-                    np.uint8))[:, :, :]
-            img = np.transpose(img, (1, 2, 0))
-            imageio.imwrite('./steps/' + str(i) + '.png', np.array(img))
+        # @todo this is used to make video... do this elsewhere
+        # img = np.array(
+        #     out.mul(255).clamp(0, 255)[0].cpu().detach().numpy().astype(
+        #         np.uint8))[:, :, :]
+        # img = np.transpose(img, (1, 2, 0))
+        # imageio.imwrite('./steps/' + str(i) + '.png', np.array(img))
 
         return result
 
@@ -452,7 +406,7 @@ class VqganClipService:
         loss_all = self.ascend_txt(model, perceptor, args, prompts, z_orig, z, i)
 
         if i % args.display_freq == 0:
-            self.checkin(model, z, args.prompts, args.output, i, loss_all)
+            self.checkin(model, z, args.prompts, 'output.png', i, loss_all)
 
         loss = sum(loss_all)
         loss.backward()

@@ -1,11 +1,22 @@
 import numpy as np
 from functools import reduce
 
+# @todo put all in class and clean up
+
 def sparse_bilateral_filtering(
-    depth, image, config, HR=False, mask=None, gsHR=True, edge_id=None, num_iter=None, num_gs_iter=None, spdb=False
+    depth,
+    image,
+    args,
+    HR=False,
+    mask=None,
+    gsHR=True,
+    edge_id=None,
+    num_iter=None,
+    num_gs_iter=None,
+    spdb=False
 ):
     """
-    config:
+    args:
     - filter_size
     """
     import time
@@ -20,14 +31,14 @@ def sparse_bilateral_filtering(
     depth_min = vis_depth.min()
     vis_image = image.copy()
     for i in range(num_iter):
-        if isinstance(config["filter_size"], list):
-            window_size = config["filter_size"][i]
+        if isinstance(args.filter_size, list):
+            window_size = args.filter_size[i]
         else:
-            window_size = config["filter_size"]
+            window_size = args.filter_size
         vis_image = image.copy()
         save_images.append(vis_image)
         save_depths.append(vis_depth)
-        u_over, b_over, l_over, r_over = vis_depth_discontinuity(vis_depth, config, mask=mask)
+        u_over, b_over, l_over, r_over = vis_depth_discontinuity(vis_depth, args, mask=mask)
         vis_image[u_over > 0] = np.array([0, 0, 0])
         vis_image[b_over > 0] = np.array([0, 0, 0])
         vis_image[l_over > 0] = np.array([0, 0, 0])
@@ -39,15 +50,15 @@ def sparse_bilateral_filtering(
         if mask is not None:
             discontinuity_map[mask == 0] = 0
         vis_depth = bilateral_filter(
-            vis_depth, config, discontinuity_map=discontinuity_map, HR=HR, mask=mask, window_size=window_size
+            vis_depth, args, discontinuity_map=discontinuity_map, HR=HR, mask=mask, window_size=window_size
         )
 
     return save_images, save_depths
 
 
-def vis_depth_discontinuity(depth, config, vis_diff=False, label=False, mask=None):
+def vis_depth_discontinuity(depth, args, vis_diff=False, label=False, mask=None):
     """
-    config:
+    args:
     - 
     """
     if label == False:
@@ -65,10 +76,10 @@ def vis_depth_discontinuity(depth, config, vis_diff=False, label=False, mask=Non
             b_diff = b_diff * b_mask
             l_diff = l_diff * l_mask
             r_diff = r_diff * r_mask
-        u_over = (np.abs(u_diff) > config['depth_threshold']).astype(np.float32)
-        b_over = (np.abs(b_diff) > config['depth_threshold']).astype(np.float32)
-        l_over = (np.abs(l_diff) > config['depth_threshold']).astype(np.float32)
-        r_over = (np.abs(r_diff) > config['depth_threshold']).astype(np.float32)
+        u_over = (np.abs(u_diff) > args.depth_threshold).astype(np.float32)
+        b_over = (np.abs(b_diff) > args.depth_threshold).astype(np.float32)
+        l_over = (np.abs(l_diff) > args.depth_threshold).astype(np.float32)
+        r_over = (np.abs(r_diff) > args.depth_threshold).astype(np.float32)
     else:
         disp = depth
         u_diff = (disp[1:, :] * disp[:-1, :])[:-1, 1:-1]
@@ -102,16 +113,16 @@ def vis_depth_discontinuity(depth, config, vis_diff=False, label=False, mask=Non
     else:
         return [u_over, b_over, l_over, r_over]
 
-def bilateral_filter(depth, config, discontinuity_map=None, HR=False, mask=None, window_size=False):
+def bilateral_filter(depth, args, discontinuity_map=None, HR=False, mask=None, window_size=False):
     sort_time = 0
     replace_time = 0
     filter_time = 0
     init_time = 0
     filtering_time = 0
-    sigma_s = config['sigma_s']
-    sigma_r = config['sigma_r']
+    sigma_s = args.sigma_s
+    sigma_r = args.sigma_r
     if window_size == False:
-        window_size = config['filter_size']
+        window_size = args.filter_size
     midpt = window_size//2
     ax = np.arange(-midpt, midpt+1.)
     xx, yy = np.meshgrid(ax, ax)

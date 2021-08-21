@@ -5,6 +5,8 @@ import imageio
 import numpy as np
 from MiDaS.MiDaS_utils import write_depth
 
+# @todo put all in class and clean up
+
 BOOST_BASE = 'BoostingMonocularDepth'
 
 BOOST_INPUTS = 'inputs'

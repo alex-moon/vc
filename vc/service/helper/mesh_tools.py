@@ -15,6 +15,7 @@ import torch
 from .utils import refine_depth_around_edge, smooth_cntsyn_gap
 from .utils import require_depth_edge, filter_irrelevant_edge_new, open_small_mask
 
+# @todo put all in class and clean up
 
 def relabel_node(mesh, nodes, cur_node, new_node):
     if cur_node == new_node:
@@ -28,11 +29,11 @@ def relabel_node(mesh, nodes, cur_node, new_node):
 
     return mesh
 
-def filter_edge(mesh, edge_ccs, config, invalid=False):
+def filter_edge(mesh, edge_ccs, args, invalid=False):
     context_ccs = [set() for _ in edge_ccs]
     mesh_nodes = mesh.nodes
     for edge_id, edge_cc in enumerate(edge_ccs):
-        if config['context_thickness'] == 0:
+        if args.context_thickness == 0:
             continue
         edge_group = {}
         for edge_node in edge_cc:
@@ -72,66 +73,66 @@ def extrapolate(global_mesh,
                 depth_edge_model,
                 depth_feat_model,
                 rgb_feat_model,
-                config,
+                args,
                 direc='right-up'):
     h_off, w_off = global_mesh.graph['hoffset'], global_mesh.graph['woffset']
     noext_H, noext_W = global_mesh.graph['noext_H'], global_mesh.graph['noext_W']
 
     if "up" in direc.lower() and "-" not in direc.lower():
-        all_anchor = [0, h_off + config['context_thickness'], w_off, w_off + noext_W]
+        all_anchor = [0, h_off + args.context_thickness, w_off, w_off + noext_W]
         global_shift = [all_anchor[0], all_anchor[2]]
         mask_anchor = [0, h_off, w_off, w_off + noext_W]
-        context_anchor = [h_off, h_off + config['context_thickness'], w_off, w_off + noext_W]
+        context_anchor = [h_off, h_off + args.context_thickness, w_off, w_off + noext_W]
         valid_line_anchor = [h_off, h_off + 1, w_off, w_off + noext_W]
         valid_anchor = [min(mask_anchor[0], context_anchor[0]), max(mask_anchor[1], context_anchor[1]),
                         min(mask_anchor[2], context_anchor[2]), max(mask_anchor[3], context_anchor[3])]
     elif "down" in direc.lower() and "-" not in direc.lower():
-        all_anchor = [h_off + noext_H - config['context_thickness'], 2 * h_off + noext_H, w_off, w_off + noext_W]
+        all_anchor = [h_off + noext_H - args.context_thickness, 2 * h_off + noext_H, w_off, w_off + noext_W]
         global_shift = [all_anchor[0], all_anchor[2]]
         mask_anchor = [h_off + noext_H, 2 * h_off + noext_H, w_off, w_off + noext_W]
-        context_anchor = [h_off + noext_H - config['context_thickness'], h_off + noext_H, w_off, w_off + noext_W]
+        context_anchor = [h_off + noext_H - args.context_thickness, h_off + noext_H, w_off, w_off + noext_W]
         valid_line_anchor = [h_off + noext_H - 1, h_off + noext_H, w_off, w_off + noext_W]
         valid_anchor = [min(mask_anchor[0], context_anchor[0]), max(mask_anchor[1], context_anchor[1]),
                         min(mask_anchor[2], context_anchor[2]), max(mask_anchor[3], context_anchor[3])]
     elif "left" in direc.lower() and "-" not in direc.lower():
-        all_anchor = [h_off, h_off + noext_H, 0, w_off + config['context_thickness']]
+        all_anchor = [h_off, h_off + noext_H, 0, w_off + args.context_thickness]
         global_shift = [all_anchor[0], all_anchor[2]]
         mask_anchor = [h_off, h_off + noext_H, 0, w_off]
-        context_anchor = [h_off, h_off + noext_H, w_off, w_off + config['context_thickness']]
+        context_anchor = [h_off, h_off + noext_H, w_off, w_off + args.context_thickness]
         valid_line_anchor = [h_off, h_off + noext_H, w_off, w_off + 1]
         valid_anchor = [min(mask_anchor[0], context_anchor[0]), max(mask_anchor[1], context_anchor[1]),
                         min(mask_anchor[2], context_anchor[2]), max(mask_anchor[3], context_anchor[3])]
     elif "right" in direc.lower() and "-" not in direc.lower():
-        all_anchor = [h_off, h_off + noext_H, w_off + noext_W - config['context_thickness'], 2 * w_off + noext_W]
+        all_anchor = [h_off, h_off + noext_H, w_off + noext_W - args.context_thickness, 2 * w_off + noext_W]
         global_shift = [all_anchor[0], all_anchor[2]]
         mask_anchor = [h_off, h_off + noext_H, w_off + noext_W, 2 * w_off + noext_W]
-        context_anchor = [h_off, h_off + noext_H, w_off + noext_W - config['context_thickness'], w_off + noext_W]
+        context_anchor = [h_off, h_off + noext_H, w_off + noext_W - args.context_thickness, w_off + noext_W]
         valid_line_anchor = [h_off, h_off + noext_H, w_off + noext_W - 1, w_off + noext_W]
         valid_anchor = [min(mask_anchor[0], context_anchor[0]), max(mask_anchor[1], context_anchor[1]),
                         min(mask_anchor[2], context_anchor[2]), max(mask_anchor[3], context_anchor[3])]
     elif "left" in direc.lower() and "up" in direc.lower() and "-" in direc.lower():
-        all_anchor = [0, h_off + config['context_thickness'], 0, w_off + config['context_thickness']]
+        all_anchor = [0, h_off + args.context_thickness, 0, w_off + args.context_thickness]
         global_shift = [all_anchor[0], all_anchor[2]]
         mask_anchor = [0, h_off, 0, w_off]
         context_anchor = "inv-mask"
         valid_line_anchor = None
         valid_anchor = all_anchor
     elif "left" in direc.lower() and "down" in direc.lower() and "-" in direc.lower():
-        all_anchor = [h_off + noext_H - config['context_thickness'], 2 * h_off + noext_H, 0, w_off + config['context_thickness']]
+        all_anchor = [h_off + noext_H - args.context_thickness, 2 * h_off + noext_H, 0, w_off + args.context_thickness]
         global_shift = [all_anchor[0], all_anchor[2]]
         mask_anchor = [h_off + noext_H, 2 * h_off + noext_H, 0, w_off]
         context_anchor = "inv-mask"
         valid_line_anchor = None
         valid_anchor = all_anchor
     elif "right" in direc.lower() and "up" in direc.lower() and "-" in direc.lower():
-        all_anchor = [0, h_off + config['context_thickness'], w_off + noext_W - config['context_thickness'], 2 * w_off + noext_W]
+        all_anchor = [0, h_off + args.context_thickness, w_off + noext_W - args.context_thickness, 2 * w_off + noext_W]
         global_shift = [all_anchor[0], all_anchor[2]]
         mask_anchor = [0, h_off, w_off + noext_W, 2 * w_off + noext_W]
         context_anchor = "inv-mask"
         valid_line_anchor = None
         valid_anchor = all_anchor
     elif "right" in direc.lower() and "down" in direc.lower() and "-" in direc.lower():
-        all_anchor = [h_off + noext_H - config['context_thickness'], 2 * h_off + noext_H, w_off + noext_W - config['context_thickness'], 2 * w_off + noext_W]
+        all_anchor = [h_off + noext_H - args.context_thickness, 2 * h_off + noext_H, w_off + noext_W - args.context_thickness, 2 * w_off + noext_W]
         global_shift = [all_anchor[0], all_anchor[2]]
         mask_anchor = [h_off + noext_H, 2 * h_off + noext_H, w_off + noext_W, 2 * w_off + noext_W]
         context_anchor = "inv-mask"
@@ -171,8 +172,8 @@ def extrapolate(global_mesh,
     end_depth_maps = ((valid_line * input_edge_map) > 0) * input_depth
 
 
-    if isinstance(config["gpu_ids"], int) and (config["gpu_ids"] >= 0):
-        device = config["gpu_ids"]
+    if isinstance(args.gpu_ids, int) and (args.gpu_ids >= 0):
+        device = args.gpu_ids
     else:
         device = "cpu"
 
@@ -188,7 +189,7 @@ def extrapolate(global_mesh,
 
     depth_edge_output = depth_edge_model.forward_3P(t_mask, t_context, t_rgb, t_disp, t_edge, unit_length=128,
                                                     cuda=device)
-    t_output_edge = (depth_edge_output> config['ext_edge_threshold']).float() * t_mask + t_edge
+    t_output_edge = (depth_edge_output> args.ext_edge_threshold).float() * t_mask + t_edge
     output_raw_edge = t_output_edge.data.cpu().numpy().squeeze()
     # import pdb; pdb.set_trace()
     mesh = netx.Graph()
@@ -302,7 +303,7 @@ def extrapolate(global_mesh,
                                                 (npath_map == near_id).astype(np.uint8) * mask,
                                                 mask.copy(),
                                                 np.zeros_like(mask),
-                                                config)
+                                                args)
     # if "right" in direc.lower() and "-" not in direc.lower():
     #     plt.imshow(depth_output); plt.show()
     #     import pdb; pdb.set_trace()
@@ -310,8 +311,8 @@ def extrapolate(global_mesh,
     rgb_output = rgb_feat_model.forward_3P(t_mask, t_context, t_rgb, t_update_edge, unit_length=128,
                                            cuda=device)
 
-    # rgb_output = rgb_feat_model.forward_3P(t_mask, t_context, t_rgb, t_update_edge, unit_length=128, cuda=config['gpu_ids'])
-    if config.get('gray_image') is True:
+    # rgb_output = rgb_feat_model.forward_3P(t_mask, t_context, t_rgb, t_update_edge, unit_length=128, cuda=args.gpu_ids)
+    if args.gray_image is True:
         rgb_output = rgb_output.mean(1, keepdim=True).repeat((1,3,1,1))
     rgb_output = ((rgb_output.squeeze().data.cpu().permute(1,2,0).numpy() * mask[..., None] + input_rgb) * 255).astype(np.uint8)
     image[all_anchor[0]:all_anchor[1], all_anchor[2]:all_anchor[3]][mask > 0] = rgb_output[mask > 0] # np.array([255,0,0]) # rgb_output[mask > 0]
@@ -452,7 +453,7 @@ def size_operation(size_a, size_b, operation):
 
     return osize
 
-def fill_dummy_bord(mesh, info_on_pix, image, depth, config):
+def fill_dummy_bord(mesh, info_on_pix, image, depth, args):
     context = np.zeros_like(depth).astype(np.uint8)
     context[mesh.graph['hoffset']:mesh.graph['hoffset'] + mesh.graph['noext_H'],
             mesh.graph['woffset']:mesh.graph['woffset'] + mesh.graph['noext_W']] = 1
@@ -485,17 +486,17 @@ def fill_dummy_bord(mesh, info_on_pix, image, depth, config):
     return mesh, info_on_pix
 
 
-def enlarge_border(mesh, info_on_pix, depth, image, config):
-    mesh.graph['hoffset'], mesh.graph['woffset'] = config['extrapolation_thickness'], config['extrapolation_thickness']
+def enlarge_border(mesh, info_on_pix, depth, image, args):
+    mesh.graph['hoffset'], mesh.graph['woffset'] = args.extrapolation_thickness, args.extrapolation_thickness
     mesh.graph['bord_up'], mesh.graph['bord_left'], mesh.graph['bord_down'], mesh.graph['bord_right'] = \
         0, 0, mesh.graph['H'], mesh.graph['W']
     # new_image = np.pad(image,
-    #                    pad_width=((config['extrapolation_thickness'], config['extrapolation_thickness']),
-    #                               (config['extrapolation_thickness'], config['extrapolation_thickness']), (0, 0)),
+    #                    pad_width=((args.extrapolation_thickness, args.extrapolation_thickness),
+    #                               (args.extrapolation_thickness, args.extrapolation_thickness), (0, 0)),
     #                    mode='constant')
     # new_depth = np.pad(depth,
-    #                    pad_width=((config['extrapolation_thickness'], config['extrapolation_thickness']),
-    #                               (config['extrapolation_thickness'], config['extrapolation_thickness'])),
+    #                    pad_width=((args.extrapolation_thickness, args.extrapolation_thickness),
+    #                               (args.extrapolation_thickness, args.extrapolation_thickness)),
     #                    mode='constant')
 
     return mesh, info_on_pix, depth, image
@@ -694,7 +695,7 @@ def incomplete_node(mesh, edge_maps, info_on_pix):
     return mesh
 
 def edge_inpainting(edge_id, context_cc, erode_context_cc, mask_cc, edge_cc, extend_edge_cc,
-                    mesh, edge_map, edge_maps_with_id, config, union_size, depth_edge_model, inpaint_iter):
+                    mesh, edge_map, edge_maps_with_id, args, union_size, depth_edge_model, inpaint_iter):
     edge_dict = get_edge_from_nodes(context_cc, erode_context_cc, mask_cc, edge_cc, extend_edge_cc,
                                         mesh.graph['H'], mesh.graph['W'], mesh)
     edge_dict['edge'], end_depth_maps, _ = \
@@ -712,7 +713,7 @@ def edge_inpainting(edge_id, context_cc, erode_context_cc, mask_cc, edge_cc, ext
     tensor_edge_dict = convert2tensor(patch_edge_dict)
     if require_depth_edge(patch_edge_dict['edge'], patch_edge_dict['mask']) and inpaint_iter == 0:
         with torch.no_grad():
-            device = config["gpu_ids"] if isinstance(config["gpu_ids"], int) and config["gpu_ids"] >= 0 else "cpu"
+            device = args.gpu_ids if isinstance(args.gpu_ids, int) and args.gpu_ids >= 0 else "cpu"
             depth_edge_output = depth_edge_model.forward_3P(tensor_edge_dict['mask'],
                                                             tensor_edge_dict['context'],
                                                             tensor_edge_dict['rgb'],
@@ -721,7 +722,7 @@ def edge_inpainting(edge_id, context_cc, erode_context_cc, mask_cc, edge_cc, ext
                                                             unit_length=128,
                                                             cuda=device)
             depth_edge_output = depth_edge_output.cpu()
-        tensor_edge_dict['output'] = (depth_edge_output > config['ext_edge_threshold']).float() * tensor_edge_dict['mask'] + tensor_edge_dict['edge']
+        tensor_edge_dict['output'] = (depth_edge_output > args.ext_edge_threshold).float() * tensor_edge_dict['mask'] + tensor_edge_dict['edge']
     else:
         tensor_edge_dict['output'] = tensor_edge_dict['edge']
         depth_edge_output = tensor_edge_dict['edge'] + 0
@@ -732,9 +733,9 @@ def edge_inpainting(edge_id, context_cc, erode_context_cc, mask_cc, edge_cc, ext
 
     return edge_dict, end_depth_maps
 
-def depth_inpainting(context_cc, extend_context_cc, erode_context_cc, mask_cc, mesh, config, union_size, depth_feat_model, edge_output, given_depth_dict=False, spdb=False):
+def depth_inpainting(context_cc, extend_context_cc, erode_context_cc, mask_cc, mesh, args, union_size, depth_feat_model, edge_output, given_depth_dict=False, spdb=False):
     if given_depth_dict is False:
-        depth_dict = get_depth_from_nodes(context_cc | extend_context_cc, erode_context_cc, mask_cc, mesh.graph['H'], mesh.graph['W'], mesh, config['log_depth'])
+        depth_dict = get_depth_from_nodes(context_cc | extend_context_cc, erode_context_cc, mask_cc, mesh.graph['H'], mesh.graph['W'], mesh, args.log_depth)
         if edge_output is not None:
             depth_dict['edge'] = edge_output
     else:
@@ -747,7 +748,7 @@ def depth_inpainting(context_cc, extend_context_cc, erode_context_cc, mask_cc, m
     tensor_depth_dict = convert2tensor(patch_depth_dict)
     resize_mask = open_small_mask(tensor_depth_dict['mask'], tensor_depth_dict['context'], 3, 41)
     with torch.no_grad():
-        device = config["gpu_ids"] if isinstance(config["gpu_ids"], int) and config["gpu_ids"] >= 0 else "cpu"
+        device = args.gpu_ids if isinstance(args.gpu_ids, int) and args.gpu_ids >= 0 else "cpu"
         depth_output = depth_feat_model.forward_3P(resize_mask,
                                                     tensor_depth_dict['context'],
                                                     tensor_depth_dict['zero_mean_depth'],

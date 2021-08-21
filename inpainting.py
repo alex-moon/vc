@@ -14,11 +14,11 @@ from tqdm import tqdm
 import MiDaS.MiDaS_utils as MiDaS_utils
 from MiDaS.monodepth_net import MonoDepthNet
 from MiDaS.run import run_depth
-from inpainting.bilateral_filtering import sparse_bilateral_filtering
-from inpainting.boostmonodepth_utils import run_boostmonodepth
-from inpainting.mesh import write_ply, read_ply, output_3d_photo
-from inpainting.networks import Inpaint_Color_Net, Inpaint_Depth_Net, Inpaint_Edge_Net
-from inpainting.utils import get_MiDaS_samples, read_MiDaS_depth
+from vc.service.helper.bilateral_filtering import sparse_bilateral_filtering
+from vc.service.helper.boostmonodepth_utils import run_boostmonodepth
+from vc.service.helper.mesh import write_ply, read_ply, output_3d_photo
+from vc.service.helper.networks import Inpaint_Color_Net, Inpaint_Depth_Net, Inpaint_Edge_Net
+from vc.service.helper.utils import get_MiDaS_samples, read_MiDaS_depth
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--config', type=str, default='argument.yml', help='Configuration of post processing')
