@@ -37,7 +37,7 @@ class InpaintingOptions:
     num_frames: int = 200
     x_shift_range: List[float] = field(default_factory=lambda: [0.00])
     y_shift_range: List[float] = field(default_factory=lambda: [0.00])
-    z_shift_range: List[float] = field(default_factory=lambda: [0.05])
+    z_shift_range: List[float] = field(default_factory=lambda: [0.00])
     traj_types: List[str] = field(
         default_factory=lambda: ['double-straight-line']
     )
