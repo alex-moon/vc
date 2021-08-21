@@ -49,7 +49,7 @@ class JobSerializer:
 
 
 class QueueService:
-    TIMEOUT = 600
+    TIMEOUT = '7d'  # these are liable to be long-running jobs
 
     job_serializer: JobSerializer
     queue: Queue = None
