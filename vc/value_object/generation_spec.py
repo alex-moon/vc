@@ -28,8 +28,12 @@ class ImageSpec:
 
 
 @dataclass
-class VideoSpec(ImageSpec):
-    pass
+class VideoSpec:
+    steps: List[ImageSpec]
+
+    schema = api.model('Video Spec', {
+        'steps': fields.List(fields.Nested(ImageSpec.schema))
+    })
 
 
 @dataclass

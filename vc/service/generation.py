@@ -1,7 +1,6 @@
 import json
 from time import time
 from dataclasses import asdict
-from typing import Union
 from injector import inject
 from os.path import isfile
 from shutil import copy
@@ -40,7 +39,7 @@ class GenerationService:
         z_velocity = 0.
 
         def generate_image(
-            spec: Union[ImageSpec, VideoSpec],
+            spec: ImageSpec,
             prompt: str
         ):
             nonlocal x_velocity
@@ -95,22 +94,24 @@ class GenerationService:
         step = 0
         if spec.videos:
             for video in spec.videos:
-                if video.texts:
-                    for text in video.texts:
-                        if video.styles:
-                            for style in video.styles:
-                                for i in range(video.epochs):
-                                    generate_image(video, '%s | %s' % (
-                                        text,
-                                        style
-                                    ))
-                                    copy(self.OUTPUT_FILENAME, f'steps/{step:04}.png')
-                                    step += 1
-                        else:
-                            for i in range(video.epochs):
-                                generate_image(video, text)
-                                copy(self.OUTPUT_FILENAME, f'steps/{step:04}.png')
-                                step += 1
+                if video.steps:
+                    for video_step in video.steps:
+                        if video_step.texts:
+                            for text in video_step.texts:
+                                if video_step.styles:
+                                    for style in video_step.styles:
+                                        for i in range(video_step.epochs):
+                                            generate_image(video_step, '%s | %s' % (
+                                                text,
+                                                style
+                                            ))
+                                            copy(self.OUTPUT_FILENAME, f'steps/{step:04}.png')
+                                            step += 1
+                                else:
+                                    for i in range(video_step.epochs):
+                                        generate_image(video_step, text)
+                                        copy(self.OUTPUT_FILENAME, f'steps/{step:04}.png')
+                                        step += 1
 
             self.video.make_video(step, json.dumps(asdict(spec), indent=4))
 
