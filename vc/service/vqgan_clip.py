@@ -409,6 +409,7 @@ class VqganClipService:
         out = self.synth(model, z)
         info = PngImagePlugin.PngInfo()
         info.add_text('comment', f'{prompts}')
+        print("vqgan_clip.py:", "Writing VQGAN/CLIP output frame:", os.path.abspath(output))
         TF.to_pil_image(out[0].cpu()).save(output, pnginfo=info)
 
     def ascend_txt(self, model, perceptor, args, prompts, z_orig, z, i):

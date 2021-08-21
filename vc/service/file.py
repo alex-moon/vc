@@ -1,6 +1,7 @@
 from injector import inject
 from flask import Flask
 import boto3
+import os
 
 
 class FileService:
@@ -17,6 +18,11 @@ class FileService:
         self.bucket = app.config.get('AWS_BUCKET_NAME')
 
     def put(self, local_file, filename):
+        print(
+            "file.py:",
+            "Pushing to S3:",
+            os.path.abspath(local_file)
+        )
         self.client.upload_file(
             local_file,
             self.bucket,

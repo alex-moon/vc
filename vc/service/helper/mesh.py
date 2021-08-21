@@ -3567,6 +3567,7 @@ def output_3d_photo(
                 path = video_basename + '.png'
                 if output_dir:
                     path = os.path.join(output_dir, path)
+                print("mesh.py:", "Writing Inpainting output frame:", os.path.abspath(path))
                 write_png(path, img)
                 return
 
