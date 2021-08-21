@@ -1,4 +1,5 @@
 import json
+from time import time
 from dataclasses import asdict
 from typing import Union
 from injector import inject
@@ -32,6 +33,8 @@ class GenerationService:
 
     def handle(self, spec: GenerationSpec):
         print('starting')
+        start = time()
+
         x_velocity = 0.
         y_velocity = 0.
         z_velocity = 0.
@@ -110,4 +113,6 @@ class GenerationService:
                                 step += 1
 
             self.video.make_video(step, json.dumps(asdict(spec), indent=4))
-        print('done')
+
+        end = time()
+        print('done in %s seconds', end - start)
