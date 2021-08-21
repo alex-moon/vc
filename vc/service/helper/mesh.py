@@ -3564,10 +3564,10 @@ def output_3d_photo(
                 print("Writing output image muhahaha >:)")
                 if isinstance(video_basename, list):
                     video_basename = video_basename[0]
-                write_png(
-                    os.path.join(output_dir, video_basename + '.png'),
-                    img
-                )
+                path = video_basename + '.png'
+                if output_dir:
+                    path = os.path.join(output_dir, path)
+                write_png(path, img)
                 return
 
             stereos.append(img[..., :3])
@@ -3595,12 +3595,10 @@ def output_3d_photo(
         clip = ImageSequenceClip(stereos, fps=args.fps)
         if isinstance(video_basename, list):
             video_basename = video_basename[0]
-        clip.write_videofile(
-            os.path.join(
-                output_dir,
-                video_basename + '_' + video_traj_type + '.mp4'
-            ),
-            fps=args.fps
-        )
+
+        path = video_basename + '_' + video_traj_type + '.mp4'
+        if output_dir:
+            path = os.path.join(output_dir, path)
+        clip.write_videofile(path, fps=args.fps)
 
     return normal_canvas, all_canvas

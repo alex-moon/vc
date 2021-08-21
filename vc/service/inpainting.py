@@ -48,7 +48,7 @@ class InpaintingOptions:
     src_folder: str = 'input'
     depth_folder: str = 'depth'
     mesh_folder: str = 'mesh'
-    video_folder: str = 'results'
+    video_folder: str = None
     load_ply: bool = False
     save_ply: bool = True
     inference_video: bool = True
@@ -94,8 +94,11 @@ class InpaintingService:
             vispy.use(app='egl')
 
         os.makedirs(args.mesh_folder, exist_ok=True)
-        os.makedirs(args.video_folder, exist_ok=True)
         os.makedirs(args.depth_folder, exist_ok=True)
+
+        if args.video_folder:
+            os.makedirs(args.video_folder, exist_ok=True)
+
         sample_list = get_MiDaS_samples(
             args,
             image_files=args.input_file
@@ -252,7 +255,7 @@ class InpaintingService:
                     args.output_w)
             down, right = top + args.output_h, left + args.output_w
             border = [int(xx) for xx in [top, down, left, right]]
-            normal_canvas, all_canvas = output_3d_photo(
+            output_3d_photo(
                 verts.copy(),
                 colors.copy(),
                 faces.copy(),
@@ -260,7 +263,7 @@ class InpaintingService:
                 copy.deepcopy(Width),
                 sample['video_postfix'],
                 copy.deepcopy(sample['ref_pose']),
-                copy.deepcopy(args.video_folder),
+                args.video_folder,
                 copy.deepcopy(sample['int_mtx']),
                 args,
                 videos_poses,
@@ -270,5 +273,6 @@ class InpaintingService:
                 border=border,
                 normal_canvas=normal_canvas,
                 all_canvas=all_canvas,
-                mean_loc_depth=mean_loc_depth
+                mean_loc_depth=mean_loc_depth,
+                mode='frame'
             )
