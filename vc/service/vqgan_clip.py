@@ -405,7 +405,7 @@ class VqganClipService:
         loss_all = self.ascend_txt(model, perceptor, args, prompts, z_orig, z, i)
 
         if i % args.display_freq == 0:
-            self.checkin(model, z, args.prompts, 'output.png', i, loss_all)
+            self.checkin(model, z, args.prompts, self.OUTPUT_FILENAME, i, loss_all)
 
         loss = sum(loss_all)
         loss.backward()
