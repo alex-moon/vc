@@ -31,11 +31,11 @@ class InpaintingOptions:
     use_boostmonodepth: bool = True
     fps: int = 40
     num_frames: int = 200
-    x_shift_range: List[float] = field(default=[0.00])
-    y_shift_range: List[float] = field(default=[0.00])
-    z_shift_range: List[float] = field(default=[0.05])
-    traj_types: List[str] = field(default=['double-straight-line'])
-    video_postfix: List[str] = field(default=['zoom-in'])
+    x_shift_range: List[float] = field(default_factory=lambda: [0.00])
+    y_shift_range: List[float] = field(default_factory=lambda: [0.00])
+    z_shift_range: List[float] = field(default_factory=lambda: [0.05])
+    traj_types: List[str] = field(default_factory=lambda: ['double-straight-line'])
+    video_postfix: List[str] = field(default_factory=lambda: ['zoom-in'])
     specific: str = ''
     longer_side_len: int = 400
     input_file: str = 'output.png'
@@ -54,7 +54,7 @@ class InpaintingOptions:
     depth_threshold: float = 0.04
     ext_edge_threshold: float = 0.002
     sparse_iter: int = 5
-    filter_size: List[int] = field(default=[7, 7, 5, 5, 5])
+    filter_size: List[int] = field(default_factory=lambda: [7, 7, 5, 5, 5])
     sigma_s: float = 4.0
     sigma_r: float = 0.5
     redundant_number: int = 12
@@ -70,7 +70,7 @@ class InpaintingOptions:
     extrapolate_border: bool = True
     extrapolation_thickness: int = 60
     repeat_inpaint_edge: bool = True
-    crop_border: List[float] = field(default=[0.03, 0.03, 0.05, 0.03])
+    crop_border: List[float] = field(default_factory=lambda: [0.03, 0.03, 0.05, 0.03])
     anti_flickering: bool = False
 
 
