@@ -13,6 +13,7 @@ from vc.value_object import GenerationSpec, ImageSpec, VideoSpec
 
 class GenerationService:
     OUTPUT_FILENAME = 'output.png'
+    ACCELERATION = 0.01
 
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
@@ -31,6 +32,48 @@ class GenerationService:
 
     def handle(self, spec: GenerationSpec):
         print('starting')
+        x_velocity = 0.
+        y_velocity = 0.
+        z_velocity = 0.
+
+        def generate_image(
+            spec: Union[ImageSpec, VideoSpec],
+            prompt: str
+        ):
+            nonlocal x_velocity
+            nonlocal y_velocity
+            nonlocal z_velocity
+
+            self.vqgan_clip.handle(VqganClipOptions(**{
+                'prompts': prompt,
+                'max_iterations': spec.iterations,
+                'init_image': (
+                    self.OUTPUT_FILENAME
+                    if isfile(self.OUTPUT_FILENAME)
+                    else None
+                ),
+            }))
+
+            # accelerate toward intended velocity @todo cleaner way to do this
+            if x_velocity > spec.x_shift:
+                x_velocity -= self.ACCELERATION
+            if x_velocity < spec.x_shift:
+                x_velocity += self.ACCELERATION
+            if y_velocity > spec.y_shift:
+                y_velocity -= self.ACCELERATION
+            if y_velocity < spec.y_shift:
+                y_velocity += self.ACCELERATION
+            if z_velocity > spec.z_shift:
+                z_velocity -= self.ACCELERATION
+            if z_velocity < spec.z_shift:
+                z_velocity += self.ACCELERATION
+
+            self.inpainting.handle(InpaintingOptions(**{
+                'x_shift_range': [x_velocity],
+                'y_shift_range': [y_velocity],
+                'z_shift_range': [z_velocity],
+            }))
+
         if spec.images:
             for image in spec.images:
                 if image.texts:
@@ -38,13 +81,13 @@ class GenerationService:
                         if image.styles:
                             for style in image.styles:
                                 for i in range(image.epochs):
-                                    self.generate_image(image, '%s | %s' % (
+                                    generate_image(image, '%s | %s' % (
                                         text,
                                         style
                                     ))
                         else:
                             for i in range(image.epochs):
-                                self.generate_image(image, text)
+                                generate_image(image, text)
 
         step = 0
         if spec.videos:
@@ -54,7 +97,7 @@ class GenerationService:
                         if video.styles:
                             for style in video.styles:
                                 for i in range(video.epochs):
-                                    self.generate_image(video, '%s | %s' % (
+                                    generate_image(video, '%s | %s' % (
                                         text,
                                         style
                                     ))
@@ -62,25 +105,9 @@ class GenerationService:
                                     step += 1
                         else:
                             for i in range(video.epochs):
-                                self.generate_image(video, text)
+                                generate_image(video, text)
                                 copy(self.OUTPUT_FILENAME, f'steps/{step:04}.png')
                                 step += 1
 
             self.video.make_video(step, json.dumps(asdict(spec), indent=4))
         print('done')
-
-    def generate_image(self, spec: Union[ImageSpec, VideoSpec], prompt: str):
-        self.vqgan_clip.handle(VqganClipOptions(**{
-            'prompts': prompt,
-            'max_iterations': spec.iterations,
-            'init_image': (
-                self.OUTPUT_FILENAME
-                if isfile(self.OUTPUT_FILENAME)
-                else None
-            ),
-        }))
-        self.inpainting.handle(InpaintingOptions(**{
-            'x_shift_range': [spec.x_shift],
-            'y_shift_range': [spec.y_shift],
-            'z_shift_range': [spec.z_shift],
-        }))
