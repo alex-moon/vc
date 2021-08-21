@@ -1,21 +1,18 @@
 """Compute depth maps for images in the input folder.
 """
 import os
-import glob
-import torch
+
+import cv2
 # from monodepth_net import MonoDepthNet
 # import utils
-import matplotlib.pyplot as plt
 import numpy as np
-import cv2
-import imageio
+import torch
 
 
-def run_depth(img_names, input_path, output_path, model_path, Net, utils, target_w=None):
+def run_depth(img_names, output_path, model_path, Net, utils, target_w=None):
     """Run MonoDepthNN to compute depth maps.
 
     Args:
-        input_path (str): path to input folder
         output_path (str): path to output folder
         model_path (str): path to saved model
     """

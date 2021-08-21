@@ -45,7 +45,6 @@ class InpaintingOptions:
     specific: str = ''
     longer_side_len: int = 400
     input_file: str = 'output.png'
-    src_folder: str = 'input'
     depth_folder: str = 'depth'
     mesh_folder: str = 'mesh'
     video_folder: str = None
@@ -125,13 +124,12 @@ class InpaintingService:
             print(f"Running depth extraction at {time.time()}")
             if args.use_boostmonodepth is True:
                 run_boostmonodepth(
-                    sample['ref_img_fi'], args.src_folder,
+                    sample['ref_img_fi'],
                     args.depth_folder
                 )
             elif args.require_midas is True:
                 run_depth(
                     [sample['ref_img_fi']],
-                    args.src_folder,
                     args.depth_folder,
                     args.MiDaS_model_ckpt,
                     MonoDepthNet,

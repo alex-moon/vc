@@ -15,7 +15,7 @@ BOOST_INPUTS = 'inputs'
 BOOST_OUTPUTS = 'outputs'
 
 
-def run_boostmonodepth(img_names, src_folder, depth_folder):
+def run_boostmonodepth(img_names, depth_folder):
     if not isinstance(img_names, list):
         img_names = [img_names]
 
