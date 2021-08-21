@@ -273,7 +273,7 @@ def reassign_floating_island(mesh, info_on_pix, image, depth):
         surr_edge_ids = {}
         for lost_x, lost_y in zip(lost_xs, lost_ys):
             if (lost_x, lost_y) == (295, 389) or (lost_x, lost_y) == (296, 389):
-                import pdb; pdb.set_trace()
+                pass
             for ne in get_cross_nes(lost_x, lost_y):
                 if key_exist(info_on_pix, ne):
                     for info in info_on_pix[ne]:
@@ -452,7 +452,7 @@ def group_edges(LDI, args, image, remove_conflict_ordinal, spdb=False):
                             add_new_node(discont_graph, diag_candi)
                             add_new_edge(discont_graph, diag_candi, node)
     if spdb == True:
-        import pdb; pdb.set_trace()
+        pass
     discont_ccs = [*netx.connected_components(discont_graph)]
     '''
     In some corner case, a depth edge "discont_cc" will contain both
@@ -526,7 +526,7 @@ def group_edges(LDI, args, image, remove_conflict_ordinal, spdb=False):
         discont_ccs = new_discont_ccs
         new_discont_ccs = None
     if spdb == True:
-        import pdb; pdb.set_trace()
+        pass
 
     for edge_id, edge_cc in enumerate(discont_ccs):
         for node in edge_cc:
@@ -651,7 +651,7 @@ def remove_redundant_edge(mesh, edge_mesh, edge_ccs, info_on_pix, args, redundan
             edge_canvas[valid_edge_node[0], valid_edge_node[1]] = valid_edge_id
     if spdb is True:
         plt.imshow(edge_canvas); plt.show()
-        import pdb; pdb.set_trace()
+        pass
     for valid_edge_id, valid_edge_cc in enumerate(valid_edge_ccs):
         end_number = 0
         four_end_number = 0
@@ -698,7 +698,7 @@ def remove_redundant_edge(mesh, edge_mesh, edge_ccs, info_on_pix, args, redundan
                             point_to_id[ne] in point_to_adjoint.get(point_to_id[valid_edge_node], set()):
                             mesh.add_edge(valid_edge_node, ne)
                     except:
-                        import pdb; pdb.set_trace()
+                        pass
         if (invalid is not True and end_number >= 1) or (invalid is True and end_number >= 2 and eight_end_number >= 1 and db_eight_end_number >= 1):
             for valid_edge_node in valid_edge_cc:
                 hx, hy, _ = valid_edge_node
@@ -858,7 +858,7 @@ def remove_dangling(mesh, edge_ccs, edge_mesh, info_on_pix, image, depth, args):
             try:
                 ne_cc = [ne_cc for ne_cc in ne_ccs if ne_node in ne_cc][0]
             except:
-                import pdb; pdb.set_trace()
+                pass
             largest_cc = [xx for xx in ne_cc if abs(xx[0] - node[0]) + abs(xx[1] - node[1]) == 1]
             mesh.remove_edges_from([(xx, node) for xx in mesh.neighbors(node)])
             re_depth = {'value' : 0, 'count': 0}
@@ -1010,13 +1010,13 @@ def context_and_holes(mesh, edge_ccs, args, specific_edge_id, specific_edge_loc,
                 tmp_erode.append([*context_ccs[edge_id]])
                 context_map = np.zeros((mesh.graph['H'], mesh.graph['W']), dtype=np.bool)
                 if (context_map.astype(np.uint8) * mask_map.astype(np.uint8)).max() > 0:
-                    import pdb; pdb.set_trace()
+                    pass
                 for node in tmp_context_nodes:
                     context_map[node[0], node[1]] = True
                     context_depth[node[0], node[1]] = node[2]
                 context_map[mask_map == True] = False
                 if (context_map.astype(np.uint8) * mask_map.astype(np.uint8)).max() > 0:
-                    import pdb; pdb.set_trace()
+                    pass
                 tmp_intouched_nodes = [*intouched_ccs[edge_id]]
                 intouched_map = np.zeros((mesh.graph['H'], mesh.graph['W']), dtype=np.bool)
                 for node in tmp_intouched_nodes: intouched_map[node[0], node[1]] = True
@@ -1272,7 +1272,7 @@ def context_and_holes(mesh, edge_ccs, args, specific_edge_id, specific_edge_loc,
             else:
                 erode_context_ccs[edge_id] = set(reduce(lambda x, y : x + y, [] + tmp_erode[:tmp_width]))
         except:
-            import pdb; pdb.set_trace()
+            pass
         erode_context_cc = copy.deepcopy(erode_context_ccs[edge_id])
         for erode_context_node in erode_context_cc:
             if (inpaint_iter != 0 and (mesh_nodes[erode_context_node].get('inpaint_id') is None or
@@ -1320,12 +1320,12 @@ def context_and_holes(mesh, edge_ccs, args, specific_edge_id, specific_edge_loc,
                     init_invalid_context_map = tmp_invalid_context_map.copy()
                     init_context_map = tmp
                     if (tmp_mask_map.astype(np.uint8) * tmp_context_map.astype(np.uint8)).max() > 0:
-                        import pdb; pdb.set_trace()
+                        pass
                     if vis_edge_id is not None and ecnt_id == vis_edge_id:
                         f, ((ax1, ax2)) = plt.subplots(1, 2, sharex=True, sharey=True)
                         ax1.imshow(tmp_context_map * 1); ax2.imshow(init_invalid_context_map * 1 + tmp_context_map * 2)
                         plt.show()
-                        import pdb; pdb.set_trace()
+                        pass
                 else:
                     tmp_context_nodes = new_tmp_context_nodes
                     new_tmp_context_nodes = None
@@ -1367,12 +1367,12 @@ def context_and_holes(mesh, edge_ccs, args, specific_edge_id, specific_edge_loc,
             _, tmp_label_map = cv2.connectedComponents((init_invalid_context_map | tmp_context_map).astype(np.uint8), connectivity=8)
             tmp_label_ids = set(np.unique(tmp_label_map[init_invalid_context_map]))
             if (tmp_mask_map.astype(np.uint8) * tmp_context_map.astype(np.uint8)).max() > 0:
-                import pdb; pdb.set_trace()
+                pass
             if vis_edge_id is not None and ecnt_id == vis_edge_id:
                 f, ((ax1, ax2)) = plt.subplots(1, 2, sharex=True, sharey=True)
                 ax1.imshow(tmp_label_map); ax2.imshow(init_invalid_context_map * 1 + tmp_context_map * 2)
                 plt.show()
-                import pdb; pdb.set_trace()
+                pass
             extend_context_ccs[ecnt_id] |= set(accum_context_cc)
             extend_context_ccs[ecnt_id] = extend_context_ccs[ecnt_id] - mask_ccs[ecnt_id]
             extend_erode_context_ccs[ecnt_id] = extend_context_ccs[ecnt_id] & constraint_erode_context_cc
@@ -1489,7 +1489,7 @@ def DL_inpaint_edge(mesh,
                     edge_dict['fpath_map'], edge_dict['npath_map'], break_flag, npaths, fpaths, invalid_edge_id = \
                         clean_far_edge_new(edge_dict['output'], end_depth_maps, edge_dict['mask'], edge_dict['context'], mesh, info_on_pix, edge_dict['self_edge'], inpaint_iter, args)
                 except:
-                    import pdb; pdb.set_trace()
+                    pass
                 pre_npath_map = edge_dict['npath_map'].copy()
                 if args.repeat_inpaint_edge is True:
                     for _ in range(2):
@@ -1519,7 +1519,7 @@ def DL_inpaint_edge(mesh,
                     if end_depth_maps[npath[-1][0], npath[-1][1]] != 0:
                         end_mx, end_my = npath[-1][0], npath[-1][1]
                     if start_mx == -1:
-                        import pdb; pdb.set_trace()
+                        pass
                     valid_end_pt = () if end_mx == -1 else (end_mx, end_my, info_on_pix[(end_mx, end_my)][0]['depth'])
                     new_edge_info = dict(fpath=fpath,
                                          npath=npath,
@@ -1635,7 +1635,7 @@ def DL_inpaint_edge(mesh,
                         for fnode in cur_info['npath']:
                             edge_dict['npath_map'][fnode[0], fnode[1]] = cur_info['comp_edge_id']
             if edge_dict['npath_map'].min() == 0 or edge_dict['fpath_map'].min() == 0:
-                import pdb; pdb.set_trace()
+                pass
             edge_dict['output'] = (edge_dict['npath_map'] > -1) * edge_dict['mask'] + edge_dict['context'] * edge_dict['edge']
         mesh, _, _, _ = create_placeholder(edge_dict['context'], edge_dict['mask'],
                                   edge_dict['depth'], edge_dict['fpath_map'],
@@ -1662,7 +1662,7 @@ def DL_inpaint_edge(mesh,
         rgb_dict = get_rgb_from_nodes(context_cc | extend_context_cc,
                                       erode_context_cc | extend_erode_context_ccs[edge_id], mask_cc, mesh.graph['H'], mesh.graph['W'], mesh)
         if np.all(rgb_dict['mask'] == edge_dict['mask']) is False:
-            import pdb; pdb.set_trace()
+            pass
         rgb_dict['edge'] = edge_dict['output']
         patch_rgb_dict = dict()
         patch_rgb_dict['mask'], patch_rgb_dict['context'], patch_rgb_dict['rgb'], \
@@ -1760,7 +1760,7 @@ def DL_inpaint_edge(mesh,
             if not(mesh.has_node(node)):
                 if not mesh.has_node((node[0], node[1])):
                     print("2D node not found.")
-                    import pdb; pdb.set_trace()
+                    pass
                 if inpaint_iter == 1:
                     paint = (rgb_dict['output'][hx, hy] * 255).astype(np.uint8)
                 else:
@@ -1810,7 +1810,7 @@ def DL_inpaint_edge(mesh,
             try:
                 new_edge_ccs[mesh.nodes[node].get('edge_id')].add(node)
             except:
-                import pdb; pdb.set_trace()
+                pass
     specific_mask_nodes = None
     if inpaint_iter == 0:
         mesh, info_on_pix = refine_color_around_edge(mesh, info_on_pix, new_edge_ccs, args, False)
@@ -2109,8 +2109,7 @@ def read_ply(mesh_fi):
         colors = np.array(colors)
         colors[..., :3] = colors[..., :3]/255.
     except:
-        import pdb
-        pdb.set_trace()
+        pass
 
     for f_info in face_infos:
         _, v1, v2, v3 = [int(f) for f in f_info.split('\n')[0].split(' ')]

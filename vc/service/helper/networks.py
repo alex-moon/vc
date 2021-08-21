@@ -188,7 +188,7 @@ class Inpaint_Depth_Net(nn.Module):
             # enlarge_input[:, 3] = 1. - enlarge_input[:, 3]
             depth_output = self.forward(enlarge_input)
             depth_output = depth_output[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w]
-            # import pdb; pdb.set_trace()
+            # pass
 
         return depth_output
 

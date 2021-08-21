@@ -75,7 +75,7 @@ def filter_irrelevant_edge_new(self_edge, comp_edge, other_edges, other_edges_wi
     extend_other_edges = np.zeros_like(other_edges)
     if spdb is True:
         f, ((ax1, ax2, ax3)) = plt.subplots(1, 3, sharex=True, sharey=True); ax1.imshow(self_edge); ax2.imshow(context); ax3.imshow(other_edges_with_id * context + (-1) * (1 - context)); plt.show()
-        import pdb; pdb.set_trace()
+        pass
     filter_self_edge = np.zeros_like(self_edge)
     for self_edge_id in self_edge_ids:
         filter_self_edge[other_edges_with_id == self_edge_id] = 1
@@ -123,7 +123,7 @@ def clean_far_edge_new(input_edge, end_depth_maps, mask, context, global_mesh, i
             if end_depth_maps[ne[0], ne[1]] != 0:
                 mesh.nodes[ne[0], ne[1]]['cnt'] = True
                 if end_depth_maps[ne[0], ne[1]] == 0:
-                    import pdb; pdb.set_trace()
+                    pass
                 mesh.nodes[ne[0], ne[1]]['depth'] = end_depth_maps[ne[0], ne[1]]
             elif mask[ne[0], ne[1]] != 1:
                 four_nes = [nne for nne in [(ne[0] + 1, ne[1]), (ne[0] - 1, ne[1]), (ne[0], ne[1] + 1), (ne[0], ne[1] - 1)]\
@@ -230,11 +230,11 @@ def clean_far_edge_new(input_edge, end_depth_maps, mask, context, global_mesh, i
             elif len(sorted_end_pt) == 1:
                 ends = [*sorted_end_pt]
             else:
-                import pdb; pdb.set_trace()
+                pass
             try:
                 edge_id = global_mesh.nodes[ends[0]]['edge_id']
             except:
-                import pdb; pdb.set_trace()
+                pass
             pnodes = sorted(pnodes, 
                             key=lambda x: np.hypot((x[0] - ends[0][0]), (x[1] - ends[0][1])),
                             reverse=True)[0]
@@ -448,7 +448,7 @@ def plan_path(mesh, info_on_pix, cc, end_pt, global_mesh, input_edge, mask, vali
         elif (ends[0][0], ends[0][1]) == npath[-1]:
             npath = npath[::-1]
         else:
-            import pdb; pdb.set_trace()
+            pass
     for np_node in npath:
         my_npath_map[np_node[0], np_node[1]] = edge_id
     fpath = []
@@ -602,7 +602,7 @@ def create_placeholder(context, mask, depth, fpath_map, npath_map, mesh, inpaint
                     mesh.add_edge((hx, hy), (ne[0], ne[1], depth[ne[0], ne[1]]))
                 else:
                     print("Undefined context node.")
-                    import pdb; pdb.set_trace()
+                    pass
     near_ids = np.unique(npath_map)
     if near_ids[0] == -1: near_ids = near_ids[1:]
     for near_id in near_ids:
@@ -1020,7 +1020,7 @@ def filter_irrelevant_edge(self_edge, other_edges, other_edges_with_id, current_
     dilate_self_edge = cv2.dilate(self_edge.astype(np.uint8), np.array([[1,1,1],[1,1,1],[1,1,1]]).astype(np.uint8), iterations=1)
     edge_ids = collections.Counter(other_edges_with_id.flatten()).keys()
     other_edges_info = []
-    # ipdb.set_trace()
+
     for edge_id in edge_ids:
         edge_id = int(edge_id)
         if edge_id >= 0:
@@ -1066,15 +1066,12 @@ def filter_irrelevant_edge(self_edge, other_edges, other_edges_with_id, current_
     try:
         other_edges_info = sorted(other_edges_info, key=lambda x : x['diff'], reverse=True)
     except:
-        import pdb
-        pdb.set_trace()
-    # import pdb
-    # pdb.set_trace()
+        pass
+    # pass
     # other_edges = other_edges[..., None]
     for other_edge in other_edges_info:
         if other_edge['end_point_map'] is None:
-            import pdb
-            pdb.set_trace()
+            pass
 
     other_edges = other_edges * context
 
@@ -1209,7 +1206,7 @@ def refine_color_around_edge(mesh, info_on_pix, edge_ccs, args, spdb=False):
                             re_color += mesh.nodes[ne_node]['backup_color'].astype(np.float32)
                             re_count += 1.
                         except:
-                            import pdb; pdb.set_trace()
+                            pass
                 if re_count > 0:
                     re_depth = re_depth / re_count
                     re_color = re_color / re_count
@@ -1238,7 +1235,7 @@ def refine_color_around_edge(mesh, info_on_pix, edge_ccs, args, spdb=False):
             ax3.imshow(bfrc_canvas); 
             ax4.imshow(aftc_canvas); 
             plt.show()
-            import pdb; pdb.set_trace()
+            pass
         for node in refine_nodes:
             if mesh.nodes[node].get('refine_rgbd') is not None:
                 mesh.nodes[node].pop('refine_rgbd')

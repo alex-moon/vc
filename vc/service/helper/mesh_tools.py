@@ -165,7 +165,7 @@ def extrapolate(global_mesh,
     valid_line = valid_line[all_anchor[0]:all_anchor[1], all_anchor[2]:all_anchor[3]]
     # f, ((ax1, ax2)) = plt.subplots(1, 2, sharex=True, sharey=True); ax1.imshow(global_context * 1 + global_mask * 2); ax2.imshow(image); plt.show()
     # f, ((ax1, ax2, ax3)) = plt.subplots(1, 3, sharex=True, sharey=True); ax1.imshow(context * 1 + mask * 2); ax2.imshow(input_rgb); ax3.imshow(valid_line); plt.show()
-    # import pdb; pdb.set_trace()
+    # pass
     # return
     input_edge_map = edge_map[all_anchor[0]:all_anchor[1], all_anchor[2]:all_anchor[3]] * context
     input_other_edge_with_id = other_edge_with_id[all_anchor[0]:all_anchor[1], all_anchor[2]:all_anchor[3]]
@@ -191,7 +191,7 @@ def extrapolate(global_mesh,
                                                     cuda=device)
     t_output_edge = (depth_edge_output> args.ext_edge_threshold).float() * t_mask + t_edge
     output_raw_edge = t_output_edge.data.cpu().numpy().squeeze()
-    # import pdb; pdb.set_trace()
+    # pass
     mesh = netx.Graph()
     hxs, hys = np.where(output_raw_edge * mask > 0)
     valid_map = mask + context
@@ -235,7 +235,7 @@ def extrapolate(global_mesh,
             fpath = []
             if global_mesh.nodes[(ends[0][0] + all_anchor[0], ends[0][1] + all_anchor[2], -ends[0][2])].get('far') is None:
                 print("None far")
-                import pdb; pdb.set_trace()
+                pass
             else:
                 fnodes = global_mesh.nodes[(ends[0][0] + all_anchor[0], ends[0][1] + all_anchor[2], -ends[0][2])].get('far')
                 fnodes = [(xx[0] - all_anchor[0], xx[1] - all_anchor[2], xx[2]) for xx in fnodes]
@@ -284,7 +284,7 @@ def extrapolate(global_mesh,
             if len(fpath) > 0:
                 for fp_node in fpath:
                     fpath_map[fp_node[0], fp_node[1]] = edge_id
-    # import pdb; pdb.set_trace()
+    # pass
     far_edge = (fpath_map > -1).astype(np.uint8)
     update_edge = (npath_map > -1) * mask + edge
     t_update_edge = torch.FloatTensor(update_edge).to(device)[None, None, ...]
@@ -294,7 +294,7 @@ def extrapolate(global_mesh,
     depth_output = np.exp(depth_output + input_mean_depth) * mask # + input_depth * context
     # if "right" in direc.lower() and "-" not in direc.lower():
     #     plt.imshow(depth_output); plt.show()
-    #     import pdb; pdb.set_trace()
+    #     pass
     #     f, ((ax1, ax2)) = plt.subplots(1, 2, sharex=True, sharey=True); ax1.imshow(depth_output); ax2.imshow(npath_map + fpath_map); plt.show()
     for near_id in np.unique(npath_map[npath_map > -1]):
         depth_output = refine_depth_around_edge(depth_output.copy(),
@@ -306,7 +306,7 @@ def extrapolate(global_mesh,
                                                 args)
     # if "right" in direc.lower() and "-" not in direc.lower():
     #     plt.imshow(depth_output); plt.show()
-    #     import pdb; pdb.set_trace()
+    #     pass
     #     f, ((ax1, ax2)) = plt.subplots(1, 2, sharex=True, sharey=True); ax1.imshow(depth_output); ax2.imshow(npath_map + fpath_map); plt.show()
     rgb_output = rgb_feat_model.forward_3P(t_mask, t_context, t_rgb, t_update_edge, unit_length=128,
                                            cuda=device)
@@ -506,7 +506,7 @@ def fill_missing_node(mesh, info_on_pix, image, depth):
         for y in range(mesh.graph['bord_left'], mesh.graph['bord_right']):
             if info_on_pix.get((x, y)) is None:
                 print("fill missing node = ", x, y)
-                import pdb; pdb.set_trace()
+                pass
                 re_depth, re_count = 0, 0
                 for ne in [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]:
                     if info_on_pix.get(ne) is not None:
@@ -554,7 +554,7 @@ def refresh_bord_depth(mesh, info_on_pix, image, depth):
         if tgt_loc is not None:
             ne_infos = info_on_pix.get(tgt_loc)
             if ne_infos is None:
-                import pdb; pdb.set_trace()
+                pass
             # if ne_infos is not None and len(ne_infos) == 1:
             tgt_depth = ne_infos[0]['depth']
             tgt_disp = ne_infos[0]['disp']
@@ -567,7 +567,7 @@ def refresh_bord_depth(mesh, info_on_pix, image, depth):
             tgt_nes_loc = [xx for xx in tgt_nes_loc if info_on_pix.get(xx) is not None]
             tgt_nes_loc.append(tgt_loc)
             # if (xy[0], xy[1]) == (559, 60):
-            #     import pdb; pdb.set_trace()
+            #     pass
             if info_on_pix.get(xy) is not None and len(info_on_pix.get(xy)) > 0:
                 old_depth = info_on_pix[xy][0].get('depth')
                 old_node = (xy[0], xy[1], old_depth)
@@ -622,7 +622,7 @@ def refresh_bord_depth(mesh, info_on_pix, image, depth):
         mesh.nodes[new_node]['near'] = None
     for xy in bord_nodes + corner_nodes:
         # if (xy[0], xy[1]) == (559, 60):
-        #     import pdb; pdb.set_trace()
+        #     pass
         depth[xy[0], xy[1]] = abs(info_on_pix[xy][0]['depth'])
     for xy in bord_nodes:
         cur_node = (xy[0], xy[1], info_on_pix[xy][0]['depth'])
@@ -769,7 +769,7 @@ def depth_inpainting(context_cc, extend_context_cc, erode_context_cc, mask_cc, m
     if spdb is True:
         f, ((ax1, ax2)) = plt.subplots(1, 2, sharex=True, sharey=True);
         ax1.imshow(depth_output * depth_dict['mask'] + depth_dict['depth']); ax2.imshow(depth_dict['output'] * depth_dict['mask'] + depth_dict['depth']); plt.show()
-        import pdb; pdb.set_trace()
+        pass
     depth_dict['output'] = depth_output * depth_dict['mask'] + depth_dict['depth'] * depth_dict['context']
 
     return depth_dict
