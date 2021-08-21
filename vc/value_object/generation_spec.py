@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List
+
 from flask_restplus import fields
 
 from vc.api import api
@@ -7,10 +8,10 @@ from vc.api import api
 
 @dataclass
 class ImageSpec:
-    texts: List[str]
-    styles: List[str]
-    iterations: int = 50
-    epochs: int = 10
+    texts: List[str] = None
+    styles: List[str] = None
+    iterations: int = 500
+    epochs: int = 1
     x_shift: float = 0.
     y_shift: float = 0.
     z_shift: float = 0.05

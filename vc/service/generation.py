@@ -1,5 +1,5 @@
 import json
-
+from typing import Union
 from injector import inject
 from os.path import isfile
 from shutil import copy
@@ -7,7 +7,7 @@ from shutil import copy
 from vc.service import VqganClipService, InpaintingService, VideoService
 from vc.service.vqgan_clip import VqganClipOptions
 from vc.service.inpainting import InpaintingOptions
-from vc.value_object import GenerationSpec
+from vc.value_object import GenerationSpec, ImageSpec, VideoSpec
 
 
 class GenerationService:
@@ -30,46 +30,56 @@ class GenerationService:
 
     def handle(self, spec: GenerationSpec):
         print('starting')
-        for image in spec.images:
-            for text in image.texts:
-                for style in image.styles:
-                    for i in range(image.epochs):
-                        self.vqgan_clip.handle(VqganClipOptions(**{
-                            'prompts': '%s | %s' % (text, style),
-                            'max_iterations': image.iterations,
-                            'init_image': (
-                                self.OUTPUT_FILENAME
-                                if isfile(self.OUTPUT_FILENAME)
-                                else None
-                            ),
-                        }))
-                        self.inpainting.handle(InpaintingOptions(**{
-                            'x_shift_range': [image.x_shift],
-                            'y_shift_range': [image.y_shift],
-                            'z_shift_range': [image.z_shift],
-                        }))
+        if spec.images:
+            for image in spec.images:
+                if image.texts:
+                    for text in image.texts:
+                        if image.styles:
+                            for style in image.styles:
+                                for i in range(image.epochs):
+                                    self.generate_image(image, '%s | %s' % (
+                                        text,
+                                        style
+                                    ))
+                        else:
+                            for i in range(image.epochs):
+                                self.generate_image(image, text)
 
         step = 0
-        for video in spec.videos:
-            for text in video.texts:
-                for style in video.styles:
-                    for i in range(video.epochs):
-                        self.vqgan_clip.handle(VqganClipOptions(**{
-                            'prompts': '%s | %s' % (text, style),
-                            'max_iterations': video.iterations,
-                            'init_image': (
-                                self.OUTPUT_FILENAME
-                                if isfile(self.OUTPUT_FILENAME)
-                                else None
-                            ),
-                        }))
-                        self.inpainting.handle(InpaintingOptions(**{
-                            'x_shift_range': [video.x_shift],
-                            'y_shift_range': [video.y_shift],
-                            'z_shift_range': [video.z_shift],
-                        }))
-                        copy(self.OUTPUT_FILENAME, f'steps/{step:04}.png')
-                        step += 1
+        if spec.videos:
+            for video in spec.videos:
+                if video.texts:
+                    for text in video.texts:
+                        if video.styles:
+                            for style in video.styles:
+                                for i in range(video.epochs):
+                                    self.generate_image(video, '%s | %s' % (
+                                        text,
+                                        style
+                                    ))
+                                    copy(self.OUTPUT_FILENAME, f'steps/{step:04}.png')
+                                    step += 1
+                        else:
+                            for i in range(video.epochs):
+                                self.generate_image(video, text)
+                                copy(self.OUTPUT_FILENAME, f'steps/{step:04}.png')
+                                step += 1
 
             self.video.make_video(step, json.dumps(spec, indent=4))
         print('done')
+
+    def generate_image(self, spec: Union[ImageSpec, VideoSpec], prompt: str):
+        self.vqgan_clip.handle(VqganClipOptions(**{
+            'prompts': prompt,
+            'max_iterations': spec.iterations,
+            'init_image': (
+                self.OUTPUT_FILENAME
+                if isfile(self.OUTPUT_FILENAME)
+                else None
+            ),
+        }))
+        self.inpainting.handle(InpaintingOptions(**{
+            'x_shift_range': [spec.x_shift],
+            'y_shift_range': [spec.y_shift],
+            'z_shift_range': [spec.z_shift],
+        }))
