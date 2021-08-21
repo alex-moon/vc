@@ -1,4 +1,5 @@
 import json
+from dataclasses import asdict
 from typing import Union
 from injector import inject
 from os.path import isfile
@@ -65,7 +66,7 @@ class GenerationService:
                                 copy(self.OUTPUT_FILENAME, f'steps/{step:04}.png')
                                 step += 1
 
-            self.video.make_video(step, json.dumps(spec, indent=4))
+            self.video.make_video(step, json.dumps(asdict(spec), indent=4))
         print('done')
 
     def generate_image(self, spec: Union[ImageSpec, VideoSpec], prompt: str):
