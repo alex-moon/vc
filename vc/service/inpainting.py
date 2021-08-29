@@ -90,6 +90,7 @@ class InpaintingService:
         self.file_service = file_service
 
     def handle(self, args: InpaintingOptions):
+        dh.diagnose('HANDLING')
         if args.offscreen_rendering is True:
             vispy.use(app='egl')
 
@@ -99,6 +100,7 @@ class InpaintingService:
         if args.video_folder:
             os.makedirs(args.video_folder, exist_ok=True)
 
+        dh.diagnose('GETTING MIDAS SAMPLES')
         sample_list = get_MiDaS_samples(
             args,
             image_files=args.input_file
@@ -120,6 +122,7 @@ class InpaintingService:
                 args.mesh_folder,
                 sample['src_pair_name'] + '.ply'
             )
+            dh.diagnose('READING IMAGE')
             image = imageio.imread(sample['ref_img_fi'])
 
             dh.diagnose('RUNNING DEPTH EXTRACTION')

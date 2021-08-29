@@ -150,8 +150,10 @@ def filter_irrelevant_edge_new(
                         [xx for xx in context_cc if
                          xx[0] == nx and xx[1] == ny][0]
                 for ne in mesh.neighbors(bevel_node):
-                    if other_edges_with_id[ne[0], ne[1]] > -1 and \
-                        dilate_cross_self_edge[ne[0], ne[1]] > 0:
+                    if (
+                        other_edges_with_id[ne[0], ne[1]] > -1
+                        and dilate_cross_self_edge[ne[0], ne[1]] > 0
+                    ):
                         extend_other_edges[ne[0], ne[1]] = 1
                         break
         else:
@@ -195,12 +197,20 @@ def clean_far_edge_new(
                     pass
                 mesh.nodes[ne[0], ne[1]]['depth'] = end_depth_maps[ne[0], ne[1]]
             elif mask[ne[0], ne[1]] != 1:
-                four_nes = [nne for nne in
-                            [(ne[0] + 1, ne[1]), (ne[0] - 1, ne[1]),
-                             (ne[0], ne[1] + 1), (ne[0], ne[1] - 1)] \
-                            if
-                            nne[0] < end_depth_maps.shape[0] and nne[0] >= 0 and
-                            nne[1] < end_depth_maps.shape[1] and nne[1] >= 0]
+                four_nes = [
+                    nne
+                    for nne
+                    in [
+                        (ne[0] + 1, ne[1]),
+                        (ne[0] - 1, ne[1]),
+                        (ne[0], ne[1] + 1),
+                        (ne[0], ne[1] - 1)
+                    ]
+                    if (
+                        0 <= nne[0] < end_depth_maps.shape[0]
+                        and 0 <= nne[1] < end_depth_maps.shape[1]
+                    )
+                ]
                 for nne in four_nes:
                     if end_depth_maps[nne[0], nne[1]] != 0:
                         mesh.add_edge(
@@ -1292,18 +1302,19 @@ def get_MiDaS_samples(
     samples = []
     generic_pose = np.eye(4)
 
-    assert len(args.traj_types) \
-           == len(args.x_shift_range) \
-           == len(args.y_shift_range) \
-           == len(args.z_shift_range) \
-           == len(args.video_postfix), \
-        ' '.join(
-            [
-                "The number of elements in 'traj_types',",
-                "'x_shift_range', 'y_shift_range', 'z_shift_range'",
-                "and 'video_postfix' should be equal."
-            ]
-        )
+    assert (
+        len(args.traj_types)
+        == len(args.x_shift_range)
+        == len(args.y_shift_range)
+        == len(args.z_shift_range)
+        == len(args.video_postfix)
+    ), ' '.join(
+        [
+            "The number of elements in 'traj_types',",
+            "'x_shift_range', 'y_shift_range', 'z_shift_range'",
+            "and 'video_postfix' should be equal."
+        ]
+    )
 
     tgts_poses = []
     for traj_idx in range(len(args.traj_types)):
@@ -1355,7 +1366,10 @@ def get_MiDaS_samples(
         sdict['tgts_poses'] = tgts_poses
         sdict['video_postfix'] = args.video_postfix
         sdict['tgt_name'] = [
-            os.path.splitext(os.path.basename(sdict['depth_fi']))[0]]
+            os.path.splitext(
+                os.path.basename(sdict['depth_fi'])
+            )[0]
+        ]
         sdict['src_pair_name'] = sdict['tgt_name'][0]
 
     return samples

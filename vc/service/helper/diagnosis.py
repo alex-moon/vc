@@ -3,6 +3,8 @@ from datetime import datetime
 
 
 class DiagnosisHelper:
+    hpy = None
+
     @classmethod
     def diagnose(cls, description):
         if cls.hpy is None:
