@@ -4,10 +4,6 @@ from time import time
 from dataclasses import asdict
 from injector import inject
 from shutil import copy
-from guppy import hpy
-from datetime import datetime
-import torch
-
 
 from vc.service import VqganClipService, InpaintingService, VideoService
 from vc.service.vqgan_clip import VqganClipOptions
@@ -36,22 +32,6 @@ class GenerationService:
         self.inpainting = inpainting
         self.video = video
 
-    def diagnose(self, description):
-        torch.cuda.empty_cache()
-        if self.hpy is None:
-            self.hpy = hpy()
-        # rows, columns = os.popen('stty size', 'r').read().split()
-        columns = 80
-        bar = columns * '='
-        now = '%s' % datetime.now()
-        print(bar)
-        print(now, description)
-        print(bar)
-        print(now, 'DIAGNOSIS')
-        print(bar)
-        print(self.hpy.heap())
-        print(bar)
-
     def handle(self, spec: GenerationSpec):
         print('starting')
         start = time()
@@ -64,8 +44,6 @@ class GenerationService:
             spec: ImageSpec,
             prompt: str
         ):
-            self.diagnose('GENERATING IMAGE')
-
             nonlocal x_velocity
             nonlocal y_velocity
             nonlocal z_velocity

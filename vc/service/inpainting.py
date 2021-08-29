@@ -15,6 +15,7 @@ from MiDaS.monodepth_net import MonoDepthNet
 from MiDaS.run import run_depth
 
 from vc.service import FileService
+from .helper.diagnosis import DiagnosisHelper as dh
 from .helper.bilateral_filtering import sparse_bilateral_filtering
 from .helper.boostmonodepth_utils import run_boostmonodepth
 from .helper.mesh import write_ply, read_ply, output_3d_photo
@@ -121,6 +122,7 @@ class InpaintingService:
             )
             image = imageio.imread(sample['ref_img_fi'])
 
+            dh.diagnose('RUNNING DEPTH EXTRACTION')
             print(f"Running depth extraction at {time.time()}")
             if args.use_boostmonodepth is True:
                 run_boostmonodepth(
@@ -179,6 +181,7 @@ class InpaintingService:
                 depth = vis_depths[-1]
                 model = None
                 torch.cuda.empty_cache()
+                dh.diagnose('RUNNING 3D PHOTO')
                 print("Start Running 3D_Photo ...")
                 print(f"Loading edge model at {time.time()}")
                 depth_edge_model = Inpaint_Edge_Net(init_weights=True)
@@ -192,6 +195,7 @@ class InpaintingService:
                 depth_edge_model = depth_edge_model.to(device)
                 depth_edge_model.eval()
 
+                dh.diagnose('LOADING DEPTH MODEL')
                 print(f"Loading depth model at {time.time()}")
                 depth_feat_model = Inpaint_Depth_Net()
                 depth_feat_weight = torch.load(
@@ -204,6 +208,8 @@ class InpaintingService:
                 depth_feat_model = depth_feat_model.to(device)
                 depth_feat_model.eval()
                 depth_feat_model = depth_feat_model.to(device)
+
+                dh.diagnose('LOADING RGB MODEL')
                 print(f"Loading rgb model at {time.time()}")
                 rgb_model = Inpaint_Color_Net()
                 rgb_feat_weight = torch.load(
@@ -215,6 +221,7 @@ class InpaintingService:
                 rgb_model = rgb_model.to(device)
                 graph = None
 
+                dh.diagnose('WRITING DEPTH PLY')
                 print(
                     f"Writing depth ply (and basically doing everything) at {time.time()}"
                 )
@@ -244,6 +251,7 @@ class InpaintingService:
             else:
                 verts, colors, faces, Height, Width, hFov, vFov = rt_info
 
+            dh.diagnose('MAKING VIDEO')
             print(f"Making video at {time.time()}")
             videos_poses = copy.deepcopy(sample['tgts_poses'])
             video_basename = sample['tgt_name']
@@ -253,6 +261,8 @@ class InpaintingService:
                     args.output_w)
             down, right = top + args.output_h, left + args.output_w
             border = [int(xx) for xx in [top, down, left, right]]
+
+            dh.diagnose('OUTPUTTING 3D PHOTO')
             output_3d_photo(
                 verts.copy(),
                 colors.copy(),
