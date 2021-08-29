@@ -6,6 +6,8 @@ from injector import inject
 from shutil import copy
 from guppy import hpy
 from datetime import datetime
+import torch
+
 
 from vc.service import VqganClipService, InpaintingService, VideoService
 from vc.service.vqgan_clip import VqganClipOptions
@@ -35,6 +37,7 @@ class GenerationService:
         self.video = video
 
     def diagnose(self, description):
+        torch.cuda.empty_cache()
         if self.hpy is None:
             self.hpy = hpy()
         # rows, columns = os.popen('stty size', 'r').read().split()
