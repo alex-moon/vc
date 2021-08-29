@@ -1,14 +1,16 @@
 import json
+import os
 from time import time
 from dataclasses import asdict
 from injector import inject
-from os.path import isfile
 from shutil import copy
+from guppy import hpy
+from datetime import datetime
 
 from vc.service import VqganClipService, InpaintingService, VideoService
 from vc.service.vqgan_clip import VqganClipOptions
 from vc.service.inpainting import InpaintingOptions
-from vc.value_object import GenerationSpec, ImageSpec, VideoSpec
+from vc.value_object import GenerationSpec, ImageSpec
 
 
 class GenerationService:
@@ -18,6 +20,8 @@ class GenerationService:
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
     video: VideoService
+
+    hpy = None
 
     @inject
     def __init__(
@@ -29,6 +33,21 @@ class GenerationService:
         self.vqgan_clip = vqgan_clip
         self.inpainting = inpainting
         self.video = video
+
+    def diagnose(self, description):
+        if self.hpy is None:
+            self.hpy = hpy()
+        # rows, columns = os.popen('stty size', 'r').read().split()
+        columns = 80
+        bar = columns * '='
+        now = '%s' % datetime.now()
+        print(bar)
+        print(now, description)
+        print(bar)
+        print(now, 'DIAGNOSIS')
+        print(bar)
+        print(self.hpy.heap())
+        print(bar)
 
     def handle(self, spec: GenerationSpec):
         print('starting')
@@ -42,19 +61,11 @@ class GenerationService:
             spec: ImageSpec,
             prompt: str
         ):
+            self.diagnose('GENERATING IMAGE')
+
             nonlocal x_velocity
             nonlocal y_velocity
             nonlocal z_velocity
-
-            self.vqgan_clip.handle(VqganClipOptions(**{
-                'prompts': prompt,
-                'max_iterations': spec.iterations,
-                'init_image': (
-                    self.OUTPUT_FILENAME
-                    if isfile(self.OUTPUT_FILENAME)
-                    else None
-                ),
-            }))
 
             # accelerate toward intended velocity @todo cleaner way to do this
             if x_velocity > spec.x_shift:
@@ -70,6 +81,16 @@ class GenerationService:
             if z_velocity < spec.z_shift:
                 z_velocity += self.ACCELERATION
 
+            self.vqgan_clip.handle(VqganClipOptions(**{
+                'prompts': prompt,
+                'max_iterations': spec.iterations,
+                'init_image': (
+                    self.OUTPUT_FILENAME
+                    if os.path.isfile(self.OUTPUT_FILENAME)
+                    else None
+                ),
+            }))
+
             self.inpainting.handle(InpaintingOptions(**{
                 'x_shift_range': [x_velocity],
                 'y_shift_range': [y_velocity],
@@ -83,10 +104,10 @@ class GenerationService:
                         if image.styles:
                             for style in image.styles:
                                 for i in range(image.epochs):
-                                    generate_image(image, '%s | %s' % (
-                                        text,
-                                        style
-                                    ))
+                                    generate_image(
+                                        image,
+                                        '%s | %s' % (text, style)
+                                    )
                         else:
                             for i in range(image.epochs):
                                 generate_image(image, text)
@@ -101,10 +122,10 @@ class GenerationService:
                                 if video_step.styles:
                                     for style in video_step.styles:
                                         for i in range(video_step.epochs):
-                                            generate_image(video_step, '%s | %s' % (
-                                                text,
-                                                style
-                                            ))
+                                            generate_image(
+                                                video_step,
+                                                '%s | %s' % (text, style)
+                                            )
                                             copy(self.OUTPUT_FILENAME, f'steps/{step:04}.png')
                                             step += 1
                                 else:
