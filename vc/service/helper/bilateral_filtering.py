@@ -9,7 +9,6 @@ def sparse_bilateral_filtering(
     depth,
     image,
     args,
-    HR=False,
     mask=None,
     num_iter=None
 ):

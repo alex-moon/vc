@@ -39,6 +39,7 @@ class GenerationService:
         x_velocity = 0.
         y_velocity = 0.
         z_velocity = 0.
+        first_done = False
 
         def generate_image(
             spec: ImageSpec,
@@ -47,6 +48,7 @@ class GenerationService:
             nonlocal x_velocity
             nonlocal y_velocity
             nonlocal z_velocity
+            nonlocal first_done
 
             # accelerate toward intended velocity @todo cleaner way to do this
             if x_velocity > spec.x_shift:
@@ -62,15 +64,17 @@ class GenerationService:
             if z_velocity < spec.z_shift:
                 z_velocity += self.ACCELERATION
 
-            # self.vqgan_clip.handle(VqganClipOptions(**{
-            #     'prompts': prompt,
-            #     'max_iterations': spec.iterations,
-            #     'init_image': (
-            #         self.OUTPUT_FILENAME
-            #         if os.path.isfile(self.OUTPUT_FILENAME)
-            #         else None
-            #     ),
-            # }))
+            if not first_done:
+                self.vqgan_clip.handle(VqganClipOptions(**{
+                    'prompts': prompt,
+                    'max_iterations': spec.iterations,
+                    'init_image': (
+                        self.OUTPUT_FILENAME
+                        if os.path.isfile(self.OUTPUT_FILENAME)
+                        else None
+                    ),
+                }))
+                first_done = True
 
             self.inpainting.handle(InpaintingOptions(**{
                 'x_shift': x_velocity,
