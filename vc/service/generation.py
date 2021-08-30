@@ -62,15 +62,15 @@ class GenerationService:
             if z_velocity < spec.z_shift:
                 z_velocity += self.ACCELERATION
 
-            self.vqgan_clip.handle(VqganClipOptions(**{
-                'prompts': prompt,
-                'max_iterations': spec.iterations,
-                'init_image': (
-                    self.OUTPUT_FILENAME
-                    if os.path.isfile(self.OUTPUT_FILENAME)
-                    else None
-                ),
-            }))
+            # self.vqgan_clip.handle(VqganClipOptions(**{
+            #     'prompts': prompt,
+            #     'max_iterations': spec.iterations,
+            #     'init_image': (
+            #         self.OUTPUT_FILENAME
+            #         if os.path.isfile(self.OUTPUT_FILENAME)
+            #         else None
+            #     ),
+            # }))
 
             self.inpainting.handle(InpaintingOptions(**{
                 'x_shift': x_velocity,
