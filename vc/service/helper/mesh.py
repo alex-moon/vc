@@ -3513,6 +3513,7 @@ def output_3d_photo(
 
     plane_width = np.tan(fov_in_rad / 2.) * np.abs(mean_loc_depth)
 
+    import ipdb;ipdb.set_trace()
     rel_pose = np.linalg.inv(np.dot(tgts_pose, np.linalg.inv(ref_pose)))
     axis, angle = transforms3d.axangles.mat2axangle(rel_pose[0:3, 0:3])
     normal_canvas.rotate(axis=axis, angle=(angle * 180) / np.pi)
