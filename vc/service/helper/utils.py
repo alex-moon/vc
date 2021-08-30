@@ -1006,12 +1006,9 @@ def get_MiDaS_sample(args, aft_certain=None):
     sample['ref_pose'] = np.eye(4)
     sample['tgts_pose'] = tgts_pose
     sample['video_postfix'] = args.video_postfix
-    sample['tgt_name'] = [
-        os.path.splitext(
-            os.path.basename(sample['depth_fi'])
-        )[0]
-    ]
-    sample['src_pair_name'] = sample['tgt_name'][0]
+    sample['tgt_name'] = os.path.splitext(
+        os.path.basename(sample['depth_fi'])
+    )[0]
 
     return sample
 

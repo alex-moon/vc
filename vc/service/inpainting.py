@@ -98,10 +98,10 @@ class InpaintingService:
 
         print(f"running on device {device}")
 
-        print("Current Source ==> ", sample['src_pair_name'])
+        print("Current Source ==> ", sample['tgt_name'])
         mesh_fi = os.path.join(
             args.mesh_folder,
-            sample['src_pair_name'] + '.ply'
+            sample['tgt_name'] + '.ply'
         )
         image = imageio.imread(sample['ref_img_fi'])
 
