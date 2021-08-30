@@ -10,6 +10,7 @@ class DiagnosisHelper:
     def diagnose(cls, description: str):
         if cls.hpy is None:
             cls.hpy = hpy()
+            cls.hpy.setref()
         # rows, columns = os.popen('stty size', 'r').read().split()
         columns = 80
         bar = columns * '='
