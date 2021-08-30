@@ -90,9 +90,7 @@ class InpaintingService:
         if args.video_folder:
             os.makedirs(args.video_folder, exist_ok=True)
 
-        dh.diagnose('HANDLE START PRE-MIDAS')
         sample = get_MiDaS_sample(args)
-        dh.diagnose('HANDLE START POST-MIDAS')
 
         if isinstance(args.gpu_ids, int) and (args.gpu_ids >= 0):
             device = args.gpu_ids
@@ -106,7 +104,10 @@ class InpaintingService:
             args.mesh_folder,
             sample['tgt_name'] + '.ply'
         )
+
+        dh.diagnose('HANDLE PRE IMAGE READ')
         image = imageio.imread(sample['ref_img_fi'])
+        dh.diagnose('HANDLE POST IMAGE READ/PRE DEPTH EXTRACTION')
 
         print(f"Running depth extraction at {time.time()}")
         if args.use_boostmonodepth is True:
@@ -122,6 +123,8 @@ class InpaintingService:
                 MonoDepthNet,
                 MiDaS_utils
             )
+
+        dh.diagnose('HANDLE POST DEPTH EXTRACTION')
 
         depth_file = (
             np.load(sample['depth_fi'])
@@ -150,12 +153,16 @@ class InpaintingService:
             interpolation=cv2.INTER_AREA
         )
 
+        dh.diagnose('HANDLE PRE READ MIDAS DEPTH')
+
         depth = read_MiDaS_depth(
             sample['depth_fi'],
             3.0,
             args.output_h,
             args.output_w
         )
+
+        dh.diagnose('HANDLE POST READ MIDAS DEPTH')
 
         mean_loc_depth = depth[depth.shape[0] // 2, depth.shape[1] // 2]
 
@@ -203,6 +210,8 @@ class InpaintingService:
             rgb_model.eval()
             rgb_model = rgb_model.to(device)
 
+            dh.diagnose('HANDLE PRE WRITE PLY')
+
             print(
                 f"Writing depth ply (and basically doing everything) at {time.time()}"
             )
@@ -217,6 +226,8 @@ class InpaintingService:
                 depth_feat_model
             )
 
+            dh.diagnose('HANDLE POST WRITE PLY')
+
             if rt_info is False:
                 print('Failed to write ply')
                 return
@@ -226,10 +237,10 @@ class InpaintingService:
             del depth_edge_model
             del depth_feat_model
 
-        dh.diagnose('HANDLE PRE GC COLLECT')
+        dh.diagnose('HANDLE END')
+
         gc.collect()
         torch.cuda.empty_cache()
-        dh.diagnose('HANDLE POST GC COLLECT')
 
         if args.save_ply is True or args.load_ply is True:
             verts, colors, faces, height, width, hfov, vfov = read_ply(mesh_fi)
@@ -250,8 +261,6 @@ class InpaintingService:
         )
         down, right = top + args.output_h, left + args.output_w
         border = [int(xx) for xx in [top, down, left, right]]
-
-        dh.diagnose('HANDLE END')
 
         output_3d_photo(
             verts.copy(),
