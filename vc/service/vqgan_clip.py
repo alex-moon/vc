@@ -438,13 +438,6 @@ class VqganClipService:
         for prompt in prompts:
             result.append(prompt(iii))
 
-        # @todo this is used to make video... do this elsewhere
-        # img = np.array(
-        #     out.mul(255).clamp(0, 255)[0].cpu().detach().numpy().astype(
-        #         np.uint8))[:, :, :]
-        # img = np.transpose(img, (1, 2, 0))
-        # imageio.imwrite('./steps/' + str(i) + '.png', np.array(img))
-
         return result
 
     def train(
