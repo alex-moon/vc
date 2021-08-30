@@ -247,6 +247,7 @@ class InpaintingService:
             args.video_folder,
             copy.deepcopy(sample['int_mtx']),
             args,
+            copy.deepcopy(sample['tgts_pose']),
             video_basename,
             args.original_h,
             args.original_w,
