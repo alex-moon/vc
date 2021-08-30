@@ -15,7 +15,6 @@ from MiDaS.monodepth_net import MonoDepthNet
 from MiDaS.run import run_depth
 
 from vc.service import FileService
-from .helper.diagnosis import DiagnosisHelper as dh
 from .helper.bilateral_filtering import sparse_bilateral_filtering
 from .helper.boostmonodepth_utils import run_boostmonodepth
 from .helper.mesh import write_ply, read_ply, output_3d_photo
@@ -24,7 +23,7 @@ from .helper.networks import (
     Inpaint_Depth_Net,
     Inpaint_Edge_Net,
 )
-from .helper.utils import get_MiDaS_samples, read_MiDaS_depth
+from .helper.utils import get_MiDaS_sample, read_MiDaS_depth
 
 
 @dataclass
@@ -36,13 +35,11 @@ class InpaintingOptions:
     use_boostmonodepth: bool = True
     fps: int = 40
     num_frames: int = 200
-    x_shift_range: List[float] = field(default_factory=lambda: [0.00])
-    y_shift_range: List[float] = field(default_factory=lambda: [0.00])
-    z_shift_range: List[float] = field(default_factory=lambda: [0.00])
-    traj_types: List[str] = field(
-        default_factory=lambda: ['double-straight-line']
-    )
-    video_postfix: List[str] = field(default_factory=lambda: ['zoom-in'])
+    x_shift: float = 0.00
+    y_shift: float = 0.00
+    z_shift: float = 0.00
+    traj_type: str = 'double-straight-line'
+    video_postfix: str = 'zoom-in'
     specific: str = ''
     longer_side_len: int = 400
     input_file: str = 'output.png'
@@ -90,7 +87,6 @@ class InpaintingService:
         self.file_service = file_service
 
     def handle(self, args: InpaintingOptions):
-        dh.diagnose('HANDLING')
         if args.offscreen_rendering is True:
             vispy.use(app='egl')
 
@@ -100,11 +96,7 @@ class InpaintingService:
         if args.video_folder:
             os.makedirs(args.video_folder, exist_ok=True)
 
-        dh.diagnose('GETTING MIDAS SAMPLES')
-        sample_list = get_MiDaS_samples(
-            args,
-            image_files=args.input_file
-        )
+        sample_list = get_MiDaS_sample(args)
         normal_canvas, all_canvas = None, None
 
         if isinstance(args.gpu_ids, int) and (args.gpu_ids >= 0):
@@ -115,17 +107,15 @@ class InpaintingService:
         print(f"running on device {device}")
 
         for idx in tqdm(range(len(sample_list))):
-            depth = None
+            del depth
             sample = sample_list[idx]
             print("Current Source ==> ", sample['src_pair_name'])
             mesh_fi = os.path.join(
                 args.mesh_folder,
                 sample['src_pair_name'] + '.ply'
             )
-            dh.diagnose('READING IMAGE')
             image = imageio.imread(sample['ref_img_fi'])
 
-            dh.diagnose('RUNNING DEPTH EXTRACTION')
             print(f"Running depth extraction at {time.time()}")
             if args.use_boostmonodepth is True:
                 run_boostmonodepth(
@@ -182,9 +172,7 @@ class InpaintingService:
                     num_iter=args.sparse_iter, spdb=False
                 )
                 depth = vis_depths[-1]
-                model = None
                 torch.cuda.empty_cache()
-                dh.diagnose('RUNNING 3D PHOTO')
                 print("Start Running 3D_Photo ...")
                 print(f"Loading edge model at {time.time()}")
                 depth_edge_model = Inpaint_Edge_Net(init_weights=True)
@@ -198,7 +186,6 @@ class InpaintingService:
                 depth_edge_model = depth_edge_model.to(device)
                 depth_edge_model.eval()
 
-                dh.diagnose('LOADING DEPTH MODEL')
                 print(f"Loading depth model at {time.time()}")
                 depth_feat_model = Inpaint_Depth_Net()
                 depth_feat_weight = torch.load(
@@ -212,7 +199,6 @@ class InpaintingService:
                 depth_feat_model.eval()
                 depth_feat_model = depth_feat_model.to(device)
 
-                dh.diagnose('LOADING RGB MODEL')
                 print(f"Loading rgb model at {time.time()}")
                 rgb_model = Inpaint_Color_Net()
                 rgb_feat_weight = torch.load(
@@ -222,9 +208,7 @@ class InpaintingService:
                 rgb_model.load_state_dict(rgb_feat_weight)
                 rgb_model.eval()
                 rgb_model = rgb_model.to(device)
-                graph = None
 
-                dh.diagnose('WRITING DEPTH PLY')
                 print(
                     f"Writing depth ply (and basically doing everything) at {time.time()}"
                 )
@@ -242,10 +226,9 @@ class InpaintingService:
 
                 if rt_info is False:
                     continue
-                rgb_model = None
-                color_feat_model = None
-                depth_edge_model = None
-                depth_feat_model = None
+                del rgb_model
+                del depth_edge_model
+                del depth_feat_model
                 torch.cuda.empty_cache()
             if args.save_ply is True or args.load_ply is True:
                 verts, colors, faces, Height, Width, hFov, vFov = read_ply(
@@ -254,9 +237,7 @@ class InpaintingService:
             else:
                 verts, colors, faces, Height, Width, hFov, vFov = rt_info
 
-            dh.diagnose('MAKING VIDEO')
-            print(f"Making video at {time.time()}")
-            videos_poses = copy.deepcopy(sample['tgts_poses'])
+            print(f"Making inpainting frame at {time.time()}")
             video_basename = sample['tgt_name']
             top = (args.original_h // 2 - sample['int_mtx'][1, 2] *
                    args.output_h)
@@ -265,7 +246,6 @@ class InpaintingService:
             down, right = top + args.output_h, left + args.output_w
             border = [int(xx) for xx in [top, down, left, right]]
 
-            dh.diagnose('OUTPUTTING 3D PHOTO')
             output_3d_photo(
                 verts.copy(),
                 colors.copy(),
@@ -277,13 +257,10 @@ class InpaintingService:
                 args.video_folder,
                 copy.deepcopy(sample['int_mtx']),
                 args,
-                videos_poses,
                 video_basename,
                 args.original_h,
                 args.original_w,
                 border=border,
                 normal_canvas=normal_canvas,
-                all_canvas=all_canvas,
-                mean_loc_depth=mean_loc_depth,
-                mode='frame'
+                mean_loc_depth=mean_loc_depth
             )

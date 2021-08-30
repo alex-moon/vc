@@ -44,6 +44,7 @@ from vc.service.helper.mesh_tools import (
     dilate_valid_size,
     size_operation,
 )
+from vc.service.helper.diagnosis import DiagnosisHelper as dh
 import transforms3d
 from functools import reduce
 
@@ -565,7 +566,7 @@ def update_status(mesh, info_on_pix, depth=None):
         return mesh
 
 
-def group_edges(LDI, args, image, remove_conflict_ordinal, spdb=False):
+def group_edges(LDI, args, image, remove_conflict_ordinal):
     '''
     (1) add_new_node(G, node) : add "node" to graph "G"
     (2) add_new_edge(G, node_a, node_b) : add edge "node_a--node_b" to graph "G"
@@ -681,8 +682,7 @@ def group_edges(LDI, args, image, remove_conflict_ordinal, spdb=False):
                             'must_connect']:
                             add_new_node(discont_graph, diag_candi)
                             add_new_edge(discont_graph, diag_candi, node)
-    if spdb == True:
-        pass
+
     discont_ccs = [*netx.connected_components(discont_graph)]
     '''
     In some corner case, a depth edge "discont_cc" will contain both
@@ -780,8 +780,6 @@ def group_edges(LDI, args, image, remove_conflict_ordinal, spdb=False):
                 new_discont_ccs.append(discont_cc)
         discont_ccs = new_discont_ccs
         new_discont_ccs = None
-    if spdb == True:
-        pass
 
     for edge_id, edge_cc in enumerate(discont_ccs):
         for node in edge_cc:
@@ -921,8 +919,7 @@ def remove_redundant_edge(
     info_on_pix,
     args,
     redundant_number=1000,
-    invalid=False,
-    spdb=False
+    invalid=False
 ):
     point_to_amount = {}
     point_to_id = {}
@@ -935,6 +932,7 @@ def remove_redundant_edge(
                 if len([*edge_mesh.neighbors(valid_edge_node)]) == 1:
                     end_maps[
                         valid_edge_node[0], valid_edge_node[1]] = valid_edge_id
+
     nxs, nys = np.where(end_maps > -1)
     point_to_adjoint = {}
     for nx, ny in zip(nxs, nys):
@@ -952,10 +950,7 @@ def remove_redundant_edge(
     for valid_edge_id, valid_edge_cc in enumerate(valid_edge_ccs):
         for valid_edge_node in valid_edge_cc:
             edge_canvas[valid_edge_node[0], valid_edge_node[1]] = valid_edge_id
-    if spdb is True:
-        plt.imshow(edge_canvas);
-        plt.show()
-        pass
+
     for valid_edge_id, valid_edge_cc in enumerate(valid_edge_ccs):
         end_number = 0
         four_end_number = 0
@@ -980,9 +975,9 @@ def remove_redundant_edge(
                     if len(eight_nes) == 0:
                         end_number += 1
                 if invalid is True:
-                    four_nes = [];
-                    eight_nes = [];
-                    db_eight_nes = []
+                    del four_nes
+                    del eight_nes
+                    del db_eight_nes
                     four_nes = [(x, y) for x, y in
                                 [(hx + 1, hy), (hx - 1, hy), (hx, hy + 1),
                                  (hx, hy - 1)] \
@@ -1061,9 +1056,12 @@ def remove_redundant_edge(
 
 
 def judge_dangle(mark, mesh, node):
-    if not (1 <= node[0] < mesh.graph['H'] - 1) or not (
-        1 <= node[1] < mesh.graph['W'] - 1):
+    if not (
+        1 <= node[0] < mesh.graph['H'] - 1
+        and 1 <= node[1] < mesh.graph['W'] - 1
+    ):
         return mark
+
     mesh_neighbors = [*mesh.neighbors(node)]
     mesh_neighbors = [xx for xx in mesh_neighbors if
                       0 < xx[0] < mesh.graph['H'] - 1 and 0 < xx[1] <
@@ -1130,24 +1128,19 @@ def remove_dangling(mesh, edge_ccs, edge_mesh, info_on_pix, image, depth, args):
                 dict(),
                 mesh
             )
-            edge_ccs[edge_cc_id] = set([new_node])
+            edge_ccs[edge_cc_id] = {new_node}
             for ne in largest_cc:
                 mesh.add_edge(new_node, ne)
 
     mark = np.zeros((mesh.graph['H'], mesh.graph['W']))
     for edge_idx, edge_cc in enumerate(edge_ccs):
         for edge_node in edge_cc:
-            if not (mesh.graph['bord_up'] <= edge_node[0] < mesh.graph[
-                'bord_down'] - 1) or \
-                not (mesh.graph['bord_left'] <= edge_node[1] < mesh.graph[
-                    'bord_right'] - 1):
+            if not (
+                mesh.graph['bord_up'] <= edge_node[0] < mesh.graph['bord_down'] - 1
+                and mesh.graph['bord_left'] <= edge_node[1] < mesh.graph['bord_right'] - 1
+            ):
                 continue
-            mesh_neighbors = [*mesh.neighbors(edge_node)]
-            mesh_neighbors = [xx for xx in mesh_neighbors \
-                              if mesh.graph['bord_up'] < xx[0] < mesh.graph[
-                                  'bord_down'] - 1 and \
-                              mesh.graph['bord_left'] < xx[1] < mesh.graph[
-                                  'bord_right'] - 1]
+
             if len([*mesh.neighbors(edge_node)]) >= 3:
                 continue
             elif len([*mesh.neighbors(edge_node)]) <= 1:
@@ -1159,18 +1152,25 @@ def remove_dangling(mesh, edge_ccs, edge_mesh, info_on_pix, image, depth, args):
                 if abs(dan_ne_node_a[0] - dan_ne_node_b[0]) > 1 or \
                     abs(dan_ne_node_a[1] - dan_ne_node_b[1]) > 1:
                     mark[edge_node[0], edge_node[1]] += 3
+
     mxs, mys = np.where(mark == 1)
-    conn_0_nodes = [(x[0], x[1], info_on_pix[(x[0], x[1])][0]['depth']) for x in
-                    zip(mxs, mys) \
-                    if mesh.has_node(
+    conn_0_nodes = [
+        (x[0], x[1], info_on_pix[(x[0], x[1])][0]['depth'])
+        for x in zip(mxs, mys)
+        if mesh.has_node(
             (x[0], x[1], info_on_pix[(x[0], x[1])][0]['depth'])
-        )]
+        )
+    ]
+
     mxs, mys = np.where(mark == 2)
-    conn_1_nodes = [(x[0], x[1], info_on_pix[(x[0], x[1])][0]['depth']) for x in
-                    zip(mxs, mys) \
-                    if mesh.has_node(
+    conn_1_nodes = [
+        (x[0], x[1], info_on_pix[(x[0], x[1])][0]['depth'])
+        for x in zip(mxs, mys)
+        if mesh.has_node(
             (x[0], x[1], info_on_pix[(x[0], x[1])][0]['depth'])
-        )]
+        )
+    ]
+
     for node in conn_0_nodes:
         hx, hy = node[0], node[1]
         four_nes = [(x, y, info_on_pix[(x, y)][0]['depth']) for x, y in
@@ -1245,14 +1245,15 @@ def remove_dangling(mesh, edge_ccs, edge_mesh, info_on_pix, image, depth, args):
             mark
         )
     mxs, mys = np.where(mark == 3)
-    conn_2_nodes = [(x[0], x[1], info_on_pix[(x[0], x[1])][0]['depth']) for x in
-                    zip(mxs, mys) \
-                    if mesh.has_node(
+    conn_2_nodes = [
+        (x[0], x[1], info_on_pix[(x[0], x[1])][0]['depth'])
+        for x in zip(mxs, mys)
+        if mesh.has_node(
             (x[0], x[1], info_on_pix[(x[0], x[1])][0]['depth'])
-        ) and \
-                    mesh.degree(
-                        (x[0], x[1], info_on_pix[(x[0], x[1])][0]['depth'])
-                    ) == 2]
+        ) and mesh.degree(
+            (x[0], x[1], info_on_pix[(x[0], x[1])][0]['depth'])
+        ) == 2
+    ]
     sub_mesh = mesh.subgraph(conn_2_nodes).copy()
     ccs = netx.connected_components(sub_mesh)
     for cc in ccs:
@@ -1348,7 +1349,6 @@ def context_and_holes(
     connect_points_ccs=None, inpaint_iter=0, filter_edge=False, vis_edge_id=None
 ):
     edge_maps = np.zeros((mesh.graph['H'], mesh.graph['W'])) - 1
-    mask_info = {}
     for edge_id, edge_cc in enumerate(edge_ccs):
         for edge_node in edge_cc:
             edge_maps[edge_node[0], edge_node[1]] = edge_id
@@ -1362,7 +1362,7 @@ def context_and_holes(
     broken_mask_ccs = [set() for x in range(len(edge_ccs))]
     invalid_extend_edge_ccs = [set() for x in range(len(edge_ccs))]
     intouched_ccs = [set() for x in range(len(edge_ccs))]
-    redundant_ccs = [set() for x in range(len(edge_ccs))]
+
     if inpaint_iter == 0:
         background_thickness = args.background_thickness
         context_thickness = args.context_thickness
@@ -1373,8 +1373,11 @@ def context_and_holes(
     mesh_nodes = mesh.nodes
     for edge_id, edge_cc in enumerate(edge_ccs):
         if context_thickness == 0 or (
-            len(specific_edge_id) > 0 and edge_id not in specific_edge_id):
+            len(specific_edge_id) > 0
+            and edge_id not in specific_edge_id
+        ):
             continue
+
         edge_group = {}
         for edge_node in edge_cc:
             far_nodes = mesh_nodes[edge_node].get('far')
@@ -1421,20 +1424,18 @@ def context_and_holes(
     passive_context = 1 if 1 is not None else context_thickness
 
     for edge_id, edge_cc in enumerate(edge_ccs):
-        cur_mask_cc = None;
         cur_mask_cc = []
-        cur_context_cc = None;
         cur_context_cc = []
-        cur_accomp_near_cc = None;
         cur_accomp_near_cc = []
-        cur_invalid_extend_edge_cc = None;
         cur_invalid_extend_edge_cc = []
-        cur_comp_far_cc = None;
         cur_comp_far_cc = []
         tmp_erode = []
         if len(context_ccs[edge_id]) == 0 or (
-            len(specific_edge_id) > 0 and edge_id not in specific_edge_id):
+            len(specific_edge_id) > 0
+            and edge_id not in specific_edge_id
+        ):
             continue
+
         for i in range(max(background_thickness, context_thickness)):
             cur_tmp_mask_map.fill(False)
             if i == 0:
@@ -1520,27 +1521,33 @@ def context_and_holes(
                     dtype=np.bool
                 )
             if i > passive_background and inpaint_iter == 0:
-                new_tmp_intersect_nodes = None
                 new_tmp_intersect_nodes = []
                 for node in tmp_intersect_nodes:
                     nes = mesh.neighbors(node)
                     for ne in nes:
-                        if bool(context_map[ne[0], ne[1]]) is False and \
-                            bool(mask_map[ne[0], ne[1]]) is False and \
-                            bool(forbidden_map[ne[0], ne[1]]) is True and \
-                            bool(intouched_map[ne[0], ne[1]]) is False and \
-                            bool(intersect_map[ne[0], ne[1]]) is False and \
-                            bool(intersect_context_map[ne[0], ne[1]]) is False:
+                        if (
+                            bool(context_map[ne[0], ne[1]]) is False and
+                            bool(mask_map[ne[0], ne[1]]) is False and
+                            bool(forbidden_map[ne[0], ne[1]]) is True and
+                            bool(intouched_map[ne[0], ne[1]]) is False and
+                            bool(intersect_map[ne[0], ne[1]]) is False and
+                            bool(intersect_context_map[ne[0], ne[1]]) is False
+                        ):
                             break_flag = False
                             if (i - passive_background) % 2 == 0 and (
                                 i - passive_background) % 8 != 0:
-                                four_nes = [xx for xx in [[ne[0] - 1, ne[1]],
-                                                          [ne[0] + 1, ne[1]],
-                                                          [ne[0], ne[1] - 1],
-                                                          [ne[0], ne[1] + 1]] \
-                                            if 0 <= xx[0] < mesh.graph[
-                                                'H'] and 0 <= xx[1] <
-                                            mesh.graph['W']]
+                                four_nes = [
+                                    xx
+                                    for xx
+                                    in [
+                                        [ne[0] - 1, ne[1]],
+                                        [ne[0] + 1, ne[1]],
+                                        [ne[0], ne[1] - 1],
+                                        [ne[0], ne[1] + 1]
+                                    ]
+                                    if 0 <= xx[0] < mesh.graph['H']
+                                    and 0 <= xx[1] < mesh.graph['W']
+                                ]
                                 for fne in four_nes:
                                     if bool(mask_map[fne[0], fne[1]]) is True:
                                         break_flag = True
@@ -1549,24 +1556,23 @@ def context_and_holes(
                                     continue
                             intersect_map[ne[0], ne[1]] = True
                             new_tmp_intersect_nodes.append(ne)
-                tmp_intersect_nodes = None
                 tmp_intersect_nodes = new_tmp_intersect_nodes
 
             if i > passive_context and inpaint_iter == 1:
-                new_tmp_intersect_context_nodes = None
                 new_tmp_intersect_context_nodes = []
                 for node in tmp_intersect_context_nodes:
                     nes = mesh.neighbors(node)
                     for ne in nes:
-                        if bool(context_map[ne[0], ne[1]]) is False and \
-                            bool(mask_map[ne[0], ne[1]]) is False and \
-                            bool(forbidden_map[ne[0], ne[1]]) is True and \
-                            bool(intouched_map[ne[0], ne[1]]) is False and \
-                            bool(intersect_map[ne[0], ne[1]]) is False and \
-                            bool(intersect_context_map[ne[0], ne[1]]) is False:
+                        if (
+                            bool(context_map[ne[0], ne[1]]) is False and
+                            bool(mask_map[ne[0], ne[1]]) is False and
+                            bool(forbidden_map[ne[0], ne[1]]) is True and
+                            bool(intouched_map[ne[0], ne[1]]) is False and
+                            bool(intersect_map[ne[0], ne[1]]) is False and
+                            bool(intersect_context_map[ne[0], ne[1]]) is False
+                        ):
                             intersect_context_map[ne[0], ne[1]] = True
                             new_tmp_intersect_context_nodes.append(ne)
-                tmp_intersect_context_nodes = None
                 tmp_intersect_context_nodes = new_tmp_intersect_context_nodes
 
             new_tmp_mask_nodes = None
@@ -1838,8 +1844,7 @@ def context_and_holes(
                 union_size,
                 depth_feat_model,
                 None,
-                given_depth_dict=depth_dict,
-                spdb=False
+                given_depth_dict=depth_dict
             )
             near_depth_map, raw_near_depth_map = np.zeros(
                 (mesh.graph['H'], mesh.graph['W'])
@@ -2144,8 +2149,7 @@ def DL_inpaint_edge(
                 edge_dict['depth'],
                 mesh,
                 context_cc | erode_context_cc | extend_context_cc |
-                extend_erode_context_ccs[edge_id],
-                spdb=False
+                extend_erode_context_ccs[edge_id]
             )
         if specific_edge_loc is not None and \
             (specific_edge_loc is not None and edge_dict['mask'][
@@ -2359,8 +2363,7 @@ def DL_inpaint_edge(
                 edge_dict['depth'],
                 mesh,
                 context_cc | erode_context_cc | extend_context_cc |
-                extend_erode_context_ccs[edge_id],
-                spdb=False
+                extend_erode_context_ccs[edge_id]
             )
         discard_map = np.zeros_like(edge_dict['edge'])
         mask_size = get_valid_size(edge_dict['mask'])
@@ -2875,8 +2878,7 @@ def write_ply(
                 input_mesh,
                 args,
                 image,
-                remove_conflict_ordinal=True,
-                spdb=False
+                remove_conflict_ordinal=True
             )
         input_mesh = remove_redundant_edge(
             input_mesh,
@@ -2884,8 +2886,7 @@ def write_ply(
             edge_ccs,
             info_on_pix,
             args,
-            redundant_number=args.redundant_number,
-            spdb=False
+            redundant_number=args.redundant_number
         )
         input_mesh, depth, info_on_pix = update_status(
             input_mesh,
@@ -2906,8 +2907,7 @@ def write_ply(
             info_on_pix,
             args,
             redundant_number=args.redundant_number,
-            invalid=True,
-            spdb=False
+            invalid=True
         )
         input_mesh, depth, info_on_pix = update_status(
             input_mesh,
@@ -3395,21 +3395,19 @@ def output_3d_photo(
     faces,
     Height,
     Width,
-    video_traj_types,
+    video_traj_type,
     ref_pose,
     output_dir,
     int_mtx,
     args,
-    videos_poses,
     video_basename,
     original_H=None,
     original_W=None,
     border=None,
     normal_canvas=None,
-    all_canvas=None,
-    mean_loc_depth=None,
-    mode='frame'
+    mean_loc_depth=None
 ):
+    dh.diagnose('O3P START')
     cam_mesh = netx.Graph()
     cam_mesh.graph['H'] = Height
     cam_mesh.graph['W'] = Width
@@ -3431,14 +3429,18 @@ def output_3d_photo(
     init_factor = 1
     if args.anti_flickering is True:
         init_factor = 3
-    if (cam_mesh.graph['original_H'] is not None) and (
-        cam_mesh.graph['original_W'] is not None):
+    if (
+        cam_mesh.graph['original_H'] is not None
+        and cam_mesh.graph['original_W'] is not None
+    ):
         canvas_w = cam_mesh.graph['original_W']
         canvas_h = cam_mesh.graph['original_H']
     else:
         canvas_w = cam_mesh.graph['W']
         canvas_h = cam_mesh.graph['H']
+
     canvas_size = max(canvas_h, canvas_w)
+
     if normal_canvas is None:
         normal_canvas = Canvas_view(
             fov,
@@ -3453,19 +3455,22 @@ def output_3d_photo(
     else:
         normal_canvas.reinit_mesh(verts, faces, colors)
         normal_canvas.reinit_camera(fov)
+
     img = normal_canvas.render()
-    backup_img, backup_all_img, all_img_wo_bound = img.copy(), img.copy() * 0, img.copy() * 0
     if init_factor != 1:
         img = cv2.resize(
             img,
             (int(img.shape[1] / init_factor), int(img.shape[0] / init_factor)),
             interpolation=cv2.INTER_AREA
         )
+
     if border is None:
         border = [0, img.shape[0], 0, img.shape[1]]
-    H, W = cam_mesh.graph['H'], cam_mesh.graph['W']
-    if (cam_mesh.graph['original_H'] is not None) and (
-        cam_mesh.graph['original_W'] is not None):
+
+    if (
+        cam_mesh.graph['original_H'] is not None 
+        and cam_mesh.graph['original_W'] is not None
+    ):
         aspect_ratio = cam_mesh.graph['original_H'] / cam_mesh.graph[
             'original_W']
     else:
@@ -3499,107 +3504,64 @@ def output_3d_photo(
                   0,
                   img.shape[1]]
 
+    dh.diagnose('O3P PRE-ANCHOR')
     anchor = np.array(anchor)
+    dh.diagnose('O3P POST-ANCHOR')
+
     plane_width = np.tan(fov_in_rad / 2.) * np.abs(mean_loc_depth)
-    for video_pose, video_traj_type in zip(videos_poses, video_traj_types):
-        stereos = []
-        tops = []
-        buttoms = []
-        lefts = []
-        rights = []
-        for tp_id, tp in enumerate(video_pose):
-            rel_pose = np.linalg.inv(np.dot(tp, np.linalg.inv(ref_pose)))
-            axis, angle = transforms3d.axangles.mat2axangle(rel_pose[0:3, 0:3])
-            normal_canvas.rotate(axis=axis, angle=(angle * 180) / np.pi)
-            normal_canvas.translate(rel_pose[:3, 3])
-            new_mean_loc_depth = mean_loc_depth - float(rel_pose[2, 3])
-            if 'dolly' in video_traj_type:
-                new_fov = float(
-                    (np.arctan2(
-                        plane_width,
-                        np.array([np.abs(new_mean_loc_depth)])
-                    ) * 180. / np.pi) * 2
-                )
-                normal_canvas.reinit_camera(new_fov)
-            else:
-                normal_canvas.reinit_camera(fov)
-            normal_canvas.view_changed()
-            img = normal_canvas.render()
-            if init_factor != 1:
-                img = cv2.GaussianBlur(
-                    img,
-                    (int(init_factor // 2 * 2 + 1),
-                     int(init_factor // 2 * 2 + 1)),
-                    0
-                )
-                img = cv2.resize(
-                    img,
-                    (int(img.shape[1] / init_factor),
-                     int(img.shape[0] / init_factor)),
-                    interpolation=cv2.INTER_AREA
-                )
-            img = img[anchor[0]:anchor[1], anchor[2]:anchor[3]]
-            img = img[int(border[0]):int(border[1]),
-                  int(border[2]):int(border[3])]
 
-            if any(np.array(args.crop_border) > 0.0):
-                H_c, W_c, _ = img.shape
-                o_t = int(H_c * args.crop_border[0])
-                o_l = int(W_c * args.crop_border[1])
-                o_b = int(H_c * args.crop_border[2])
-                o_r = int(W_c * args.crop_border[3])
-                img = img[o_t:H_c - o_b, o_l:W_c - o_r]
-                img = cv2.resize(img, (W_c, H_c), interpolation=cv2.INTER_CUBIC)
+    rel_pose = np.linalg.inv(np.dot(tp, np.linalg.inv(ref_pose)))
+    axis, angle = transforms3d.axangles.mat2axangle(rel_pose[0:3, 0:3])
+    normal_canvas.rotate(axis=axis, angle=(angle * 180) / np.pi)
+    normal_canvas.translate(rel_pose[:3, 3])
+    new_mean_loc_depth = mean_loc_depth - float(rel_pose[2, 3])
+    if 'dolly' in video_traj_type:
+        new_fov = float(
+            (np.arctan2(
+                plane_width,
+                np.array([np.abs(new_mean_loc_depth)])
+            ) * 180. / np.pi) * 2
+        )
+        normal_canvas.reinit_camera(new_fov)
+    else:
+        normal_canvas.reinit_camera(fov)
 
-            """
-            img = cv2.resize(img, (int(img.shape[1] / init_factor), int(img.shape[0] / init_factor)), interpolation=cv2.INTER_CUBIC)
-            img = img[anchor[0]:anchor[1], anchor[2]:anchor[3]]
-            img = img[int(border[0]):int(border[1]), int(border[2]):int(border[3])]
+    normal_canvas.view_changed()
+    img = normal_canvas.render()
+    if init_factor != 1:
+        img = cv2.GaussianBlur(
+            img,
+            (int(init_factor // 2 * 2 + 1),
+             int(init_factor // 2 * 2 + 1)),
+            0
+        )
+        img = cv2.resize(
+            img,
+            (int(img.shape[1] / init_factor),
+             int(img.shape[0] / init_factor)),
+            interpolation=cv2.INTER_AREA
+        )
+    img = img[anchor[0]:anchor[1], anchor[2]:anchor[3]]
+    img = img[int(border[0]):int(border[1]),
+          int(border[2]):int(border[3])]
 
-            if args.crop_border is True:
-                top, buttom, left, right = find_largest_rect(img, bg_color=(128, 128, 128))
-                tops.append(top); buttoms.append(buttom); lefts.append(left); rights.append(right)
-            """
-            if mode == 'frame':
-                print("Writing output image muhahaha >:)")
-                if isinstance(video_basename, list):
-                    video_basename = video_basename[0]
-                path = video_basename + '.png'
-                if output_dir:
-                    path = os.path.join(output_dir, path)
-                print("mesh.py:", "Writing Inpainting output frame:", os.path.abspath(path))
-                write_png(path, img)
-                return
+    if any(np.array(args.crop_border) > 0.0):
+        H_c, W_c, _ = img.shape
+        o_t = int(H_c * args.crop_border[0])
+        o_l = int(W_c * args.crop_border[1])
+        o_b = int(H_c * args.crop_border[2])
+        o_r = int(W_c * args.crop_border[3])
+        img = img[o_t:H_c - o_b, o_l:W_c - o_r]
+        img = cv2.resize(img, (W_c, H_c), interpolation=cv2.INTER_CUBIC)
 
-            stereos.append(img[..., :3])
-            normal_canvas.translate(-rel_pose[:3, 3])
-            normal_canvas.rotate(axis=axis, angle=-(angle * 180) / np.pi)
-            normal_canvas.view_changed()
-        """
-        if args.crop_border is True:
-            atop, abuttom = min(max(tops), img.shape[0]//2 - 10), max(min(buttoms), img.shape[0]//2 + 10)
-            aleft, aright = min(max(lefts), img.shape[1]//2 - 10), max(min(rights), img.shape[1]//2 + 10)
-            atop -= atop % 2; abuttom -= abuttom % 2; aleft -= aleft % 2; aright -= aright % 2
-        else:
-            atop = 0; abuttom = img.shape[0] - img.shape[0] % 2; aleft = 0; aright = img.shape[1] - img.shape[1] % 2
-        """
-        atop = 0
-        abuttom = img.shape[0] - img.shape[0] % 2
-        aleft = 0
-        aright = img.shape[1] - img.shape[1] % 2
-        crop_stereos = []
-        for stereo in stereos:
-            crop_stereos.append(
-                (stereo[atop:abuttom, aleft:aright, :3] * 1).astype(np.uint8)
-            )
-            stereos = crop_stereos
-        clip = ImageSequenceClip(stereos, fps=args.fps)
-        if isinstance(video_basename, list):
-            video_basename = video_basename[0]
-
-        path = video_basename + '_' + video_traj_type + '.mp4'
-        if output_dir:
-            path = os.path.join(output_dir, path)
-        clip.write_videofile(path, fps=args.fps)
-
-    return normal_canvas, all_canvas
+    dh.diagnose('pre-writing output image')
+    print("Writing output image muhahaha >:)")
+    if isinstance(video_basename, list):
+        video_basename = video_basename[0]
+    path = video_basename + '.png'
+    if output_dir:
+        path = os.path.join(output_dir, path)
+    print("mesh.py:", "Writing Inpainting output frame:", os.path.abspath(path))
+    write_png(path, img)
+    dh.diagnose('post-writing output image')
+    return

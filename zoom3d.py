@@ -18,7 +18,7 @@ from vc.service.helper.bilateral_filtering import sparse_bilateral_filtering
 from vc.service.helper.boostmonodepth_utils import run_boostmonodepth
 from vc.service.helper.mesh import write_ply, read_ply, output_3d_photo
 from vc.service.helper.networks import Inpaint_Color_Net, Inpaint_Depth_Net, Inpaint_Edge_Net
-from vc.service.helper.utils import get_MiDaS_samples, read_MiDaS_depth
+from vc.service.helper.utils import get_MiDaS_sample, read_MiDaS_depth
 
 parser = argparse.ArgumentParser()
 parser.add_argument('samples', type=str, default='input/input.png', help='File(s) to process')
@@ -30,7 +30,7 @@ if config['offscreen_rendering'] is True:
 os.makedirs(config['mesh_folder'], exist_ok=True)
 os.makedirs(config['video_folder'], exist_ok=True)
 os.makedirs(config['depth_folder'], exist_ok=True)
-sample_list = get_MiDaS_samples(config, image_files=args.samples)
+sample_list = get_MiDaS_sample(config, image_files=args.samples)
 normal_canvas, all_canvas = None, None
 
 if isinstance(config["gpu_ids"], int) and (config["gpu_ids"] >= 0):

@@ -1,4 +1,3 @@
-import glob
 import os
 from functools import reduce
 from operator import mul
@@ -15,47 +14,13 @@ except ImportError:
 import collections
 import imageio
 import copy
-from matplotlib import pyplot as plt
-from scipy.interpolate import interp1d
 from collections import namedtuple
 
 
 # @todo put all in class and clean up
 
-def path_planning(num_frames, x, y, z, path_type=''):
-    if path_type == 'straight-line':
-        corner_points = np.array(
-            [[0, 0, 0], [(0 + x) * 0.5, (0 + y) * 0.5, (0 + z) * 0.5],
-             [x, y, z]]
-        )
-        corner_t = np.linspace(0, 1, len(corner_points))
-        t = np.linspace(0, 1, num_frames)
-        cs = interp1d(corner_t, corner_points, axis=0, kind='quadratic')
-        spline = cs(t)
-        xs, ys, zs = [xx.squeeze() for xx in np.split(spline, 3, 1)]
-    elif path_type == 'double-straight-line':
-        corner_points = np.array([[-x, -y, -z], [0, 0, 0], [x, y, z]])
-        corner_t = np.linspace(0, 1, len(corner_points))
-        t = np.linspace(0, 1, num_frames)
-        cs = interp1d(corner_t, corner_points, axis=0, kind='quadratic')
-        spline = cs(t)
-        xs, ys, zs = [xx.squeeze() for xx in np.split(spline, 3, 1)]
-    elif path_type == 'circle':
-        xs, ys, zs = [], [], []
-        for frame_id, bs_shift_val in enumerate(
-            np.arange(-2.0, 2.0, (4. / num_frames))
-        ):
-            xs += [np.cos(bs_shift_val * np.pi) * 1 * x]
-            ys += [np.sin(bs_shift_val * np.pi) * 1 * y]
-            zs += [np.cos(bs_shift_val * np.pi / 2.) * 1 * z]
-        xs, ys, zs = np.array(xs), np.array(ys), np.array(zs)
-
-    return xs, ys, zs
-
-
 def open_small_mask(mask, context, open_iteration, kernel):
     np_mask = mask.cpu().data.numpy().squeeze().astype(np.uint8)
-    raw_mask = np_mask.copy()
     np_context = context.cpu().data.numpy().squeeze().astype(np.uint8)
     np_input = np_mask + np_context
     for _ in range(open_iteration):
@@ -79,8 +44,7 @@ def filter_irrelevant_edge_new(
     context,
     depth,
     mesh,
-    context_cc,
-    spdb=False
+    context_cc
 ):
     other_edges = other_edges.squeeze().astype(np.uint8)
     other_edges_with_id = other_edges_with_id.squeeze()
@@ -114,13 +78,7 @@ def filter_irrelevant_edge_new(
     edge_ids = edge_ids[1:] if edge_ids[0] == -1 else edge_ids
     other_edges_info = []
     extend_other_edges = np.zeros_like(other_edges)
-    if spdb is True:
-        f, ((ax1, ax2, ax3)) = plt.subplots(1, 3, sharex=True, sharey=True);
-        ax1.imshow(self_edge);
-        ax2.imshow(context);
-        ax3.imshow(other_edges_with_id * context + (-1) * (1 - context));
-        plt.show()
-        pass
+
     filter_self_edge = np.zeros_like(self_edge)
     for self_edge_id in self_edge_ids:
         filter_self_edge[other_edges_with_id == self_edge_id] = 1
@@ -1279,100 +1237,66 @@ def clean_far_edge(
     return far_edge, uncleaned_far_edge, far_edge_with_id, near_edge_with_id
 
 
-def get_MiDaS_samples(
-    args,
-    image_folder=None,
-    image_files=None,
-    aft_certain=None
-):
+def get_MiDaS_sample(args, aft_certain=None):
+    image_file = args.input_file
     depth_folder = args.depth_folder
     specific = args.specific
-    if image_files is not None:
-        if isinstance(image_files, str):
-            image_files = [image_files]
 
-        for image_file in image_files:
-            image_folder = os.path.dirname(image_file)
-        files_glob = glob.glob(' '.join(image_files))
-    else:
-        files_glob = glob.glob(
-            os.path.join(image_folder, '*' + args.img_format)
-        )
-    lines = [os.path.splitext(os.path.basename(xx))[0] for xx in files_glob]
-    samples = []
+    image_folder = os.path.dirname(image_file)
+
+    seq_dir = os.path.splitext(os.path.basename(image_file))[0]
     generic_pose = np.eye(4)
 
-    assert (
-        len(args.traj_types)
-        == len(args.x_shift_range)
-        == len(args.y_shift_range)
-        == len(args.z_shift_range)
-        == len(args.video_postfix)
-    ), ' '.join(
-        [
-            "The number of elements in 'traj_types',",
-            "'x_shift_range', 'y_shift_range', 'z_shift_range'",
-            "and 'video_postfix' should be equal."
-        ]
-    )
-
     tgts_poses = []
-    for traj_idx in range(len(args.traj_types)):
-        tgt_poses = []
-        sx, sy, sz = path_planning(
-            len(image_files) + 1 if image_files else args.num_frames,
-            args.x_shift_range[traj_idx],
-            args.y_shift_range[traj_idx],
-            args.z_shift_range[traj_idx],
-            path_type=args.traj_types[traj_idx]
-        )
-        for xx, yy, zz in zip(sx, sy, sz):
-            tgt_poses.append(generic_pose * 1.)
-            tgt_poses[-1][:3, -1] = np.array([xx, yy, zz])
-        tgts_poses += [tgt_poses]
+    tgt_poses = [generic_pose * 1.]
+    tgt_poses[-1][:3, -1] = np.array([args.x_shift, args.y_shift, args.z_shift])
+    tgts_poses += [tgt_poses]
     tgt_pose = generic_pose * 1
 
     aft_flag = True
     if aft_certain is not None and len(aft_certain) > 0:
         aft_flag = False
-    for seq_dir in lines:
-        if specific is not None and len(specific) > 0:
-            if specific != seq_dir:
-                continue
-        if aft_certain is not None and len(aft_certain) > 0:
-            if aft_certain == seq_dir:
-                aft_flag = True
-            if aft_flag is False:
-                continue
-        samples.append({})
-        sdict = samples[-1]
-        sdict['depth_fi'] = os.path.join(
+
+    if specific is not None and len(specific) > 0:
+        if specific != seq_dir:
+            return
+
+    if aft_certain is not None and len(aft_certain) > 0:
+        if aft_certain == seq_dir:
+            aft_flag = True
+        if aft_flag is False:
+            return
+
+    sample = {
+        'depth_fi': os.path.join(
             depth_folder,
             seq_dir + args.depth_format
-        )
-        sdict['ref_img_fi'] = os.path.join(
+        ),
+        'ref_img_fi': os.path.join(
             image_folder,
             seq_dir + args.img_format
         )
-        H, W = imageio.imread(sdict['ref_img_fi']).shape[:2]
-        sdict['int_mtx'] = np.array(
-            [[max(H, W), 0, W // 2], [0, max(H, W), H // 2], [0, 0, 1]]
-        ).astype(np.float32)
-        if sdict['int_mtx'].max() > 1:
-            sdict['int_mtx'][0, :] = sdict['int_mtx'][0, :] / float(W)
-            sdict['int_mtx'][1, :] = sdict['int_mtx'][1, :] / float(H)
-        sdict['ref_pose'] = np.eye(4)
-        sdict['tgt_pose'] = tgt_pose
-        sdict['tgts_poses'] = tgts_poses
-        sdict['video_postfix'] = args.video_postfix
-        sdict['tgt_name'] = [
-            os.path.splitext(
-                os.path.basename(sdict['depth_fi'])
-            )[0]
-        ]
-        sdict['src_pair_name'] = sdict['tgt_name'][0]
+    }
+    H, W = imageio.imread(sample['ref_img_fi']).shape[:2]
+    sample['int_mtx'] = np.array(
+        [[max(H, W), 0, W // 2], [0, max(H, W), H // 2], [0, 0, 1]]
+    ).astype(np.float32)
+    if sample['int_mtx'].max() > 1:
+        sample['int_mtx'][0, :] = sample['int_mtx'][0, :] / float(W)
+        sample['int_mtx'][1, :] = sample['int_mtx'][1, :] / float(H)
 
-    return samples
+    sample['ref_pose'] = np.eye(4)
+    sample['tgt_pose'] = tgt_pose
+    sample['tgts_poses'] = tgts_poses
+    sample['video_postfix'] = args.video_postfix
+    sample['tgt_name'] = [
+        os.path.splitext(
+            os.path.basename(sample['depth_fi'])
+        )[0]
+    ]
+    sample['src_pair_name'] = sample['tgt_name'][0]
+
+    return sample
 
 
 def get_valid_size(imap):
@@ -1622,7 +1546,7 @@ def require_depth_edge(context_edge, mask):
         return True
 
 
-def refine_color_around_edge(mesh, info_on_pix, edge_ccs, args, spdb=False):
+def refine_color_around_edge(mesh, info_on_pix, edge_ccs, args):
     H, W = mesh.graph['H'], mesh.graph['W']
     tmp_edge_ccs = copy.deepcopy(edge_ccs)
     for edge_id, edge_cc in enumerate(edge_ccs):
@@ -1786,32 +1710,7 @@ def refine_color_around_edge(mesh, info_on_pix, edge_ccs, args, spdb=False):
                 if node in remain_refine_nodes:
                     remain_refine_nodes.remove(node)
             tmp_end_nodes = new_tmp_end_nodes
-        if spdb == True:
-            bfrd_canvas = np.zeros((H, W))
-            bfrc_canvas = np.zeros((H, W, 3)).astype(np.uint8)
-            aftd_canvas = np.zeros((H, W))
-            aftc_canvas = np.zeros((H, W, 3)).astype(np.uint8)
-            for node in refine_nodes:
-                bfrd_canvas[node[0], node[1]] = abs(node[2])
-                aftd_canvas[node[0], node[1]] = abs(
-                    mesh.nodes[node]['backup_depth']
-                )
-                bfrc_canvas[node[0], node[1]] = mesh.nodes[node][
-                    'color'].astype(np.uint8)
-                aftc_canvas[node[0], node[1]] = mesh.nodes[node][
-                    'backup_color'].astype(np.uint8)
-            f, (ax1, ax2, ax3, ax4) = plt.subplots(
-                1,
-                4,
-                sharex=True,
-                sharey=True
-            );
-            ax1.imshow(bfrd_canvas);
-            ax2.imshow(aftd_canvas);
-            ax3.imshow(bfrc_canvas);
-            ax4.imshow(aftc_canvas);
-            plt.show()
-            pass
+
         for node in refine_nodes:
             if mesh.nodes[node].get('refine_rgbd') is not None:
                 mesh.nodes[node].pop('refine_rgbd')

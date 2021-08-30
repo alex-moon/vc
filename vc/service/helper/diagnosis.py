@@ -6,7 +6,7 @@ class DiagnosisHelper:
     hpy = None
 
     @classmethod
-    def diagnose(cls, description):
+    def diagnose(cls, description: str):
         if cls.hpy is None:
             cls.hpy = hpy()
         # rows, columns = os.popen('stty size', 'r').read().split()
@@ -14,7 +14,7 @@ class DiagnosisHelper:
         bar = columns * '='
         now = '%s' % datetime.now()
         print(bar)
-        print(now, description)
+        print(now, description.upper())
         print(bar)
         print(now, 'DIAGNOSIS')
         print(bar)
