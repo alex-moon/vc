@@ -32,6 +32,7 @@ class VqganClipOptions:
     display_freq: int = 50
     size: int = None
     init_image: str = 'output.png'
+    output_filename: str = 'output.png'
     init_noise: str = 'gradient'
     init_weight: float = 0.
     clip_model: str = 'ViT-B/32'
@@ -49,8 +50,6 @@ class VqganClipOptions:
 
 
 class VqganClipService:
-    OUTPUT_FILENAME = 'output.png'
-
     file_service: FileService
     vqgan_helper: VqganHelper
     torch_helper: TorchHelper
@@ -275,9 +274,9 @@ class VqganClipService:
 
         now = datetime.now()
         return self.file_service.put(
-            self.OUTPUT_FILENAME, '%s-%s' % (
+            args.output_filename, '%s-%s' % (
                 now.strftime('%Y-%m-%d-%H-%M-%S'),
-                self.OUTPUT_FILENAME
+                args.output_filename
             )
         )
 
@@ -477,7 +476,7 @@ class VqganClipService:
                 model,
                 z,
                 args.prompts,
-                self.OUTPUT_FILENAME,
+                args.output_filename,
                 i,
                 loss_all
             )
