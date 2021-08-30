@@ -23,6 +23,7 @@ from .helper.networks import (
     Inpaint_Edge_Net,
 )
 from .helper.utils import get_MiDaS_sample, read_MiDaS_depth
+from .helper.diagnosis import DiagnosisHelper as dh
 
 
 @dataclass
@@ -89,7 +90,9 @@ class InpaintingService:
         if args.video_folder:
             os.makedirs(args.video_folder, exist_ok=True)
 
+        dh.diagnose('HANDLE START PRE-MIDAS')
         sample = get_MiDaS_sample(args)
+        dh.diagnose('HANDLE START POST-MIDAS')
 
         if isinstance(args.gpu_ids, int) and (args.gpu_ids >= 0):
             device = args.gpu_ids
@@ -244,6 +247,8 @@ class InpaintingService:
         )
         down, right = top + args.output_h, left + args.output_w
         border = [int(xx) for xx in [top, down, left, right]]
+
+        dh.diagnose('HANDLE END')
 
         output_3d_photo(
             verts.copy(),

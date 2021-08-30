@@ -44,7 +44,6 @@ from vc.service.helper.mesh_tools import (
     dilate_valid_size,
     size_operation,
 )
-from vc.service.helper.diagnosis import DiagnosisHelper as dh
 import transforms3d
 from functools import reduce
 
@@ -3463,7 +3462,6 @@ def output_3d_photo(
     border=None,
     mean_loc_depth=None
 ):
-    dh.diagnose('O3P START')
     cam_mesh = netx.Graph()
     cam_mesh.graph['H'] = Height
     cam_mesh.graph['W'] = Width
@@ -3625,5 +3623,3 @@ def output_3d_photo(
         path = os.path.join(output_dir, path)
     print("mesh.py:", "Writing Inpainting output frame:", os.path.abspath(path))
     write_png(path, img)
-
-    dh.diagnose('O3P END')
