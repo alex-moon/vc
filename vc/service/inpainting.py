@@ -112,48 +112,46 @@ class InpaintingService:
             )
         elif args.require_midas is True:
             run_depth(
-                [sample['ref_img_fi']],
+                sample['ref_img_fi'],
                 args.depth_folder,
                 args.MiDaS_model_ckpt,
                 MonoDepthNet,
-                MiDaS_utils,
-                target_w=640
+                MiDaS_utils
             )
 
-        if 'npy' in args.depth_format:
-            args.output_h, args.output_w = np.load(
-                sample['depth_fi']
-            ).shape[:2]
-        else:
-            args.output_h, args.output_w = imageio.imread(
-                sample['depth_fi']
-            ).shape[:2]
-        frac = args.longer_side_len / max(
-            args.output_h,
-            args.output_w
+        depth_file = (
+            np.load(sample['depth_fi'])
+            if 'npy' in args.depth_format
+            else imageio.imread(sample['depth_fi'])
         )
-        args.output_h, args.output_w = int(
-            args.output_h * frac
-        ), int(args.output_w * frac)
-        args.original_h, args.original_w = args.output_h, \
-                                           args.output_w
+        args.output_h, args.output_w = depth_file.shape[:2]
+
+        frac = args.longer_side_len / max(args.output_h, args.output_w)
+        args.original_h = args.output_h = int(args.output_h * frac)
+        args.original_w = args.output_w = int(args.output_w * frac)
+
         if image.ndim == 2:
             image = image[..., None].repeat(3, -1)
-        if np.sum(np.abs(image[..., 0] - image[..., 1])) == 0 and np.sum(
-            np.abs(image[..., 1] - image[..., 2])
-        ) == 0:
+        if (
+            np.sum(np.abs(image[..., 0] - image[..., 1])) == 0
+            and np.sum(np.abs(image[..., 1] - image[..., 2])) == 0
+        ):
             args.gray_image = True
         else:
             args.gray_image = False
+
         image = cv2.resize(
             image, (args.output_w, args.output_h),
             interpolation=cv2.INTER_AREA
         )
+
         depth = read_MiDaS_depth(
             sample['depth_fi'], 3.0,
             args.output_h, args.output_w
         )
+
         mean_loc_depth = depth[depth.shape[0] // 2, depth.shape[1] // 2]
+
         if not (args.load_ply is True and os.path.exists(mesh_fi)):
             vis_photos, vis_depths = sparse_bilateral_filtering(
                 depth.copy(), image.copy(), args,
@@ -213,6 +211,7 @@ class InpaintingService:
             )
 
             if rt_info is False:
+                print('Failed to write ply')
                 return
 
             del depth
@@ -220,6 +219,7 @@ class InpaintingService:
             del depth_edge_model
             del depth_feat_model
             torch.cuda.empty_cache()
+
         if args.save_ply is True or args.load_ply is True:
             verts, colors, faces, Height, Width, hFov, vFov = read_ply(
                 mesh_fi

@@ -1274,13 +1274,15 @@ def get_MiDaS_sample(args, aft_certain=None):
             seq_dir + args.img_format
         )
     }
-    H, W = imageio.imread(sample['ref_img_fi']).shape[:2]
-    sample['int_mtx'] = np.array(
-        [[max(H, W), 0, W // 2], [0, max(H, W), H // 2], [0, 0, 1]]
-    ).astype(np.float32)
+    height, width = imageio.imread(sample['ref_img_fi']).shape[:2]
+    sample['int_mtx'] = np.array([
+        [max(height, width), 0, width // 2],
+        [0, max(height, width), height // 2],
+        [0, 0, 1]
+    ]).astype(np.float32)
     if sample['int_mtx'].max() > 1:
-        sample['int_mtx'][0, :] = sample['int_mtx'][0, :] / float(W)
-        sample['int_mtx'][1, :] = sample['int_mtx'][1, :] / float(H)
+        sample['int_mtx'][0, :] = sample['int_mtx'][0, :] / float(width)
+        sample['int_mtx'][1, :] = sample['int_mtx'][1, :] / float(height)
 
     sample['ref_pose'] = np.eye(4)
     sample['tgts_pose'] = tgts_pose

@@ -1,15 +1,10 @@
-"""Compute depth maps for images in the input folder.
-"""
 import os
-
 import cv2
-# from monodepth_net import MonoDepthNet
-# import utils
 import numpy as np
 import torch
 
 
-def run_depth(img_names, output_path, model_path, Net, utils, target_w=None):
+def run_depth(img_name, output_path, model_path, Net, utils):
     """Run MonoDepthNN to compute depth maps.
 
     Args:
@@ -28,51 +23,41 @@ def run_depth(img_names, output_path, model_path, Net, utils, target_w=None):
     model.eval()
 
     # get input
-    # img_names = glob.glob(os.path.join(input_path, "*"))
-    num_images = len(img_names)
 
     # create output folder
     os.makedirs(output_path, exist_ok=True)
 
-    print("start processing")
+    print("start processing", img_name)
 
-    for ind, img_name in enumerate(img_names):
+    # input
+    img = utils.read_image(img_name)
+    w = img.shape[1]
+    scale = 640. / max(img.shape[0], img.shape[1])
+    target_height = int(round(img.shape[0] * scale))
+    target_width = int(round(img.shape[1] * scale))
 
-        print("  processing {} ({}/{})".format(img_name, ind + 1, num_images))
+    img_input = utils.resize_image(img)
 
-        # input
-        img = utils.read_image(img_name)
-        w = img.shape[1]
-        scale = 640. / max(img.shape[0], img.shape[1])
-        target_height, target_width = int(round(img.shape[0] * scale)), int(round(img.shape[1] * scale))
-        img_input = utils.resize_image(img)
-        print(img_input.shape)
-        img_input = img_input.to(device)
-        # compute
-        with torch.no_grad():
-            out = model.forward(img_input)
-        
-        depth = utils.resize_depth(out, target_width, target_height)
-        img = cv2.resize((img * 255).astype(np.uint8), (target_width, target_height), interpolation=cv2.INTER_AREA)
+    print(img_input.shape)
 
-        filename = os.path.join(
-            output_path, os.path.splitext(os.path.basename(img_name))[0]
-        )
-        np.save(filename + '.npy', depth)
-        utils.write_depth(filename, depth, bits=2)
+    img_input = img_input.to(device)
+
+    # compute
+    with torch.no_grad():
+        out = model.forward(img_input)
+
+    depth = utils.resize_depth(out, target_width, target_height)
+    cv2.resize(
+        (img * 255).astype(np.uint8),
+        (target_width, target_height),
+        interpolation=cv2.INTER_AREA
+    )
+
+    filename = os.path.join(
+        output_path,
+        os.path.splitext(os.path.basename(img_name))[0]
+    )
+    np.save(filename + '.npy', depth)
+    utils.write_depth(filename, depth, bits=2)
 
     print("finished")
-
-
-# if __name__ == "__main__":
-#     # set paths
-#     INPUT_PATH = "image"
-#     OUTPUT_PATH = "output"
-#     MODEL_PATH = "model.pt"
-
-#     # set torch options
-#     torch.backends.cudnn.enabled = True
-#     torch.backends.cudnn.benchmark = True
-
-#     # compute depth maps
-#     run_depth(INPUT_PATH, OUTPUT_PATH, MODEL_PATH, Net, target_w=640)
