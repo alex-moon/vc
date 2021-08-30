@@ -225,8 +225,11 @@ class InpaintingService:
             del rgb_model
             del depth_edge_model
             del depth_feat_model
-            gc.collect()
-            torch.cuda.empty_cache()
+
+        dh.diagnose('HANDLE PRE GC COLLECT')
+        gc.collect()
+        torch.cuda.empty_cache()
+        dh.diagnose('HANDLE POST GC COLLECT')
 
         if args.save_ply is True or args.load_ply is True:
             verts, colors, faces, height, width, hfov, vfov = read_ply(mesh_fi)
