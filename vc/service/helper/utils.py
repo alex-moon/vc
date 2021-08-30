@@ -1247,10 +1247,10 @@ def get_MiDaS_sample(args, aft_certain=None):
     seq_dir = os.path.splitext(os.path.basename(image_file))[0]
     generic_pose = np.eye(4)
 
-    tgts_poses = []
-    tgt_poses = [generic_pose * 1.]
-    tgt_poses[-1][:3, -1] = np.array([args.x_shift, args.y_shift, args.z_shift])
-    tgts_poses += [tgt_poses]
+    import ipdb;ipdb.set_trace()
+    tgt_pose = [generic_pose * 1.]
+    tgt_pose[-1][:3, -1] = np.array([[args.x_shift, args.y_shift, args.z_shift]])
+    tgts_pose = tgt_pose
     tgt_pose = generic_pose * 1
 
     aft_flag = True
@@ -1287,7 +1287,7 @@ def get_MiDaS_sample(args, aft_certain=None):
 
     sample['ref_pose'] = np.eye(4)
     sample['tgt_pose'] = tgt_pose
-    sample['tgts_poses'] = tgts_poses
+    sample['tgts_pose'] = tgts_pose
     sample['video_postfix'] = args.video_postfix
     sample['tgt_name'] = [
         os.path.splitext(
