@@ -11,26 +11,13 @@ def sparse_bilateral_filtering(
     args,
     HR=False,
     mask=None,
-    gsHR=True,
-    edge_id=None,
-    num_iter=None,
-    num_gs_iter=None,
-    spdb=False
+    num_iter=None
 ):
-    """
-    args:
-    - filter_size
-    """
-
     save_images = []
     save_depths = []
     save_discontinuities = []
     vis_depth = depth.copy()
-    backup_vis_depth = vis_depth.copy()
 
-    depth_max = vis_depth.max()
-    depth_min = vis_depth.min()
-    vis_image = image.copy()
     for i in range(num_iter):
         if isinstance(args.filter_size, list):
             window_size = args.filter_size[i]
@@ -58,10 +45,9 @@ def sparse_bilateral_filtering(
             vis_depth,
             args,
             discontinuity_map=discontinuity_map,
-            HR=HR,
             mask=mask,
             window_size=window_size
-        )
+            )
 
     return save_images, save_depths
 
@@ -73,11 +59,7 @@ def vis_depth_discontinuity(
     label=False,
     mask=None
 ):
-    """
-    args:
-    - 
-    """
-    if label == False:
+    if label is False:
         disp = 1. / depth
         u_diff = (disp[1:, :] - disp[:-1, :])[:-1, 1:-1]
         b_diff = (disp[:-1, :] - disp[1:, :])[1:, 1:-1]
@@ -125,8 +107,7 @@ def vis_depth_discontinuity(
     r_diff = np.pad(r_diff, 1, mode='constant')
 
     if vis_diff:
-        return [u_over, b_over, l_over, r_over], [u_diff, b_diff, l_diff,
-                                                  r_diff]
+        return [u_over, b_over, l_over, r_over], [u_diff, b_diff, l_diff, r_diff]
     else:
         return [u_over, b_over, l_over, r_over]
 
@@ -135,15 +116,9 @@ def bilateral_filter(
     depth,
     args,
     discontinuity_map=None,
-    HR=False,
     mask=None,
     window_size=False
 ):
-    sort_time = 0
-    replace_time = 0
-    filter_time = 0
-    init_time = 0
-    filtering_time = 0
     sigma_s = args.sigma_s
     sigma_r = args.sigma_r
     if window_size == False:
@@ -167,6 +142,7 @@ def bilateral_filter(
             'edge'
         )
         pad_discontinuity_hole = 1 - pad_discontinuity_map
+
     # filtering
     output = depth.copy()
     pad_depth_patches = rolling_window(
@@ -233,8 +209,11 @@ def bilateral_filter(
             for pj in range(pW):
                 if discontinuity_map is not None:
                     if pad_discontinuity_patches[pi, pj][
-                        window_size // 2, window_size // 2] == 1:
+                        window_size // 2,
+                        window_size // 2
+                    ] == 1:
                         continue
+
                     discontinuity_patch = pad_discontinuity_patches[pi, pj]
                     discontinuity_holes = (1. - discontinuity_patch)
                 depth_patch = pad_depth_patches[pi, pj]

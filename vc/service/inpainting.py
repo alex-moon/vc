@@ -161,8 +161,10 @@ class InpaintingService:
         rt_info = False
         if not (args.load_ply is True and os.path.exists(mesh_fi)):
             vis_photos, vis_depths = sparse_bilateral_filtering(
-                depth.copy(), image.copy(), args,
-                num_iter=args.sparse_iter, spdb=False
+                depth.copy(),
+                image.copy(),
+                args,
+                num_iter=args.sparse_iter
             )
             depth = vis_depths[-1]
             torch.cuda.empty_cache()
