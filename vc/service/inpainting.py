@@ -206,7 +206,6 @@ class InpaintingService:
                 args,
                 rgb_model,
                 depth_edge_model,
-                depth_edge_model,
                 depth_feat_model
             )
 
