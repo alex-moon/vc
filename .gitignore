@@ -22,4 +22,5 @@ __pycache__
 depth
 mesh
 .env
+*.log
 
