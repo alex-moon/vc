@@ -14,9 +14,9 @@ class DiagnosisHelper:
         bar = columns * '='
         now = '%s' % datetime.now()
         print(bar)
-        print(now, description.upper())
-        print(bar)
         print(now, 'DIAGNOSIS')
+        print(bar)
+        print(now, description.upper())
         print(bar)
         print(cls.hpy.heap())
         print(bar)
