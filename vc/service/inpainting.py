@@ -105,9 +105,7 @@ class InpaintingService:
             sample['tgt_name'] + '.ply'
         )
 
-        dh.diagnose('HANDLE PRE IMAGE READ')
         image = imageio.imread(sample['ref_img_fi'])
-        dh.diagnose('HANDLE POST IMAGE READ/PRE DEPTH EXTRACTION')
 
         print(f"Running depth extraction at {time.time()}")
         if args.use_boostmonodepth is True:
@@ -123,8 +121,6 @@ class InpaintingService:
                 MonoDepthNet,
                 MiDaS_utils
             )
-
-        dh.diagnose('HANDLE POST DEPTH EXTRACTION')
 
         depth_file = (
             np.load(sample['depth_fi'])
@@ -153,8 +149,6 @@ class InpaintingService:
             interpolation=cv2.INTER_AREA
         )
 
-        dh.diagnose('HANDLE PRE READ MIDAS DEPTH')
-
         depth = read_MiDaS_depth(
             sample['depth_fi'],
             3.0,
@@ -162,10 +156,9 @@ class InpaintingService:
             args.output_w
         )
 
-        dh.diagnose('HANDLE POST READ MIDAS DEPTH')
-
         mean_loc_depth = depth[depth.shape[0] // 2, depth.shape[1] // 2]
 
+        rt_info = False
         if not (args.load_ply is True and os.path.exists(mesh_fi)):
             vis_photos, vis_depths = sparse_bilateral_filtering(
                 depth.copy(), image.copy(), args,
@@ -226,8 +219,6 @@ class InpaintingService:
                 depth_feat_model
             )
 
-            dh.diagnose('HANDLE POST WRITE PLY')
-
             if rt_info is False:
                 print('Failed to write ply')
                 return
@@ -237,15 +228,20 @@ class InpaintingService:
             del depth_edge_model
             del depth_feat_model
 
-        dh.diagnose('HANDLE END')
+        if args.save_ply is True or args.load_ply is True:
+            verts, colors, faces, height, width, hfov, vfov = read_ply(mesh_fi)
+        elif rt_info is not False:
+            verts, colors, faces, height, width, hfov, vfov = rt_info
+        else:
+            print('Could not determine ply')
+            return
+
+        del rt_info
 
         gc.collect()
         torch.cuda.empty_cache()
 
-        if args.save_ply is True or args.load_ply is True:
-            verts, colors, faces, height, width, hfov, vfov = read_ply(mesh_fi)
-        else:
-            verts, colors, faces, height, width, hfov, vfov = rt_info
+        dh.diagnose('HANDLE END')
 
         print(f"Making inpainting frame at {time.time()}")
         video_basename = sample['tgt_name']

@@ -2929,6 +2929,7 @@ def write_ply(
         image,
         depth
     )
+
     if args.extrapolate_border is True:
         input_mesh, info_on_pix, depth = refresh_bord_depth(
             input_mesh,
