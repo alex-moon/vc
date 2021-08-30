@@ -11,7 +11,6 @@ try:
     import cynetworkx as netx
 except ImportError:
     import networkx as netx
-import collections
 import imageio
 import copy
 from collections import namedtuple
@@ -285,7 +284,7 @@ def clean_far_edge(
                         inpaint_id,
                         npath_map=None,
                         fpath_map=None
-                        )
+                    )
                 npath_map[my_npath_map != -1] = my_npath_map[my_npath_map != -1]
                 fpath_map[my_fpath_map != -1] = my_fpath_map[my_fpath_map != -1]
                 if len(fpath) > 0:
@@ -993,11 +992,13 @@ def get_MiDaS_sample(args, aft_certain=None):
         )
     }
     height, width = imageio.imread(sample['ref_img_fi']).shape[:2]
-    sample['int_mtx'] = np.array([
-        [max(height, width), 0, width // 2],
-        [0, max(height, width), height // 2],
-        [0, 0, 1]
-    ]).astype(np.float32)
+    sample['int_mtx'] = np.array(
+        [
+            [max(height, width), 0, width // 2],
+            [0, max(height, width), height // 2],
+            [0, 0, 1]
+        ]
+    ).astype(np.float32)
     if sample['int_mtx'].max() > 1:
         sample['int_mtx'][0, :] = sample['int_mtx'][0, :] / float(width)
         sample['int_mtx'][1, :] = sample['int_mtx'][1, :] / float(height)

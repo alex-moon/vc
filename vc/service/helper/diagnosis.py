@@ -1,5 +1,6 @@
-from guppy import hpy
 from datetime import datetime
+
+from guppy import hpy
 
 
 class DiagnosisHelper:
