@@ -1545,7 +1545,7 @@ def require_depth_edge(context_edge, mask):
         return True
 
 
-def refine_color_around_edge(mesh, info_on_pix, edge_ccs, args):
+def refine_color_around_edge(mesh, info_on_pix, edge_ccs):
     H, W = mesh.graph['H'], mesh.graph['W']
     tmp_edge_ccs = copy.deepcopy(edge_ccs)
     for edge_id, edge_cc in enumerate(edge_ccs):

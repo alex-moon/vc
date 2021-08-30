@@ -2765,9 +2765,7 @@ def DL_inpaint_edge(
         mesh, info_on_pix = refine_color_around_edge(
             mesh,
             info_on_pix,
-            new_edge_ccs,
-            args,
-            False
+            new_edge_ccs
         )
 
     return mesh, info_on_pix, specific_mask_nodes, new_edge_ccs, connnect_points_ccs, np_image
@@ -3514,6 +3512,7 @@ def output_3d_photo(
 
     plane_width = np.tan(fov_in_rad / 2.) * np.abs(mean_loc_depth)
 
+    # @todo oops - need to set tp = sample['tgt_pose']...?
     rel_pose = np.linalg.inv(np.dot(tp, np.linalg.inv(ref_pose)))
     axis, angle = transforms3d.axangles.mat2axangle(rel_pose[0:3, 0:3])
     normal_canvas.rotate(axis=axis, angle=(angle * 180) / np.pi)
