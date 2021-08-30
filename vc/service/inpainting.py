@@ -107,7 +107,7 @@ class InpaintingService:
         print(f"running on device {device}")
 
         for idx in tqdm(range(len(sample_list))):
-            del depth
+
             sample = sample_list[idx]
             print("Current Source ==> ", sample['src_pair_name'])
             mesh_fi = os.path.join(
@@ -226,6 +226,7 @@ class InpaintingService:
 
                 if rt_info is False:
                     continue
+                del depth
                 del rgb_model
                 del depth_edge_model
                 del depth_feat_model
