@@ -15,7 +15,7 @@ import torch
 from .utils import refine_depth_around_edge, smooth_cntsyn_gap
 from .utils import (
     require_depth_edge,
-    filter_irrelevant_edge_new,
+    filter_irrelevant_edge,
     open_small_mask,
 )
 
@@ -941,14 +941,14 @@ def edge_inpainting(
         mesh.graph['H'], mesh.graph['W'], mesh
     )
     edge_dict['edge'], end_depth_maps, _ = \
-        filter_irrelevant_edge_new(
+        filter_irrelevant_edge(
             edge_dict['self_edge'] + edge_dict['comp_edge'],
             edge_map,
             edge_maps_with_id,
             edge_id,
-            edge_dict['context'],
-            edge_dict['depth'], mesh, context_cc | erode_context_cc, spdb=True
-        )
+            edge_dict['depth'],
+            mesh,
+            context_cc | erode_context_cc, )
     patch_edge_dict = dict()
     patch_edge_dict['mask'], patch_edge_dict['context'], patch_edge_dict['rgb'], \
     patch_edge_dict['disp'], patch_edge_dict['edge'] = \

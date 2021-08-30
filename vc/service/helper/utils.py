@@ -35,12 +35,11 @@ def open_small_mask(mask, context, open_iteration, kernel):
     return out_mask
 
 
-def filter_irrelevant_edge_new(
+def filter_irrelevant_edge(
     self_edge,
     comp_edge,
     other_edges,
     other_edges_with_id,
-    current_edge_id,
     context,
     depth,
     mesh,
@@ -121,7 +120,7 @@ def filter_irrelevant_edge_new(
     return other_edges, end_depth_maps, other_edges_info
 
 
-def clean_far_edge_new(
+def clean_far_edge(
     input_edge,
     end_depth_maps,
     mask,
@@ -186,11 +185,10 @@ def clean_far_edge_new(
         for node in cc:
             if mesh.nodes[node].get('cnt') is not None:
                 end_pts[-1].add((node[0], node[1], mesh.nodes[node]['depth']))
-    predef_npaths = [None for _ in range(len(ccs))]
+
     fpath_map = np.zeros_like(input_edge) - 1
     npath_map = np.zeros_like(input_edge) - 1
     npaths, fpaths = dict(), dict()
-    break_flag = False
     end_idx = 0
     while end_idx < len(end_pts):
         end_pt, cc = [*zip(end_pts, ccs)][end_idx]
@@ -241,7 +239,6 @@ def clean_far_edge_new(
             )
             tmp_disp_diff = [disp_diff1, disp_diff2]
             self_end = []
-            edge_len = []
             ds_edge = cv2.dilate(
                 self_edge.astype(np.uint8),
                 np.ones((3, 3)),
@@ -285,11 +282,10 @@ def clean_far_edge_new(
                         global_mesh,
                         input_edge,
                         mask,
-                        valid_map,
                         inpaint_id,
                         npath_map=None,
                         fpath_map=None
-                    )
+                        )
                 npath_map[my_npath_map != -1] = my_npath_map[my_npath_map != -1]
                 fpath_map[my_fpath_map != -1] = my_fpath_map[my_fpath_map != -1]
                 if len(fpath) > 0:
@@ -500,7 +496,6 @@ def plan_path_e2e(
     global_mesh,
     input_edge,
     mask,
-    valid_map,
     inpaint_id,
     npath_map=None,
     fpath_map=None
@@ -960,283 +955,6 @@ def create_placeholder(
     return mesh, add_node_time, add_edge_time, add_far_near_time
 
 
-def clean_far_edge(
-    mask_edge,
-    mask_edge_with_id,
-    context_edge,
-    mask,
-    info_on_pix,
-    global_mesh,
-    anchor
-):
-    if isinstance(mask_edge, torch.Tensor):
-        if mask_edge.is_cuda:
-            mask_edge = mask_edge.cpu()
-        mask_edge = mask_edge.data
-        mask_edge = mask_edge.numpy()
-    if isinstance(context_edge, torch.Tensor):
-        if context_edge.is_cuda:
-            context_edge = context_edge.cpu()
-        context_edge = context_edge.data
-        context_edge = context_edge.numpy()
-    if isinstance(mask, torch.Tensor):
-        if mask.is_cuda:
-            mask = mask.cpu()
-        mask = mask.data
-        mask = mask.numpy()
-    mask = mask.squeeze()
-    mask_edge = mask_edge.squeeze()
-    context_edge = context_edge.squeeze()
-    valid_near_edge = np.zeros_like(mask_edge)
-    far_edge = np.zeros_like(mask_edge)
-    far_edge_with_id = np.ones_like(mask_edge) * -1
-    near_edge_with_id = np.ones_like(mask_edge) * -1
-    uncleaned_far_edge = np.zeros_like(mask_edge)
-    # Detect if there is any valid pixel mask_edge, if not ==> return default value
-    if mask_edge.sum() == 0:
-        return far_edge, uncleaned_far_edge, far_edge_with_id, near_edge_with_id
-    mask_edge_ids = dict(
-        collections.Counter(mask_edge_with_id.flatten())
-    ).keys()
-    for edge_id in mask_edge_ids:
-        if edge_id < 0:
-            continue
-        specific_edge_map = (mask_edge_with_id == edge_id).astype(np.uint8)
-        _, sub_specific_edge_maps = cv2.connectedComponents(
-            specific_edge_map.astype(np.uint8),
-            connectivity=8
-        )
-        for sub_edge_id in range(1, sub_specific_edge_maps.max() + 1):
-            specific_edge_map = (sub_specific_edge_maps == sub_edge_id).astype(
-                np.uint8
-            )
-            edge_pxs, edge_pys = np.where(specific_edge_map > 0)
-            edge_mesh = netx.Graph()
-            for edge_px, edge_py in zip(edge_pxs, edge_pys):
-                edge_mesh.add_node((edge_px, edge_py))
-                for ex in [edge_px - 1, edge_px, edge_px + 1]:
-                    for ey in [edge_py - 1, edge_py, edge_py + 1]:
-                        if edge_px == ex and edge_py == ey:
-                            continue
-                        if ex < 0 or ex >= specific_edge_map.shape[
-                            0] or ey < 0 or ey >= specific_edge_map.shape[1]:
-                            continue
-                        if specific_edge_map[ex, ey] == 1:
-                            if edge_mesh.has_node((ex, ey)):
-                                edge_mesh.add_edge((ex, ey), (edge_px, edge_py))
-            periphery_nodes = netx.periphery(edge_mesh)
-            path_diameter = netx.diameter(edge_mesh)
-            start_near_node = None
-            for node_s in periphery_nodes:
-                for node_e in periphery_nodes:
-                    if node_s != node_e:
-                        if netx.shortest_path_length(
-                            edge_mesh,
-                            node_s,
-                            node_e
-                        ) == path_diameter:
-                            if np.any(
-                                context_edge[node_s[0] - 1:node_s[0] + 2,
-                                node_s[1] - 1:node_s[1] + 2].flatten()
-                            ):
-                                start_near_node = (node_s[0], node_s[1])
-                                end_near_node = (node_e[0], node_e[1])
-                                break
-                            if np.any(
-                                context_edge[node_e[0] - 1:node_e[0] + 2,
-                                node_e[1] - 1:node_e[1] + 2].flatten()
-                            ):
-                                start_near_node = (node_e[0], node_e[1])
-                                end_near_node = (node_s[0], node_s[1])
-                                break
-                if start_near_node is not None:
-                    break
-            if start_near_node is None:
-                continue
-            new_specific_edge_map = np.zeros_like(mask)
-            for path_node in netx.shortest_path(
-                edge_mesh,
-                start_near_node,
-                end_near_node
-            ):
-                new_specific_edge_map[path_node[0], path_node[1]] = 1
-            context_near_pxs, context_near_pys = np.where(
-                context_edge[start_near_node[0] - 1:start_near_node[0] + 2,
-                start_near_node[1] - 1:start_near_node[1] + 2] > 0
-            )
-            distance = np.abs((context_near_pxs - 1)) + np.abs(
-                (context_near_pys - 1)
-            )
-            if (np.where(distance == distance.min())[0].shape[0]) > 1:
-                closest_pxs = context_near_pxs[
-                    np.where(distance == distance.min())[0]]
-                closest_pys = context_near_pys[
-                    np.where(distance == distance.min())[0]]
-                closest_depths = []
-                for closest_px, closest_py in zip(closest_pxs, closest_pys):
-                    if info_on_pix.get(
-                        (closest_px + start_near_node[0] - 1 + anchor[0],
-                         closest_py + start_near_node[1] - 1 + anchor[2])
-                    ) is not None:
-                        for info in info_on_pix.get(
-                            (closest_px + start_near_node[0] - 1 + anchor[0],
-                             closest_py + start_near_node[1] - 1 + anchor[2])
-                        ):
-                            if info['synthesis'] is False:
-                                closest_depths.append(abs(info['depth']))
-                context_near_px, context_near_py = closest_pxs[np.array(
-                    closest_depths
-                ).argmax()], closest_pys[np.array(closest_depths).argmax()]
-            else:
-                context_near_px, context_near_py = context_near_pxs[
-                                                       distance.argmin()], \
-                                                   context_near_pys[
-                                                       distance.argmin()]
-            context_near_node = (start_near_node[0] - 1 + context_near_px,
-                                 start_near_node[1] - 1 + context_near_py)
-            far_node_list = []
-            global_context_near_node = (
-                context_near_node[0] + anchor[0],
-                context_near_node[1] + anchor[2])
-            if info_on_pix.get(global_context_near_node) is not None:
-                for info in info_on_pix[global_context_near_node]:
-                    if info['synthesis'] is False:
-                        context_near_node_3d = (global_context_near_node[0],
-                                                global_context_near_node[1],
-                                                info['depth'])
-                        if global_mesh.nodes[context_near_node_3d].get(
-                            'far'
-                        ) is not None:
-                            for far_node in global_mesh.nodes[
-                                context_near_node_3d].get('far'):
-                                far_node = (far_node[0] - anchor[0],
-                                            far_node[1] - anchor[2],
-                                            far_node[2])
-                                if mask[far_node[0], far_node[1]] == 0:
-                                    far_node_list.append(
-                                        [far_node[0], far_node[1]]
-                                    )
-            if len(far_node_list) > 0:
-                far_nodes_dist = np.sum(
-                    np.abs(
-                        np.array(far_node_list) - np.array([[edge_px, edge_py]])
-                    ),
-                    axis=1
-                )
-                context_far_node = tuple(far_node_list[far_nodes_dist.argmin()])
-                corresponding_far_edge = np.zeros_like(mask_edge)
-                corresponding_far_edge[
-                    context_far_node[0], context_far_node[1]] = 1
-                surround_map = cv2.dilate(
-                    new_specific_edge_map.astype(np.uint8),
-                    np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]).astype(
-                        np.uint8
-                    ),
-                    iterations=1
-                )
-                specific_edge_map_wo_end_pt = new_specific_edge_map.copy()
-                specific_edge_map_wo_end_pt[
-                    end_near_node[0], end_near_node[1]] = 0
-                surround_map_wo_end_pt = cv2.dilate(
-                    specific_edge_map_wo_end_pt.astype(np.uint8),
-                    np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]).astype(
-                        np.uint8
-                    ),
-                    iterations=1
-                )
-                surround_map_wo_end_pt[new_specific_edge_map > 0] = 0
-                surround_map_wo_end_pt[
-                    context_near_node[0], context_near_node[1]] = 0
-                surround_map = surround_map_wo_end_pt.copy()
-                _, far_edge_cc = cv2.connectedComponents(
-                    surround_map.astype(np.uint8),
-                    connectivity=4
-                )
-                start_far_node = None
-                accompany_far_node = None
-                if surround_map[context_far_node[0], context_far_node[1]] == 1:
-                    start_far_node = context_far_node
-                else:
-                    four_nes = [(context_far_node[0] - 1, context_far_node[1]),
-                                (context_far_node[0] + 1, context_far_node[1]),
-                                (context_far_node[0], context_far_node[1] - 1),
-                                (context_far_node[0], context_far_node[1] + 1)]
-                    candidate_bevel = []
-                    for ne in four_nes:
-                        if surround_map[ne[0], ne[1]] == 1:
-                            start_far_node = (ne[0], ne[1])
-                            break
-                        elif (ne[0] != context_near_node[0] or ne[1] !=
-                              context_near_node[1]) and \
-                            (ne[0] != start_near_node[0] or ne[1] !=
-                             start_near_node[1]):
-                            candidate_bevel.append((ne[0], ne[1]))
-                    if start_far_node is None:
-                        for ne in candidate_bevel:
-                            if ne[0] == context_far_node[0]:
-                                bevel_xys = [[ne[0] + 1, ne[1]],
-                                             [ne[0] - 1, ne[1]]]
-                            if ne[1] == context_far_node[1]:
-                                bevel_xys = [[ne[0], ne[1] + 1],
-                                             [ne[0], ne[1] - 1]]
-                            for bevel_x, bevel_y in bevel_xys:
-                                if surround_map[bevel_x, bevel_y] == 1:
-                                    start_far_node = (bevel_x, bevel_y)
-                                    accompany_far_node = (ne[0], ne[1])
-                                    break
-                            if start_far_node is not None:
-                                break
-                if start_far_node is not None:
-                    for far_edge_id in range(1, far_edge_cc.max() + 1):
-                        specific_far_edge = (far_edge_cc == far_edge_id).astype(
-                            np.uint8
-                        )
-                        if specific_far_edge[
-                            start_far_node[0], start_far_node[1]] == 1:
-                            if accompany_far_node is not None:
-                                specific_far_edge[accompany_far_node] = 1
-                            far_edge[specific_far_edge > 0] = 1
-                            far_edge_with_id[specific_far_edge > 0] = edge_id
-                            end_far_candidates = np.zeros_like(far_edge)
-                            end_far_candidates[
-                                end_near_node[0], end_near_node[1]] = 1
-                            end_far_candidates = cv2.dilate(
-                                end_far_candidates.astype(np.uint8),
-                                np.array(
-                                    [[0, 1, 0], [1, 1, 1], [0, 1, 0]]
-                                ).astype(np.uint8),
-                                iterations=1
-                            )
-                            end_far_candidates[
-                                end_near_node[0], end_near_node[1]] = 0
-                            invalid_nodes = (((
-                                                  far_edge_cc != far_edge_id).astype(
-                                np.uint8
-                            ) * \
-                                              (far_edge_cc != 0).astype(
-                                                  np.uint8
-                                              )).astype(np.uint8) + \
-                                             (new_specific_edge_map).astype(
-                                                 np.uint8
-                                             ) + \
-                                             (mask == 0).astype(np.uint8)).clip(
-                                0,
-                                1
-                            )
-                            end_far_candidates[invalid_nodes > 0] = 0
-                            far_edge[end_far_candidates > 0] = 1
-                            far_edge_with_id[end_far_candidates > 0] = edge_id
-
-                    far_edge[context_far_node[0], context_far_node[1]] = 1
-                    far_edge_with_id[
-                        context_far_node[0], context_far_node[1]] = edge_id
-                near_edge_with_id[(mask_edge_with_id == edge_id) > 0] = edge_id
-    uncleaned_far_edge = far_edge.copy()
-    far_edge[mask == 0] = 0
-
-    return far_edge, uncleaned_far_edge, far_edge_with_id, near_edge_with_id
-
-
 def get_MiDaS_sample(args, aft_certain=None):
     image_file = args.input_file
     depth_folder = args.depth_folder
@@ -1415,121 +1133,6 @@ def depth_resize(depth, origin_size, image_size):
         depth = depth * max_depth
 
     return depth
-
-
-def filter_irrelevant_edge(
-    self_edge,
-    other_edges,
-    other_edges_with_id,
-    current_edge_id,
-    context,
-    edge_ccs,
-    mesh,
-    anchor
-):
-    other_edges = other_edges.squeeze()
-    other_edges_with_id = other_edges_with_id.squeeze()
-
-    self_edge = self_edge.squeeze()
-    dilate_self_edge = cv2.dilate(
-        self_edge.astype(np.uint8),
-        np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]).astype(np.uint8),
-        iterations=1
-    )
-    edge_ids = collections.Counter(other_edges_with_id.flatten()).keys()
-    other_edges_info = []
-
-    for edge_id in edge_ids:
-        edge_id = int(edge_id)
-        if edge_id >= 0:
-            condition = ((
-                             other_edges_with_id == edge_id) * other_edges * context).astype(
-                np.uint8
-            )
-            if dilate_self_edge[condition > 0].sum() == 0:
-                other_edges[other_edges_with_id == edge_id] = 0
-            else:
-                num_condition, condition_labels = cv2.connectedComponents(
-                    condition,
-                    connectivity=8
-                )
-                for condition_id in range(1, num_condition):
-                    isolate_condition = (
-                        (condition_labels == condition_id) > 0).astype(
-                        np.uint8
-                    )
-                    num_end_group, end_group = cv2.connectedComponents(
-                        ((dilate_self_edge * isolate_condition) > 0).astype(
-                            np.uint8
-                        ),
-                        connectivity=8
-                    )
-                    if num_end_group == 1:
-                        continue
-                    for end_id in range(1, num_end_group):
-                        end_pxs, end_pys = np.where((end_group == end_id))
-                        end_px, end_py = end_pxs[0], end_pys[0]
-                        other_edges_info.append({})
-                        other_edges_info[-1]['edge_id'] = edge_id
-                        # other_edges_info[-1]['near_depth'] = None
-                        other_edges_info[-1]['diff'] = None
-                        other_edges_info[-1]['edge_map'] = np.zeros_like(
-                            self_edge
-                        )
-                        other_edges_info[-1]['end_point_map'] = np.zeros_like(
-                            self_edge
-                        )
-                        other_edges_info[-1]['end_point_map'][
-                            (end_group == end_id)] = 1
-                        other_edges_info[-1][
-                            'forbidden_point_map'] = np.zeros_like(self_edge)
-                        other_edges_info[-1]['forbidden_point_map'][
-                            (end_group != end_id) * (end_group != 0)] = 1
-                        other_edges_info[-1][
-                            'forbidden_point_map'] = cv2.dilate(
-                            other_edges_info[-1]['forbidden_point_map'],
-                            kernel=np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]]),
-                            iterations=2
-                        )
-                        for x in edge_ccs[edge_id]:
-                            nx = x[0] - anchor[0]
-                            ny = x[1] - anchor[1]
-                            if nx == end_px and ny == end_py:
-                                # other_edges_info[-1]['near_depth'] = abs(nx)
-                                if mesh.nodes[x].get('far') is not None and len(
-                                    mesh.nodes[x].get('far')
-                                ) == 1:
-                                    other_edges_info[-1]['diff'] = abs(
-                                        1. / abs(
-                                            [*mesh.nodes[x].get('far')][0][2]
-                                        ) - 1. / abs(x[2])
-                                    )
-                                else:
-                                    other_edges_info[-1]['diff'] = 0
-                                # if end_group[nx, ny] != end_id and end_group[nx, ny] > 0:
-                                #     continue
-                            try:
-                                if isolate_condition[nx, ny] == 1:
-                                    other_edges_info[-1]['edge_map'][nx, ny] = 1
-                            except:
-                                pass
-    try:
-        other_edges_info = sorted(
-            other_edges_info,
-            key=lambda x: x['diff'],
-            reverse=True
-        )
-    except:
-        pass
-    # pass
-    # other_edges = other_edges[..., None]
-    for other_edge in other_edges_info:
-        if other_edge['end_point_map'] is None:
-            pass
-
-    other_edges = other_edges * context
-
-    return other_edges, other_edges_info
 
 
 def require_depth_edge(context_edge, mask):

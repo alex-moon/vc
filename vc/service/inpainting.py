@@ -1,4 +1,5 @@
 import copy
+import gc
 import os
 import time
 from dataclasses import dataclass, field
@@ -141,13 +142,16 @@ class InpaintingService:
             args.gray_image = False
 
         image = cv2.resize(
-            image, (args.output_w, args.output_h),
+            image,
+            (args.output_w, args.output_h),
             interpolation=cv2.INTER_AREA
         )
 
         depth = read_MiDaS_depth(
-            sample['depth_fi'], 3.0,
-            args.output_h, args.output_w
+            sample['depth_fi'],
+            3.0,
+            args.output_h,
+            args.output_w
         )
 
         mean_loc_depth = depth[depth.shape[0] // 2, depth.shape[1] // 2]
@@ -159,6 +163,7 @@ class InpaintingService:
             )
             depth = vis_depths[-1]
             torch.cuda.empty_cache()
+
             print("Start Running 3D_Photo ...")
             print(f"Loading edge model at {time.time()}")
             depth_edge_model = Inpaint_Edge_Net(init_weights=True)
@@ -217,21 +222,26 @@ class InpaintingService:
             del rgb_model
             del depth_edge_model
             del depth_feat_model
+            gc.collect()
             torch.cuda.empty_cache()
 
         if args.save_ply is True or args.load_ply is True:
-            verts, colors, faces, Height, Width, hFov, vFov = read_ply(
-                mesh_fi
-            )
+            verts, colors, faces, height, width, hfov, vfov = read_ply(mesh_fi)
         else:
-            verts, colors, faces, Height, Width, hFov, vFov = rt_info
+            verts, colors, faces, height, width, hfov, vfov = rt_info
 
         print(f"Making inpainting frame at {time.time()}")
         video_basename = sample['tgt_name']
-        top = (args.original_h // 2 - sample['int_mtx'][1, 2] *
-               args.output_h)
-        left = (args.original_w // 2 - sample['int_mtx'][0, 2] *
-                args.output_w)
+        top = (
+            args.original_h // 2
+            - sample['int_mtx'][1, 2]
+            * args.output_h
+        )
+        left = (
+            args.original_w // 2
+            - sample['int_mtx'][0, 2]
+            * args.output_w
+        )
         down, right = top + args.output_h, left + args.output_w
         border = [int(xx) for xx in [top, down, left, right]]
 
@@ -239,8 +249,8 @@ class InpaintingService:
             verts.copy(),
             colors.copy(),
             faces.copy(),
-            copy.deepcopy(Height),
-            copy.deepcopy(Width),
+            copy.deepcopy(height),
+            copy.deepcopy(width),
             sample['video_postfix'],
             copy.deepcopy(sample['ref_pose']),
             args.video_folder,

@@ -16,9 +16,9 @@ import os
 from vc.service.helper.utils import open_small_mask, refine_depth_around_edge
 from vc.service.helper.utils import (
     refine_color_around_edge,
-    filter_irrelevant_edge_new,
+    filter_irrelevant_edge,
     require_depth_edge,
-    clean_far_edge_new,
+    clean_far_edge,
 )
 from vc.service.helper.utils import create_placeholder, refresh_node
 from vc.service.helper.mesh_tools import (
@@ -2210,18 +2210,17 @@ def DL_inpaint_edge(
             mesh
         )
         edge_dict['edge'], end_depth_maps, _ = \
-            filter_irrelevant_edge_new(
+            filter_irrelevant_edge(
                 edge_dict['self_edge'],
                 edge_dict['comp_edge'],
                 edge_map,
                 edge_maps_with_id,
-                edge_id,
                 edge_dict['context'],
                 edge_dict['depth'],
                 mesh,
                 context_cc | erode_context_cc | extend_context_cc |
                 extend_erode_context_ccs[edge_id]
-            )
+                )
         if specific_edge_loc is not None and \
             (specific_edge_loc is not None and edge_dict['mask'][
                 specific_edge_loc[0], specific_edge_loc[1]] == 0):
@@ -2295,7 +2294,7 @@ def DL_inpaint_edge(
                 try:
                     edge_dict['fpath_map'], edge_dict[
                         'npath_map'], break_flag, npaths, fpaths, invalid_edge_id = \
-                        clean_far_edge_new(
+                        clean_far_edge(
                             edge_dict['output'],
                             end_depth_maps,
                             edge_dict['mask'],
@@ -2343,7 +2342,7 @@ def DL_inpaint_edge(
                             depth_edge_output
                         edge_dict['fpath_map'], edge_dict[
                             'npath_map'], break_flag, npaths, fpaths, invalid_edge_id = \
-                            clean_far_edge_new(
+                            clean_far_edge(
                                 full_depth_edge_output,
                                 end_depth_maps,
                                 edge_dict['mask'],
@@ -2425,18 +2424,17 @@ def DL_inpaint_edge(
         else:
             tmp_specific_edge_id.append(edge_id)
         edge_dict['edge'], end_depth_maps, _ = \
-            filter_irrelevant_edge_new(
+            filter_irrelevant_edge(
                 edge_dict['self_edge'],
                 edge_dict['comp_edge'],
                 edge_map,
                 edge_maps_with_id,
-                edge_id,
                 edge_dict['context'],
                 edge_dict['depth'],
                 mesh,
                 context_cc | erode_context_cc | extend_context_cc |
                 extend_erode_context_ccs[edge_id]
-            )
+                )
         discard_map = np.zeros_like(edge_dict['edge'])
         mask_size = get_valid_size(edge_dict['mask'])
         mask_size = dilate_valid_size(
@@ -2459,16 +2457,7 @@ def DL_inpaint_edge(
                 union_size, edge_dict['mask'], edge_dict['context'],
                 edge_dict['rgb'], edge_dict['disp'], edge_dict['edge']
             )
-        x_anchor, y_anchor = [union_size['x_min'], union_size['x_max']], [
-            union_size['y_min'], union_size['y_max']]
         tensor_edge_dict = convert2tensor(patch_edge_dict)
-        input_edge_feat = torch.cat(
-            (tensor_edge_dict['rgb'],
-             tensor_edge_dict['disp'],
-             tensor_edge_dict['edge'],
-             1 - tensor_edge_dict['context'],
-             tensor_edge_dict['mask']), dim=1
-        )
         edge_dict['output'] = edge_dict['edge'].copy()
 
         if require_depth_edge(
@@ -3428,7 +3417,7 @@ def output_3d_photo(
     int_mtx,
     args,
     tgts_pose,
-    video_basename,
+    video_basename: str,
     original_H=None,
     original_W=None,
     border=None,
@@ -3494,42 +3483,38 @@ def output_3d_photo(
         cam_mesh.graph['original_H'] is not None 
         and cam_mesh.graph['original_W'] is not None
     ):
-        aspect_ratio = cam_mesh.graph['original_H'] / cam_mesh.graph[
-            'original_W']
+        aspect_ratio = cam_mesh.graph['original_H'] / cam_mesh.graph['original_W']
     else:
         aspect_ratio = cam_mesh.graph['H'] / cam_mesh.graph['W']
-    if aspect_ratio > 1:
-        img_h_len = cam_mesh.graph['H'] if cam_mesh.graph.get(
-            'original_H'
-        ) is None else cam_mesh.graph['original_H']
-        img_w_len = img_h_len / aspect_ratio
-        anchor = [0,
-                  img.shape[0],
-                  int(max(0, int((img.shape[1]) // 2 - img_w_len // 2))),
-                  int(
-                      min(
-                          int((img.shape[1]) // 2 + img_w_len // 2),
-                          (img.shape[1]) - 1
-                      )
-                  )]
-    elif aspect_ratio <= 1:
-        img_w_len = cam_mesh.graph['W'] if cam_mesh.graph.get(
-            'original_W'
-        ) is None else cam_mesh.graph['original_W']
-        img_h_len = img_w_len * aspect_ratio
-        anchor = [int(max(0, int((img.shape[0]) // 2 - img_h_len // 2))),
-                  int(
-                      min(
-                          int((img.shape[0]) // 2 + img_h_len // 2),
-                          (img.shape[0]) - 1
-                      )
-                  ),
-                  0,
-                  img.shape[1]]
 
-    dh.diagnose('O3P PRE-ANCHOR')
+    if aspect_ratio > 1:
+        img_h_len = (
+            cam_mesh.graph['H']
+            if cam_mesh.graph.get('original_H') is None
+            else cam_mesh.graph['original_H']
+        )
+        img_w_len = img_h_len / aspect_ratio
+        anchor = [
+            0,
+            img.shape[0],
+            int(max(0, int((img.shape[1]) // 2 - img_w_len // 2))),
+            int(min(int((img.shape[1]) // 2 + img_w_len // 2), (img.shape[1]) - 1))
+        ]
+    else:
+        img_w_len = (
+            cam_mesh.graph['W']
+            if cam_mesh.graph.get('original_W') is None
+            else cam_mesh.graph['original_W']
+        )
+        img_h_len = img_w_len * aspect_ratio
+        anchor = [
+            int(max(0, int((img.shape[0]) // 2 - img_h_len // 2))),
+            int(min(int((img.shape[0]) // 2 + img_h_len // 2), (img.shape[0]) - 1)),
+            0,
+            img.shape[1]
+        ]
+
     anchor = np.array(anchor)
-    dh.diagnose('O3P POST-ANCHOR')
 
     plane_width = np.tan(fov_in_rad / 2.) * np.abs(mean_loc_depth)
 
@@ -3538,6 +3523,7 @@ def output_3d_photo(
     normal_canvas.rotate(axis=axis, angle=(angle * 180) / np.pi)
     normal_canvas.translate(rel_pose[:3, 3])
     new_mean_loc_depth = mean_loc_depth - float(rel_pose[2, 3])
+
     if 'dolly' in video_traj_type:
         new_fov = float(
             (np.arctan2(
@@ -3564,9 +3550,14 @@ def output_3d_photo(
              int(img.shape[0] / init_factor)),
             interpolation=cv2.INTER_AREA
         )
-    img = img[anchor[0]:anchor[1], anchor[2]:anchor[3]]
-    img = img[int(border[0]):int(border[1]),
-          int(border[2]):int(border[3])]
+    img = img[
+        anchor[0]:anchor[1],
+        anchor[2]:anchor[3]
+    ]
+    img = img[
+        int(border[0]):int(border[1]),
+        int(border[2]):int(border[3])
+    ]
 
     if any(np.array(args.crop_border) > 0.0):
         H_c, W_c, _ = img.shape
@@ -3577,14 +3568,11 @@ def output_3d_photo(
         img = img[o_t:H_c - o_b, o_l:W_c - o_r]
         img = cv2.resize(img, (W_c, H_c), interpolation=cv2.INTER_CUBIC)
 
-    dh.diagnose('pre-writing output image')
     print("Writing output image muhahaha >:)")
-    if isinstance(video_basename, list):
-        video_basename = video_basename[0]
     path = video_basename + '.png'
     if output_dir:
         path = os.path.join(output_dir, path)
     print("mesh.py:", "Writing Inpainting output frame:", os.path.abspath(path))
     write_png(path, img)
-    dh.diagnose('post-writing output image')
-    return
+
+    dh.diagnose('O3P END')
