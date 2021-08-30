@@ -73,9 +73,9 @@ class GenerationService:
             }))
 
             self.inpainting.handle(InpaintingOptions(**{
-                'x_shift_range': [x_velocity],
-                'y_shift_range': [y_velocity],
-                'z_shift_range': [z_velocity],
+                'x_shift': [x_velocity],
+                'y_shift': [y_velocity],
+                'z_shift': [z_velocity],
             }))
 
         if spec.images:
