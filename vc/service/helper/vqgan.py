@@ -4,6 +4,7 @@ sys.path.append('taming-transformers')
 
 from omegaconf import OmegaConf
 from taming.models import cond_transformer, vqgan
+import torch
 
 
 class VqganHelper:
@@ -33,5 +34,8 @@ class VqganHelper:
             model = parent_model.first_stage_model
         else:
             raise ValueError(f'unknown model type: {config.model.target}')
+
         del model.loss
+        torch.cuda.empty_cache()
+
         return model

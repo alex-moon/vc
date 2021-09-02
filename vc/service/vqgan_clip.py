@@ -22,6 +22,7 @@ from CLIP import clip
 from vc.service import FileService
 from .helper.torch import TorchHelper
 from .helper.vqgan import VqganHelper
+from .helper.diagnosis import DiagnosisHelper as dh
 
 
 @dataclass
@@ -66,7 +67,7 @@ class VqganClipService:
         self.file_service = file_service
 
     def handle(self, args: VqganClipOptions):
-        print("VQGAN/CLIP starting with spec:")
+        dh.diagnose('VQGAN/CLIP', 'handle', 'start')
         print(json.dumps(asdict(args), indent=4))
 
         if args.cudnn_determinism:
@@ -250,6 +251,7 @@ class VqganClipService:
         torch.manual_seed(seed)
         print('Using seed:', seed)
 
+        dh.diagnose('VQGAN/CLIP', 'handle', 'pre train')
         # DO IT @todo put training in a separate Trainer class
         i = 0
         try:
@@ -272,6 +274,10 @@ class VqganClipService:
         except KeyboardInterrupt:
             pass
 
+        del model, perceptor, opt
+        torch.cuda.empty_cache()
+
+        dh.diagnose('VQGAN/CLIP', 'handle', 'end')
         now = datetime.now()
         return self.file_service.put(
             args.output_filename, '%s-%s' % (
