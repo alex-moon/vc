@@ -7,7 +7,7 @@ from guppy import hpy
 
 
 class DiagnosisHelper:
-    LOG_FILE_PATH = '/app/data/log'
+    LOG_FILE_PATH = '/var/log/supervisor'
     hpy = None
     logging = False
     is_debug = False
@@ -86,7 +86,7 @@ class DiagnosisHelper:
             logging.basicConfig(
                 filename=os.path.join(
                     cls.LOG_FILE_PATH,
-                    'vc.%s.log' % os.getenv('SERVICE', 'service')
+                    'vc.%s.diagnosis.log' % os.getenv('SERVICE', 'service')
                 ),
                 level=(
                     logging.DEBUG
