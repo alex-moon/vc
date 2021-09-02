@@ -73,12 +73,12 @@ class GenerationService:
                 'output_filename': self.OUTPUT_FILENAME,
             }))
 
-            # self.inpainting.handle(InpaintingOptions(**{
-            #     'input_file': self.OUTPUT_FILENAME,
-            #     'x_shift': x_velocity,
-            #     'y_shift': y_velocity,
-            #     'z_shift': z_velocity,
-            # }))
+            self.inpainting.handle(InpaintingOptions(**{
+                'input_file': self.OUTPUT_FILENAME,
+                'x_shift': x_velocity,
+                'y_shift': y_velocity,
+                'z_shift': z_velocity,
+            }))
 
         if spec.images:
             for image in spec.images:
