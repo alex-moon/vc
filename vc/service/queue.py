@@ -52,9 +52,9 @@ class JobSerializer:
 
 class DiagnosingWorker(SimpleWorker):
     def execute_job(self, job, queue):
-        dh.diagnose('execute job pre', short=True)
+        dh.diagnose('execute job pre', short=True, setref=False)
         result = super().perform_job(job, queue)
-        dh.diagnose('execute job post', short=True)
+        dh.diagnose('execute job post', short=True, setref=False)
         return result
 
 

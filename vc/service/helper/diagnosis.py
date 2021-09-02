@@ -15,15 +15,20 @@ class DiagnosisHelper:
         'REACHABLE': 0,
         'UNREACHABLE': 0,
     }
+    refset = False
 
     @classmethod
-    def diagnose(cls, *args, short=False):
+    def diagnose(cls, *args, short=False, setref=True):
         if not os.getenv('DEBUG', False):
             return
 
         if cls.hpy is None:
             cls.hpy = hpy()
             cls.hpy.setref()
+
+        if setref and not cls.refset:
+            cls.hpy.setref()
+            cls.refset = True
 
         bar = 80 * '='
 
