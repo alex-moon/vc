@@ -3,6 +3,8 @@ from flask_rq import get_queue, get_connection
 from injector import Binder, inject
 from rq import Queue, SimpleWorker, Worker
 
+from vc.service.helper import DiagnosisHelper as dh
+
 
 class JobSerializer:
     binder: Binder
@@ -48,6 +50,14 @@ class JobSerializer:
         return mod
 
 
+class DiagnosingWorker(SimpleWorker):
+    def execute_job(self, job, queue):
+        dh.diagnose('execute job pre', short=True)
+        result = super().perform_job(job, queue)
+        dh.diagnose('execute job post', short=True)
+        return result
+
+
 class QueueService:
     TIMEOUT = '7d'  # these are liable to be long-running jobs
 
@@ -72,7 +82,7 @@ class QueueService:
             queue = self.get_queue()
             # We have to use the non-forking SimpleWorker because we lean
             # heavily on CUDA, which does not like forking...
-            self.worker = SimpleWorker(
+            self.worker = DiagnosingWorker(
                 [queue],
                 connection=get_connection(queue.name),
                 serializer=self.job_serializer
