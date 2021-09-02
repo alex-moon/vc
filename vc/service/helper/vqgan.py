@@ -1,3 +1,4 @@
+import gc
 import sys
 
 sys.path.append('taming-transformers')
@@ -36,6 +37,7 @@ class VqganHelper:
             raise ValueError(f'unknown model type: {config.model.target}')
 
         del model.loss
+        gc.collect()
         torch.cuda.empty_cache()
 
         return model

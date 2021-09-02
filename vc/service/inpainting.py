@@ -81,6 +81,7 @@ class InpaintingOptions:
 
 class InpaintingService:
     def handle(self, args: InpaintingOptions):
+
         if args.offscreen_rendering is True:
             vispy.use(app='egl')
 
@@ -205,8 +206,6 @@ class InpaintingService:
             rgb_model.eval()
             rgb_model = rgb_model.to(device)
 
-            dh.diagnose('HANDLE PRE WRITE PLY')
-
             print(
                 f"Writing depth ply (and basically doing everything) at {time.time()}"
             )
@@ -242,8 +241,6 @@ class InpaintingService:
 
         gc.collect()
         torch.cuda.empty_cache()
-
-        dh.diagnose('HANDLE END')
 
         print(f"Making inpainting frame at {time.time()}")
         video_basename = sample['tgt_name']

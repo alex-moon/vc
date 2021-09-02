@@ -1,9 +1,9 @@
-import os
 import logging
-from hurry.filesize import size
+import os
 from datetime import datetime
 
 from guppy import hpy
+from hurry.filesize import size
 
 
 class DiagnosisHelper:
@@ -41,6 +41,8 @@ class DiagnosisHelper:
             cls.debug('DIAGNOSIS:', description.upper(), reachable_summary)
             return
 
+        biggest_object = reachable.byid[0]
+
         cls.debug(bar)
         cls.debug('DIAGNOSIS:', description.upper())
         cls.debug(bar)
@@ -48,12 +50,24 @@ class DiagnosisHelper:
         cls.debug(bar)
         cls.debug(reachable)
         cls.debug(bar)
+        cls.debug(
+            'BIGGEST OBJECT',
+            size(biggest_object.size),
+            biggest_object,
+            biggest_object.sp
+        )
+        cls.debug(bar)
 
     @classmethod
     def get_size_summary(cls, heap, key):
         last_size = cls.last_size[key]
         current_size = cls.last_size[key] = heap.size
         diff = current_size - last_size
+
+        if diff > 100 * 1024 * 1024:
+            # import ipdb;ipdb.set_trace()
+            pass
+
         diff = (
             '-%s' % size(abs(diff))
             if diff < 0

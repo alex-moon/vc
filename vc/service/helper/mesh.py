@@ -1,19 +1,23 @@
-from typing import List
-
+import cv2
+import copy
+import torch
+import os
+import gc
+import transforms3d
 import numpy as np
 
 try:
     import cynetworkx as netx
 except ImportError:
     import networkx as netx
+
+from typing import List
 from vispy import scene
 from vispy.scene import visuals
 from vispy.visuals.filters import Alpha
 from vispy.io import write_png
-import cv2
-import copy
-import torch
-import os
+from functools import reduce
+
 from vc.service.helper.utils import open_small_mask, refine_depth_around_edge
 from vc.service.helper.utils import (
     refine_color_around_edge,
@@ -44,8 +48,7 @@ from vc.service.helper.mesh_tools import (
     dilate_valid_size,
     size_operation,
 )
-import transforms3d
-from functools import reduce
+from vc.service.helper.diagnosis import DiagnosisHelper as dh
 
 
 # @todo put all in class and clean up
@@ -2328,8 +2331,12 @@ def DL_inpaint_edge(
             patch_edge_dict['edge'],
             patch_edge_dict['mask']
         ) and inpaint_iter == 0:
-            if ((depth_edge_output > args.ext_edge_threshold).float() *
-                tensor_edge_dict['mask']).max() > 0:
+            if (
+                (
+                    (depth_edge_output > args.ext_edge_threshold).float()
+                    * tensor_edge_dict['mask']
+                ).max() > 0
+            ):
                 try:
                     edge_dict['fpath_map'], edge_dict[
                         'npath_map'], break_flag, npaths, fpaths, invalid_edge_id = \
@@ -2346,17 +2353,19 @@ def DL_inpaint_edge(
                         )
                 except:
                     pass
-                pre_npath_map = edge_dict['npath_map'].copy()
                 if args.repeat_inpaint_edge is True:
                     for _ in range(2):
                         tmp_input_edge = (
-                            (edge_dict['npath_map'] > -1) + edge_dict[
-                            'edge']).clip(0, 1)
-                        patch_tmp_input_edge = \
-                            crop_maps_by_size(union_size, tmp_input_edge)[0]
-                        tensor_input_edge = \
-                            torch.FloatTensor(patch_tmp_input_edge)[
-                                None, None, ...]
+                            (edge_dict['npath_map'] > -1)
+                            + edge_dict['edge']
+                        ).clip(0, 1)
+                        patch_tmp_input_edge = crop_maps_by_size(
+                            union_size,
+                            tmp_input_edge
+                        )[0]
+                        tensor_input_edge = torch.FloatTensor(
+                            patch_tmp_input_edge
+                        )[None, None, ...]
                         depth_edge_output = depth_edge_model.forward_3P(
                             tensor_edge_dict['mask'],
                             tensor_edge_dict['context'],
@@ -2368,9 +2377,10 @@ def DL_inpaint_edge(
                         )
                         depth_edge_output = depth_edge_output.cpu()
                         depth_edge_output = (
-                                                depth_edge_output > args.ext_edge_threshold).float() * \
-                                            tensor_edge_dict['mask'] + \
-                                            tensor_edge_dict['edge']
+                            (depth_edge_output > args.ext_edge_threshold).float()
+                            * tensor_edge_dict['mask']
+                            + tensor_edge_dict['edge']
+                        )
                         depth_edge_output = depth_edge_output.squeeze().data.cpu().numpy()
                         full_depth_edge_output = np.zeros(
                             (mesh.graph['H'], mesh.graph['W'])
@@ -2392,6 +2402,7 @@ def DL_inpaint_edge(
                                 inpaint_iter,
                                 args
                             )
+
                 for nid in npaths.keys():
                     npath, fpath = npaths[nid], fpaths[nid]
                     start_mx, start_my, end_mx, end_my = -1, -1, -1, -1
@@ -2431,8 +2442,13 @@ def DL_inpaint_edge(
                             edges_infos[(end_mx, end_my)] = []
                         edges_infos[(end_mx, end_my)].append(new_edge_info)
                         edges_in_mask[edge_id].add((end_mx, end_my))
-    for edge_id, (context_cc, mask_cc, erode_context_cc, extend_context_cc,
-                  edge_cc) in enumerate(
+    for edge_id, (
+        context_cc,
+        mask_cc,
+        erode_context_cc,
+        extend_context_cc,
+        edge_cc
+    ) in enumerate(
         zip(
             context_ccs,
             mask_ccs,
@@ -2503,41 +2519,59 @@ def DL_inpaint_edge(
             patch_edge_dict['edge'],
             patch_edge_dict['mask']
         ) and inpaint_iter == 0:
-            edge_dict['fpath_map'], edge_dict['npath_map'] = edge_dict[
-                                                                 'fpath_map'] * 0 - 1, \
-                                                             edge_dict[
-                                                                 'npath_map'] * 0 - 1
+            edge_dict['fpath_map'] = edge_dict['fpath_map'] * 0 - 1
+            edge_dict['npath_map'] = edge_dict['npath_map'] * 0 - 1
             end_pts = edges_in_mask[edge_id]
             for end_pt in end_pts:
                 cur_edge_infos = edges_infos[(end_pt[0], end_pt[1])]
-                cur_info = \
-                    [xx for xx in cur_edge_infos if xx['mask_id'] == edge_id][0]
-                other_infos = [xx for xx in cur_edge_infos if
-                               xx['mask_id'] != edge_id and len(
-                                   xx['cont_end_pts']
-                               ) > 0]
-                if len(cur_info['cont_end_pts']) > 0 or (
-                    len(cur_info['cont_end_pts']) == 0 and len(
-                    other_infos
-                ) == 0):
+                cur_info = [
+                    xx
+                    for xx in cur_edge_infos
+                    if xx['mask_id'] == edge_id
+                ][0]
+                other_infos = [
+                    xx
+                    for xx in cur_edge_infos
+                    if xx['mask_id'] != edge_id and len(xx['cont_end_pts']) > 0
+                ]
+                if (
+                    len(cur_info['cont_end_pts']) > 0 or (
+                        len(cur_info['cont_end_pts']) == 0
+                        and len(other_infos) == 0
+                    )
+                ):
                     for fnode in cur_info['fpath']:
-                        edge_dict['fpath_map'][fnode[0], fnode[1]] = cur_info[
-                            'comp_edge_id']
+                        edge_dict['fpath_map'][
+                            fnode[0],
+                            fnode[1]
+                        ] = cur_info['comp_edge_id']
+
                     for fnode in cur_info['npath']:
-                        edge_dict['npath_map'][fnode[0], fnode[1]] = cur_info[
-                            'comp_edge_id']
+                        edge_dict['npath_map'][
+                            fnode[0],
+                            fnode[1]
+                        ] = cur_info['comp_edge_id']
+
             fnmap = edge_dict['fpath_map'] * 1
             fnmap[edge_dict['npath_map'] != -1] = edge_dict['npath_map'][
-                edge_dict['npath_map'] != -1]
+                edge_dict['npath_map'] != -1
+            ]
+
             for end_pt in end_pts:
                 cur_edge_infos = edges_infos[(end_pt[0], end_pt[1])]
-                cur_info = \
-                    [xx for xx in cur_edge_infos if xx['mask_id'] == edge_id][0]
+                cur_info = [
+                    xx
+                    for xx
+                    in cur_edge_infos
+                    if xx['mask_id'] == edge_id
+                ][0]
                 cur_depth = cur_info['depth']
-                other_infos = [xx for xx in cur_edge_infos if
-                               xx['mask_id'] != edge_id and len(
-                                   xx['cont_end_pts']
-                               ) > 0]
+                other_infos = [
+                    xx
+                    for xx
+                    in cur_edge_infos
+                    if xx['mask_id'] != edge_id and len(xx['cont_end_pts']) > 0
+                ]
                 comp_edge_id = cur_info['comp_edge_id']
                 if len(cur_info['cont_end_pts']) == 0 and len(other_infos) > 0:
                     other_infos = sorted(
@@ -2582,16 +2616,21 @@ def DL_inpaint_edge(
                                           'mask']
                     else:
                         for fnode in cur_info['fpath']:
-                            edge_dict['fpath_map'][fnode[0], fnode[1]] = \
-                                cur_info['comp_edge_id']
+                            edge_dict['fpath_map'][
+                                fnode[0],
+                                fnode[1]
+                            ] = cur_info['comp_edge_id']
+
                         for fnode in cur_info['npath']:
-                            edge_dict['npath_map'][fnode[0], fnode[1]] = \
-                                cur_info['comp_edge_id']
-            if edge_dict['npath_map'].min() == 0 or edge_dict[
-                'fpath_map'].min() == 0:
-                pass
-            edge_dict['output'] = (edge_dict['npath_map'] > -1) * edge_dict[
-                'mask'] + edge_dict['context'] * edge_dict['edge']
+                            edge_dict['npath_map'][
+                                fnode[0],
+                                fnode[1]
+                            ] = cur_info['comp_edge_id']
+
+            edge_dict['output'] = (
+                (edge_dict['npath_map'] > -1) * edge_dict['mask']
+                + edge_dict['context'] * edge_dict['edge']
+            )
         mesh, _, _, _ = create_placeholder(
             edge_dict['context'], edge_dict['mask'],
             edge_dict['depth'], edge_dict['fpath_map'],
@@ -2620,17 +2659,24 @@ def DL_inpaint_edge(
         for near_id in np.unique(edge_dict['npath_map'])[1:]:
             refine_depth_output = refine_depth_around_edge(
                 refine_depth_output.copy(),
-                (edge_dict['fpath_map'] == near_id).astype(np.uint8) *
-                edge_dict['mask'],
-                (edge_dict['fpath_map'] == near_id).astype(np.uint8),
-                (edge_dict['npath_map'] == near_id).astype(np.uint8) *
-                edge_dict['mask'],
+                (
+                    edge_dict['fpath_map'] == near_id
+                ).astype(np.uint8) * edge_dict['mask'],
+                (
+                    edge_dict['fpath_map'] == near_id
+                ).astype(np.uint8),
+                (
+                    edge_dict['npath_map'] == near_id
+                ).astype(np.uint8) * edge_dict['mask'],
                 depth_dict['mask'].copy(),
                 depth_dict['output'] * depth_dict['context'],
                 args
             )
-        depth_dict['output'][depth_dict['mask'] > 0] = refine_depth_output[
-            depth_dict['mask'] > 0]
+
+        depth_dict['output'][
+            depth_dict['mask'] > 0
+        ] = refine_depth_output[depth_dict['mask'] > 0]
+
         rgb_dict = get_rgb_from_nodes(
             context_cc | extend_context_cc,
             erode_context_cc | extend_erode_context_ccs[edge_id],
@@ -2643,20 +2689,26 @@ def DL_inpaint_edge(
             pass
         rgb_dict['edge'] = edge_dict['output']
         patch_rgb_dict = dict()
-        patch_rgb_dict['mask'], patch_rgb_dict['context'], patch_rgb_dict[
-            'rgb'], \
+
+        patch_rgb_dict['mask'], \
+        patch_rgb_dict['context'], \
+        patch_rgb_dict['rgb'], \
         patch_rgb_dict['edge'] = crop_maps_by_size(
             union_size, rgb_dict['mask'],
             rgb_dict['context'], rgb_dict['rgb'],
             rgb_dict['edge']
         )
+
         tensor_rgb_dict = convert2tensor(patch_rgb_dict)
         resize_rgb_dict = {k: v.clone() for k, v in tensor_rgb_dict.items()}
         max_hw = np.array([*patch_rgb_dict['mask'].shape[-2:]]).max()
         init_frac = args.largest_size / (
-            np.array([*patch_rgb_dict['mask'].shape[-2:]]).prod() ** 0.5)
-        resize_hw = [patch_rgb_dict['mask'].shape[-2] * init_frac,
-                     patch_rgb_dict['mask'].shape[-1] * init_frac]
+            np.array([*patch_rgb_dict['mask'].shape[-2:]]).prod() ** 0.5
+        )
+        resize_hw = [
+            patch_rgb_dict['mask'].shape[-2] * init_frac,
+            patch_rgb_dict['mask'].shape[-1] * init_frac
+        ]
         resize_max_hw = max(resize_hw)
         frac = (np.floor(resize_max_hw / 128.) * 128.) / max_hw
         if frac < 1:
@@ -3156,19 +3208,32 @@ def write_ply(
         )
 
     specific_edge_id = []
-    context_ccs, mask_ccs, broken_mask_ccs, edge_ccs, erode_context_ccs, \
-    init_mask_connect, edge_maps, extend_context_ccs, extend_edge_ccs, extend_erode_context_ccs = \
-        context_and_holes(
-            input_mesh,
-            edge_ccs,
-            args,
-            specific_edge_id,
-            depth_feat_model,
-            inpaint_iter=0
-        )
+
+    context_ccs, \
+    mask_ccs, \
+    broken_mask_ccs, \
+    edge_ccs, \
+    erode_context_ccs, \
+    init_mask_connect, \
+    edge_maps, \
+    extend_context_ccs, \
+    extend_edge_ccs, \
+    extend_erode_context_ccs = context_and_holes(
+        input_mesh,
+        edge_ccs,
+        args,
+        specific_edge_id,
+        depth_feat_model,
+        inpaint_iter=0
+    )
     specific_edge_loc = None
 
-    input_mesh, info_on_pix, specific_edge_nodes, new_edge_ccs, connect_points_ccs, image = DL_inpaint_edge(
+    input_mesh, \
+    info_on_pix, \
+    specific_edge_nodes, \
+    new_edge_ccs, \
+    connect_points_ccs, \
+    image = DL_inpaint_edge(
         input_mesh,
         info_on_pix,
         args,
@@ -3205,7 +3270,12 @@ def write_ply(
         )
 
     specific_edge_id = []
-    input_mesh, info_on_pix, specific_edge_nodes, new_edge_ccs, _, image = DL_inpaint_edge(
+    input_mesh, \
+    info_on_pix, \
+    specific_edge_nodes, \
+    new_edge_ccs, \
+    _, \
+    image = DL_inpaint_edge(
         input_mesh,
         info_on_pix,
         args,
@@ -3226,6 +3296,7 @@ def write_ply(
         specific_edge_loc,
         inpaint_iter=1
     )
+
     vertex_id = 0
     input_mesh.graph['H'] = input_mesh.graph['noext_H']
     input_mesh.graph['W'] = input_mesh.graph['noext_W']
@@ -3389,28 +3460,21 @@ def read_ply(mesh_fi):
     return verts, colors, faces, Height, Width, hFov, vFov
 
 
-class Canvas_view():
+class CanvasView:
     def __init__(
         self,
         fov,
         verts,
         faces,
         colors,
-        canvas_size,
-        factor=1,
-        bgcolor='gray',
-        proj='perspective',
+        canvas: scene.SceneCanvas,
+        view,
+        mesh
     ):
-        self.canvas = scene.SceneCanvas(
-            bgcolor=bgcolor,
-            size=(canvas_size * factor, canvas_size * factor)
-        )
-        self.view = self.canvas.central_widget.add_view()
-        self.view.camera = 'perspective'
+        self.canvas = canvas
+        self.view = view
         self.view.camera.fov = fov
-        self.mesh = visuals.Mesh(shading=None)
-        self.mesh.attach(Alpha(1.0))
-        self.view.add(self.mesh)
+        self.mesh = mesh
         self.tr = self.view.camera.transform
         self.mesh.set_data(
             vertices=verts,
@@ -3421,10 +3485,14 @@ class Canvas_view():
         self.rotate(axis=[1, 0, 0], angle=180)
         self.view_changed()
 
-    def translate(self, trans=[0, 0, 0]):
+    def translate(self, trans=None):
+        if trans is None:
+            trans = [0, 0, 0]
         self.tr.translate(trans)
 
-    def rotate(self, axis=[1, 0, 0], angle=0):
+    def rotate(self, axis=None, angle=0):
+        if axis is None:
+            axis = [1, 0, 0]
         self.tr.rotate(axis=axis, angle=angle)
 
     def view_changed(self):
@@ -3433,16 +3501,47 @@ class Canvas_view():
     def render(self):
         return self.canvas.render()
 
-    def reinit_mesh(self, verts, faces, colors):
-        self.mesh.set_data(
-            vertices=verts,
-            faces=faces,
-            vertex_colors=colors[:, :3]
-        )
-
     def reinit_camera(self, fov):
         self.view.camera.fov = fov
         self.view.camera.view_changed()
+
+
+class CanvasViewFactory:
+    instance = None
+    canvas = None
+    view = None
+    mesh = None
+
+    @classmethod
+    def new(
+        cls,
+        canvas_size,
+        factor,
+        fov,
+        verts,
+        faces,
+        colors
+    ):
+        if cls.canvas is None:
+            cls.canvas = scene.SceneCanvas(
+                bgcolor='gray',
+                size=(canvas_size * factor, canvas_size * factor)
+            )
+            cls.view = cls.canvas.central_widget.add_view()
+            cls.view.camera = 'perspective'
+            cls.mesh = visuals.Mesh(shading=None)
+            cls.mesh.attach(Alpha(1.0))
+            cls.view.add(cls.mesh)
+
+        return CanvasView(
+            fov,
+            verts,
+            faces,
+            colors,
+            cls.canvas,
+            cls.view,
+            cls.mesh
+        )
 
 
 def output_3d_photo(
@@ -3476,6 +3575,7 @@ def output_3d_photo(
     cam_mesh.graph['vFov'] = 2 * np.arctan(
         (1. / 2.) * ((cam_mesh.graph['original_H']) / int_mtx_real_y[1])
     )
+
     colors = colors[..., :3]
 
     fov_in_rad = max(cam_mesh.graph['vFov'], cam_mesh.graph['hFov'])
@@ -3496,18 +3596,19 @@ def output_3d_photo(
 
     canvas_size = max(canvas_h, canvas_w)
 
-    normal_canvas = Canvas_view(
+    normal_canvas = CanvasViewFactory.new(
+        canvas_size,
+        init_factor,
         fov,
         verts,
         faces,
-        colors,
-        canvas_size=canvas_size,
-        factor=init_factor,
-        bgcolor='gray',
-        proj='perspective'
+        colors
     )
 
-    img = normal_canvas.render()
+    dh.diagnose('O3P', 'pre img render')
+    img = normal_canvas.render()  # @todo THIS IS WHERE THE MEMORY LEAK HAPPENS
+    dh.diagnose('O3P', 'post img render')
+
     if init_factor != 1:
         img = cv2.resize(
             img,
@@ -3522,8 +3623,10 @@ def output_3d_photo(
         cam_mesh.graph['original_H'] is not None
         and cam_mesh.graph['original_W'] is not None
     ):
-        aspect_ratio = cam_mesh.graph['original_H'] / cam_mesh.graph[
-            'original_W']
+        aspect_ratio = (
+            cam_mesh.graph['original_H']
+            / cam_mesh.graph['original_W']
+        )
     else:
         aspect_ratio = cam_mesh.graph['H'] / cam_mesh.graph['W']
 
@@ -3537,13 +3640,18 @@ def output_3d_photo(
         anchor = [
             0,
             img.shape[0],
-            int(max(0, int((img.shape[1]) // 2 - img_w_len // 2))),
+            int(
+                max(
+                    0,
+                    int((img.shape[1]) // 2 - img_w_len // 2)
+                )
+            ),
             int(
                 min(
                     int((img.shape[1]) // 2 + img_w_len // 2),
                     (img.shape[1]) - 1
-                    )
                 )
+            )
         ]
     else:
         img_w_len = (
@@ -3553,13 +3661,18 @@ def output_3d_photo(
         )
         img_h_len = img_w_len * aspect_ratio
         anchor = [
-            int(max(0, int((img.shape[0]) // 2 - img_h_len // 2))),
+            int(
+                max(
+                    0,
+                    int((img.shape[0]) // 2 - img_h_len // 2)
+                )
+            ),
             int(
                 min(
                     int((img.shape[0]) // 2 + img_h_len // 2),
                     (img.shape[0]) - 1
-                    )
-                ),
+                )
+            ),
             0,
             img.shape[1]
         ]
@@ -3587,6 +3700,7 @@ def output_3d_photo(
 
     normal_canvas.view_changed()
     img = normal_canvas.render()
+
     if init_factor != 1:
         img = cv2.GaussianBlur(
             img,
@@ -3601,13 +3715,13 @@ def output_3d_photo(
             interpolation=cv2.INTER_AREA
         )
     img = img[
-          anchor[0]:anchor[1],
-          anchor[2]:anchor[3]
-          ]
+      anchor[0]:anchor[1],
+      anchor[2]:anchor[3]
+    ]
     img = img[
-          int(border[0]):int(border[1]),
-          int(border[2]):int(border[3])
-          ]
+      int(border[0]):int(border[1]),
+      int(border[2]):int(border[3])
+    ]
 
     if any(np.array(args.crop_border) > 0.0):
         H_c, W_c, _ = img.shape
@@ -3618,9 +3732,13 @@ def output_3d_photo(
         img = img[o_t:H_c - o_b, o_l:W_c - o_r]
         img = cv2.resize(img, (W_c, H_c), interpolation=cv2.INTER_CUBIC)
 
-    print("Writing output image muhahaha >:)")
     path = video_basename + '.png'
     if output_dir:
         path = os.path.join(output_dir, path)
-    print("mesh.py:", "Writing Inpainting output frame:", os.path.abspath(path))
+    print("mesh.py:", "Writing Inpainting output frame:", os.path.abspath(path), "muhahaha >:)")
+
     write_png(path, img)
+
+    del img, normal_canvas, cam_mesh
+    gc.collect()
+    torch.cuda.empty_cache()

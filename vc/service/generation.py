@@ -12,6 +12,7 @@ from vc.value_object import GenerationSpec, ImageSpec
 
 
 class GenerationService:
+    STEPS_DIR = 'steps'
     OUTPUT_FILENAME = 'output.png'
     ACCELERATION = 0.01
 
@@ -73,12 +74,15 @@ class GenerationService:
                 'output_filename': self.OUTPUT_FILENAME,
             }))
 
-            self.inpainting.handle(InpaintingOptions(**{
-                'input_file': self.OUTPUT_FILENAME,
-                'x_shift': x_velocity,
-                'y_shift': y_velocity,
-                'z_shift': z_velocity,
-            }))
+            if x_velocity != 0. or y_velocity != 0. or z_velocity != 0.:
+                self.inpainting.handle(InpaintingOptions(**{
+                    'input_file': self.OUTPUT_FILENAME,
+                    'x_shift': x_velocity,
+                    'y_shift': y_velocity,
+                    'z_shift': z_velocity,
+                }))
+
+        self.clean_files()
 
         if spec.images:
             for image in spec.images:
@@ -117,7 +121,20 @@ class GenerationService:
                                         copy(self.OUTPUT_FILENAME, f'steps/{step:04}.png')
                                         step += 1
 
-            self.video.make_video(step, json.dumps(asdict(spec), indent=4))
+            self.video.make_video(
+                step,
+                json.dumps(asdict(spec), indent=4),
+                output_file=self.OUTPUT_FILENAME.replace('png', 'mp4'),
+                steps_dir=self.STEPS_DIR
+            )
 
         end = time()
         print('done in %s seconds', end - start)
+
+    def clean_files(self):
+        if os.path.exists(self.OUTPUT_FILENAME):
+            os.remove(self.OUTPUT_FILENAME)
+        for filename in os.listdir(self.STEPS_DIR):
+            filepath = os.path.join(self.STEPS_DIR, filename)
+            if os.path.isfile(filepath):
+                os.remove(filepath)
