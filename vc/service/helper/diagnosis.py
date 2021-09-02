@@ -17,7 +17,7 @@ class DiagnosisHelper:
     }
 
     @classmethod
-    def diagnose(cls, *args, short=True):
+    def diagnose(cls, *args, short=False):
         if not os.getenv('DEBUG', False):
             return
 

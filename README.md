@@ -83,7 +83,7 @@ sudo service nginx restart
 
 8. Move your supervisor conf into place:
 ```
-sudo cp supervisord.conf /etc/supervisor/conf.d/vc.conf
+sudo cp supervisor.conf /etc/supervisor/conf.d/vc.conf
 sudo service supervisor restart
 ```
 
