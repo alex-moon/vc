@@ -7,7 +7,7 @@ from guppy import hpy
 
 
 class DiagnosisHelper:
-    LOG_FILE_PATH = '/var/log/supervisor'
+    LOG_FILE_PATH = '/opt/vc/log'
     hpy = None
     logging = False
     is_debug = False
