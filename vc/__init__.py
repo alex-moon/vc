@@ -19,6 +19,7 @@ def create_app():
     # initialise the app
     app = Flask(__name__)
     app.config.update(os.environ)
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
 
     # spin everything up
     api.init_app(app)
