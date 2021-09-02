@@ -11,10 +11,13 @@ class DiagnosisHelper:
     hpy = None
     logging = False
     is_debug = False
-    last_size = 0
+    last_size = {
+        'REACHABLE': 0,
+        'UNREACHABLE': 0,
+    }
 
     @classmethod
-    def diagnose(cls, description: str):
+    def diagnose(cls, *args, short=True):
         if not os.getenv('DEBUG', False):
             return
 
@@ -24,19 +27,34 @@ class DiagnosisHelper:
 
         bar = 80 * '='
 
-        heap = cls.hpy.heap()
-        last_size = cls.last_size
-        current_size = cls.last_size = heap.size
-        diff = current_size - last_size
-        diff = diff if diff < 0 else '+%s' % diff
+        reachable = cls.hpy.heap()
+        reachable_summary = cls.get_size_summary(reachable, 'REACHABLE')
+
+        description = ' '.join(map(lambda a: '%s' % a, args))
+
+        if short:
+            cls.debug('DIAGNOSIS:', description.upper(), reachable_summary)
+            return
 
         cls.debug(bar)
         cls.debug('DIAGNOSIS:', description.upper())
         cls.debug(bar)
-        cls.debug('TOTAL', size(current_size), '(%s b)' % diff)
+        cls.debug('TOTAL', reachable_summary)
         cls.debug(bar)
-        cls.debug(heap)
+        cls.debug(reachable)
         cls.debug(bar)
+
+    @classmethod
+    def get_size_summary(cls, heap, key):
+        last_size = cls.last_size[key]
+        current_size = cls.last_size[key] = heap.size
+        diff = current_size - last_size
+        diff = (
+            '-%s' % size(abs(diff))
+            if diff < 0
+            else '+%s' % size(diff)
+        )
+        return '%s (%s)' % (size(current_size), diff)
 
     @classmethod
     def debug(cls, *args):
