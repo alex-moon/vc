@@ -9,12 +9,14 @@ from vc.service import VqganClipService, InpaintingService, VideoService
 from vc.service.vqgan_clip import VqganClipOptions
 from vc.service.inpainting import InpaintingOptions
 from vc.value_object import GenerationSpec, ImageSpec
+from vc.service.helper import DiagnosisHelper as dh
 
 
 class GenerationService:
     STEPS_DIR = 'steps'
     OUTPUT_FILENAME = 'output.png'
     ACCELERATION = 0.01
+    TRANSITION_SPEED = 0.05
 
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
@@ -41,13 +43,23 @@ class GenerationService:
         y_velocity = 0.
         z_velocity = 0.
 
+        last_text = None
+        text_transition = 0.
+        last_style = None
+        style_transition = 0.
+
         def generate_image(
             spec: ImageSpec,
-            prompt: str
+            text: str,
+            style: str = None
         ):
             nonlocal x_velocity
             nonlocal y_velocity
             nonlocal z_velocity
+            nonlocal last_text
+            nonlocal text_transition
+            nonlocal last_style
+            nonlocal style_transition
 
             # accelerate toward intended velocity @todo cleaner way to do this
             if x_velocity > spec.x_shift:
@@ -63,6 +75,45 @@ class GenerationService:
             if z_velocity < spec.z_shift:
                 z_velocity += self.ACCELERATION
 
+            if last_text is None:
+                last_text = text
+
+            if last_style is None:
+                last_style = style
+
+            prompt = text
+            if text != last_text:
+                if text_transition < 1.:
+                    prompt = '%s : %s | %s : %s' % (
+                        last_text,
+                        1. - text_transition,
+                        text,
+                        text_transition
+                    )
+                    text_transition += self.TRANSITION_SPEED
+                else:
+                    last_text = text
+                    text_transition = 0.
+
+            if style is not None:
+                styles = style
+
+                if style != last_style:
+                    if style_transition < 1.:
+                        styles = '%s : %s | %s : %s' % (
+                            last_style,
+                            1. - style_transition,
+                            style,
+                            style_transition
+                        )
+                        style_transition += self.TRANSITION_SPEED
+                    else:
+                        last_style = style
+                        style_transition = 0.
+
+                prompt = '%s | %s' % (prompt, styles)
+
+            dh.debug('prompt', prompt)
             self.vqgan_clip.handle(VqganClipOptions(**{
                 'prompts': prompt,
                 'max_iterations': spec.iterations,
@@ -91,10 +142,7 @@ class GenerationService:
                         if image.styles:
                             for style in image.styles:
                                 for i in range(image.epochs):
-                                    generate_image(
-                                        image,
-                                        '%s | %s' % (text, style)
-                                    )
+                                    generate_image(image, text, style)
                         else:
                             for i in range(image.epochs):
                                 generate_image(image, text)
@@ -111,7 +159,8 @@ class GenerationService:
                                         for i in range(video_step.epochs):
                                             generate_image(
                                                 video_step,
-                                                '%s | %s' % (text, style)
+                                                text,
+                                                style
                                             )
                                             copy(self.OUTPUT_FILENAME, f'steps/{step:04}.png')
                                             step += 1
