@@ -3605,9 +3605,9 @@ def output_3d_photo(
         colors
     )
 
-    dh.diagnose('O3P', 'pre img render')
-    img = normal_canvas.render()  # @todo THIS IS WHERE THE MEMORY LEAK HAPPENS
-    dh.diagnose('O3P', 'post img render')
+    dh.diagnose('O3P', 'pre img render', short=True)
+    img = normal_canvas.render()
+    dh.diagnose('O3P', 'post img render', short=True)
 
     if init_factor != 1:
         img = cv2.resize(
