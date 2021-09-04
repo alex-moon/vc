@@ -165,7 +165,7 @@ class InpaintingService:
                 image.copy(),
                 args,
                 num_iter=args.sparse_iter
-                )
+            )
             depth = vis_depths[-1]
             torch.cuda.empty_cache()
 

@@ -965,7 +965,8 @@ def get_MiDaS_sample(args, aft_certain=None):
     generic_pose = np.eye(4)
 
     tgts_pose = generic_pose * 1.
-    import ipdb;ipdb.set_trace()
+    # @todo NB: this doesn't do any rotation, only translation
+    # @see mesh.output_3d_photo
     tgts_pose[:3, -1] = np.array([
         args.x_shift,
         args.y_shift,

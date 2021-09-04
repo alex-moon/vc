@@ -197,7 +197,8 @@ def extrapolate(
     log_depth[mask > 0] = 0
     input_mean_depth = np.mean(log_depth[context > 0])
     input_zero_mean_depth = (log_depth - input_mean_depth) * context
-    input_disp = 1. / np.abs(input_depth)
+    import ipdb;ipdb.set_trace()
+    input_disp = 1. / np.abs(input_depth)  # @todo this is a divide by zero error
     input_disp[mask > 0] = 0
     input_disp = input_disp / input_disp.max()
     valid_line = np.zeros_like(depth)
