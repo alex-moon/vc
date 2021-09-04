@@ -23,7 +23,6 @@ from .helper.networks import (
     Inpaint_Edge_Net,
 )
 from .helper.utils import get_MiDaS_sample, read_MiDaS_depth
-from .helper.diagnosis import DiagnosisHelper as dh
 
 
 @dataclass
