@@ -21,7 +21,6 @@ class VideoService:
     def make_video(
         self,
         last_frame,
-        comment,
         output_file=OUTPUT_FILENAME,
         steps_dir=STEPS_DIR
     ):
@@ -37,11 +36,9 @@ class VideoService:
         frames = []
         tqdm.write('Generating video...')
         for step in range(init_frame, last_frame):
-            frames.append(
-                Image.open(
-                    os.path.join(steps_dir, f'{step:04}.png')
-                )
-            )
+            path = os.path.join(steps_dir, f'{step:04}.png')
+            print('appending frame', path)
+            frames.append(Image.open(path))
 
         # fps = last_frame/10
         fps = np.clip(total_frames / length, min_fps, max_fps)
@@ -59,7 +56,6 @@ class VideoService:
             '-pix_fmt', 'yuv420p',
             '-crf', '17',
             '-preset', 'veryslow',
-            '-metadata', f'comment={comment}',
             output_file
         ], stdin=PIPE)
         for im in tqdm(frames):
@@ -72,3 +68,4 @@ class VideoService:
             now.strftime('%Y-%m-%d-%H-%M-%S'),
             output_file
         ))
+

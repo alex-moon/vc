@@ -204,7 +204,6 @@ class GenerationService:
 
                 self.video.make_video(
                     step,
-                    json.dumps(asdict(spec), indent=4),
                     output_file=self.OUTPUT_FILENAME.replace('png', 'mp4'),
                     steps_dir=self.STEPS_DIR
                 )
@@ -225,7 +224,7 @@ class GenerationService:
     def make_interim_video(self, step):
         output_file = self.OUTPUT_FILENAME.replace('.png', '-interim.mp4')
         dh.debug('making interim video', output_file)
-        self.video.make_video(step, output_file, output_file, self.STEPS_DIR)
+        self.video.make_video(step, output_file, self.STEPS_DIR)
 
     def calculate_total_steps(self, video):
         step = 0
