@@ -965,7 +965,12 @@ def get_MiDaS_sample(args, aft_certain=None):
     generic_pose = np.eye(4)
 
     tgts_pose = generic_pose * 1.
-    tgts_pose[:3, -1] = np.array([args.x_shift, args.y_shift, args.z_shift])
+    import ipdb;ipdb.set_trace()
+    tgts_pose[:3, -1] = np.array([
+        args.x_shift,
+        args.y_shift,
+        args.z_shift
+    ])
 
     aft_flag = True
     if aft_certain is not None and len(aft_certain) > 0:
