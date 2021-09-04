@@ -115,6 +115,9 @@ class GenerationService:
                 prompt = '%s | %s' % (prompt, styles)
 
             dh.debug('prompt', prompt)
+            dh.debug('x_velocity', x_velocity)
+            dh.debug('y_velocity', y_velocity)
+            dh.debug('z_velocity', z_velocity)
             self.vqgan_clip.handle(VqganClipOptions(**{
                 'prompts': prompt,
                 'max_iterations': spec.iterations,
