@@ -114,10 +114,18 @@ class GenerationService:
 
                 prompt = '%s | %s' % (prompt, styles)
 
+            x_shift = x_velocity * self.VELOCITY_MULTIPLIER
+            y_shift = y_velocity * self.VELOCITY_MULTIPLIER
+            z_shift = z_velocity * self.VELOCITY_MULTIPLIER
+
             dh.debug('prompt', prompt)
             dh.debug('x_velocity', x_velocity)
             dh.debug('y_velocity', y_velocity)
             dh.debug('z_velocity', z_velocity)
+            dh.debug('x_shift', x_shift)
+            dh.debug('y_shift', y_shift)
+            dh.debug('z_shift', z_shift)
+
             self.vqgan_clip.handle(VqganClipOptions(**{
                 'prompts': prompt,
                 'max_iterations': spec.iterations,
@@ -132,9 +140,9 @@ class GenerationService:
             if x_velocity != 0. or y_velocity != 0. or z_velocity != 0.:
                 self.inpainting.handle(InpaintingOptions(**{
                     'input_file': self.OUTPUT_FILENAME,
-                    'x_shift': x_velocity * self.VELOCITY_MULTIPLIER,
-                    'y_shift': y_velocity * self.VELOCITY_MULTIPLIER,
-                    'z_shift': z_velocity * self.VELOCITY_MULTIPLIER,
+                    'x_shift': x_shift,
+                    'y_shift': y_shift,
+                    'z_shift': z_shift,
                 }))
 
         self.clean_files()
