@@ -1,5 +1,5 @@
 #!/bin/bash
 
 git pull origin $(git rev-parse --abbrev-ref HEAD)
-sudo supervisorctl -c /etc/supervisor/supervisord.conf reload
+sudo service supervisor restart
 tail -f /var/log/supervisor/*worker*
