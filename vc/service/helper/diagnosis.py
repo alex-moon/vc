@@ -73,6 +73,7 @@ class DiagnosisHelper:
 
     @classmethod
     def debug(cls, *args):
+        cls.init()
         msg = cls.get_message('DEBUG', *args)
         logging.debug(msg)
         if cls.is_debug:
@@ -80,13 +81,13 @@ class DiagnosisHelper:
 
     @classmethod
     def log(cls, *args):
+        cls.init()
         msg = cls.get_message('LOG', *args)
         logging.info(msg)
         print(msg)
 
     @classmethod
     def get_message(cls, tag, *args):
-        cls.init()
         return '%s: %s: %s' % (
             datetime.now().isoformat(timespec='seconds'),
             tag,

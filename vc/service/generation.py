@@ -19,6 +19,7 @@ class GenerationService:
     ACCELERATION = 0.1
     TRANSITION_SPEED = 0.0005
     VELOCITY_MULTIPLIER = 0.00001
+    INTERIM_STEPS = 10
 
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
@@ -217,7 +218,7 @@ class GenerationService:
             timedelta(seconds=seconds)
         ))
 
-        if step % 10 == 0:
+        if step % self.INTERIM_STEPS == 0:
             self.make_interim_video(step)
 
     def make_interim_video(self, step):
