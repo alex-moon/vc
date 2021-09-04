@@ -222,10 +222,7 @@ class GenerationService:
             self.make_interim_video(step)
 
     def make_interim_video(self, step):
-        output_file = '%s-%s' % (
-            datetime.now().strftime('%Y-%m-%d-%H-%M-%S'),
-            self.OUTPUT_FILENAME.replace('.png', '-interim.mp4')
-        )
+        output_file = self.OUTPUT_FILENAME.replace('.png', '-interim.mp4')
         dh.debug('making interim video', output_file)
         self.video.make_video(step, output_file, output_file, self.STEPS_DIR)
 
