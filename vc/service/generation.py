@@ -15,8 +15,9 @@ from vc.service.helper import DiagnosisHelper as dh
 class GenerationService:
     STEPS_DIR = 'steps'
     OUTPUT_FILENAME = 'output.png'
-    ACCELERATION = 0.01
-    TRANSITION_SPEED = 0.05
+    ACCELERATION = 0.1
+    TRANSITION_SPEED = 0.0005
+    VELOCITY_MULTIPLIER = 0.0001
 
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
@@ -62,17 +63,17 @@ class GenerationService:
             nonlocal style_transition
 
             # accelerate toward intended velocity @todo cleaner way to do this
-            if x_velocity > spec.x_shift:
+            if x_velocity > spec.x_velocity:
                 x_velocity -= self.ACCELERATION
-            if x_velocity < spec.x_shift:
+            if x_velocity < spec.x_velocity:
                 x_velocity += self.ACCELERATION
-            if y_velocity > spec.y_shift:
+            if y_velocity > spec.y_velocity:
                 y_velocity -= self.ACCELERATION
-            if y_velocity < spec.y_shift:
+            if y_velocity < spec.y_velocity:
                 y_velocity += self.ACCELERATION
-            if z_velocity > spec.z_shift:
+            if z_velocity > spec.z_velocity:
                 z_velocity -= self.ACCELERATION
-            if z_velocity < spec.z_shift:
+            if z_velocity < spec.z_velocity:
                 z_velocity += self.ACCELERATION
 
             if last_text is None:
@@ -128,9 +129,9 @@ class GenerationService:
             if x_velocity != 0. or y_velocity != 0. or z_velocity != 0.:
                 self.inpainting.handle(InpaintingOptions(**{
                     'input_file': self.OUTPUT_FILENAME,
-                    'x_shift': x_velocity,
-                    'y_shift': y_velocity,
-                    'z_shift': z_velocity,
+                    'x_shift': x_velocity * self.VELOCITY_MULTIPLIER,
+                    'y_shift': y_velocity * self.VELOCITY_MULTIPLIER,
+                    'z_shift': z_velocity * self.VELOCITY_MULTIPLIER,
                 }))
 
         self.clean_files()
@@ -162,12 +163,18 @@ class GenerationService:
                                                 text,
                                                 style
                                             )
-                                            copy(self.OUTPUT_FILENAME, f'steps/{step:04}.png')
+                                            copy(
+                                                self.OUTPUT_FILENAME,
+                                                f'steps/{step:04}.png'
+                                            )
                                             step += 1
                                 else:
                                     for i in range(video_step.epochs):
                                         generate_image(video_step, text)
-                                        copy(self.OUTPUT_FILENAME, f'steps/{step:04}.png')
+                                        copy(
+                                            self.OUTPUT_FILENAME,
+                                            f'steps/{step:04}.png'
+                                        )
                                         step += 1
 
             self.video.make_video(
