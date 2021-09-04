@@ -1,16 +1,17 @@
 import json
 import os
-from datetime import datetime, timedelta
-from time import time
 from dataclasses import asdict
-from injector import inject
+from datetime import timedelta
 from shutil import copy
+from time import time
+
+from injector import inject
 
 from vc.service import VqganClipService, InpaintingService, VideoService
-from vc.service.vqgan_clip import VqganClipOptions
-from vc.service.inpainting import InpaintingOptions
-from vc.value_object import GenerationSpec, ImageSpec
 from vc.service.helper import DiagnosisHelper as dh
+from vc.service.inpainting import InpaintingOptions
+from vc.service.vqgan_clip import VqganClipOptions
+from vc.value_object import GenerationSpec, ImageSpec
 
 
 class GenerationService:
@@ -18,7 +19,7 @@ class GenerationService:
     OUTPUT_FILENAME = 'output.png'
     ACCELERATION = 0.01
     TRANSITION_SPEED = 0.0005
-    VELOCITY_MULTIPLIER = 0.001
+    VELOCITY_MULTIPLIER = -0.0001
     INTERIM_STEPS = 5
 
     vqgan_clip: VqganClipService
