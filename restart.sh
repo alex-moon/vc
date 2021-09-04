@@ -2,4 +2,4 @@
 
 git pull origin $(git rev-parse --abbrev-ref HEAD)
 sudo supervisorctl -c /etc/supervisor/supervisord.conf reload
-tail -f log/*
+tail -f /var/log/supervisor/*worker*
