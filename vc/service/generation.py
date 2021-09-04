@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime, timedelta
 from time import time
 from dataclasses import asdict
 from injector import inject
@@ -145,10 +146,9 @@ class GenerationService:
                     'z_shift': z_shift,
                 }))
 
-        self.clean_files()
-
         if spec.images:
             for image in spec.images:
+                self.clean_files()
                 if image.texts:
                     for text in image.texts:
                         if image.styles:
@@ -159,9 +159,11 @@ class GenerationService:
                             for i in range(image.epochs):
                                 generate_image(image, text)
 
-        step = 0
         if spec.videos:
             for video in spec.videos:
+                steps = self.calculate_total_steps(video)
+                step = 0
+                self.clean_files()
                 if video.steps:
                     for video_step in video.steps:
                         if video_step.texts:
@@ -179,6 +181,11 @@ class GenerationService:
                                                 f'steps/{step:04}.png'
                                             )
                                             step += 1
+                                            self.handle_interim(
+                                                step,
+                                                steps,
+                                                time() - start
+                                            )
                                 else:
                                     for i in range(video_step.epochs):
                                         generate_image(video_step, text)
@@ -187,16 +194,53 @@ class GenerationService:
                                             f'steps/{step:04}.png'
                                         )
                                         step += 1
+                                        self.handle_interim(
+                                            step,
+                                            steps,
+                                            time() - start
+                                        )
 
-            self.video.make_video(
-                step,
-                json.dumps(asdict(spec), indent=4),
-                output_file=self.OUTPUT_FILENAME.replace('png', 'mp4'),
-                steps_dir=self.STEPS_DIR
-            )
+                self.video.make_video(
+                    step,
+                    json.dumps(asdict(spec), indent=4),
+                    output_file=self.OUTPUT_FILENAME.replace('png', 'mp4'),
+                    steps_dir=self.STEPS_DIR
+                )
 
-        end = time()
-        print('done in %s seconds', end - start)
+        print('done in %s', timedelta(seconds=time() - start))
+
+    def handle_interim(self, step, steps, seconds):
+        dh.debug('Completed %s of %s steps (%s%%) in %s' % (
+            step,
+            steps,
+            round(step / steps * 100, 2),
+            timedelta(seconds=seconds)
+        ))
+
+        if step % 10 == 0:
+            self.make_interim_video(step)
+
+    def make_interim_video(self, step):
+        output_file = '%s-%s.mp4' % (
+            self.OUTPUT_FILENAME.replace('.png', ''),
+            datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        )
+        dh.debug('making interim video', output_file)
+        self.video.make_video(step, output_file, output_file, self.STEPS_DIR)
+
+    def calculate_total_steps(self, video):
+        step = 0
+        for video_step in video.steps:
+            if video_step.texts:
+                for _ in video_step.texts:
+                    if video_step.styles:
+                        for _ in video_step.styles:
+                            for i in range(video_step.epochs):
+                                step += 1
+                    else:
+                        for i in range(video_step.epochs):
+                            step += 1
+        return step
 
     def clean_files(self):
         if os.path.exists(self.OUTPUT_FILENAME):
