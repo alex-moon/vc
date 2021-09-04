@@ -16,9 +16,9 @@ from vc.service.helper import DiagnosisHelper as dh
 class GenerationService:
     STEPS_DIR = 'steps'
     OUTPUT_FILENAME = 'output.png'
-    ACCELERATION = 0.1
+    ACCELERATION = 0.01
     TRANSITION_SPEED = 0.0005
-    VELOCITY_MULTIPLIER = 1
+    VELOCITY_MULTIPLIER = 0.001
     INTERIM_STEPS = 5
 
     vqgan_clip: VqganClipService
