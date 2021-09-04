@@ -64,10 +64,6 @@ class DiagnosisHelper:
         current_size = cls.last_size[key] = heap.size
         diff = current_size - last_size
 
-        if diff > 100 * 1024 * 1024:
-            # import ipdb;ipdb.set_trace()
-            pass
-
         diff = (
             '-%s' % size(abs(diff))
             if diff < 0
