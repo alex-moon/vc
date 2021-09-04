@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from subprocess import Popen, PIPE
 import numpy as np
@@ -36,7 +37,11 @@ class VideoService:
         frames = []
         tqdm.write('Generating video...')
         for step in range(init_frame, last_frame):
-            frames.append(Image.open(os.path.join(steps_dir, f'{step:04}.png')))
+            frames.append(
+                Image.open(
+                    os.path.join(steps_dir, f'{step:04}.png')
+                )
+            )
 
         # fps = last_frame/10
         fps = np.clip(total_frames / length, min_fps, max_fps)
