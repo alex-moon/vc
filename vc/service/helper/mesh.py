@@ -3741,3 +3741,4 @@ def output_3d_photo(
     del img, normal_canvas, cam_mesh
     gc.collect()
     torch.cuda.empty_cache()
+

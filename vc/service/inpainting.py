@@ -274,3 +274,4 @@ class InpaintingService:
             border=border,
             mean_loc_depth=mean_loc_depth
         )
+

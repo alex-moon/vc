@@ -277,7 +277,7 @@ class VqganClipService:
 
         now = datetime.now()
         return self.file_service.put(
-            args.output_filename, '%s-%s' % (
+            args.output_filename, '%s-vqgan_clip-%s' % (
                 now.strftime('%Y-%m-%d-%H-%M-%S'),
                 args.output_filename
             )
