@@ -18,7 +18,7 @@ class GenerationService:
     OUTPUT_FILENAME = 'output.png'
     ACCELERATION = 0.1
     TRANSITION_SPEED = 0.0005
-    VELOCITY_MULTIPLIER = 0.0001
+    VELOCITY_MULTIPLIER = 0.00001
 
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
