@@ -14,6 +14,7 @@ except ImportError:
 from typing import List
 from vispy import scene
 from vispy.scene import visuals
+from vispy.color import Color
 from vispy.visuals.filters import Alpha
 from vispy.io import write_png
 from functools import reduce
@@ -1946,11 +1947,8 @@ def context_and_holes(
             depth_dict = get_depth_from_maps(
                 context_map,
                 mask_map,
-                context_depth,
-                mesh.graph['H'],
-                mesh.graph['W'],
-                log_depth=args.log_depth
-            )
+                context_depth
+                )
             mask_size = get_valid_size(depth_dict['mask'])
             mask_size = dilate_valid_size(
                 mask_size,
@@ -2654,7 +2652,7 @@ def DL_inpaint_edge(
             union_size,
             depth_feat_model,
             edge_dict['output']
-        )
+            )
         refine_depth_output = depth_dict['output'] * depth_dict['mask']
         for near_id in np.unique(edge_dict['npath_map'])[1:]:
             refine_depth_output = refine_depth_around_edge(
@@ -3414,6 +3412,7 @@ def read_ply(mesh_fi):
     Width = None
     hFov = None
     vFov = None
+    num_vertex = -1
     while True:
         line = ply_fi.readline().split('\n')[0]
         if line.startswith('element vertex'):
@@ -3524,7 +3523,7 @@ class CanvasViewFactory:
     ):
         if cls.canvas is None:
             cls.canvas = scene.SceneCanvas(
-                bgcolor='gray',
+                bgcolor=Color('blue'),
                 size=(canvas_size * factor, canvas_size * factor)
             )
             cls.view = cls.canvas.central_widget.add_view()
