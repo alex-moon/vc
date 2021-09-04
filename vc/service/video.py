@@ -52,6 +52,7 @@ class VideoService:
             '-i',
             '-',
             '-vcodec', 'libx264',
+            '-vf', '"pad=ceil(iw/2)*2:ceil(ih/2)*2"',
             '-r', str(fps),
             '-pix_fmt', 'yuv420p',
             '-crf', '17',
