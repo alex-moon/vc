@@ -146,6 +146,7 @@ class GenerationService:
                     'x_shift': x_shift,
                     'y_shift': y_shift,
                     'z_shift': z_shift,
+                    'output_filename': self.OUTPUT_FILENAME,
                 }))
 
         if spec.images:

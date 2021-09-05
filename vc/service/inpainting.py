@@ -1,4 +1,5 @@
 import copy
+from datetime import datetime
 import gc
 import os
 import time
@@ -23,6 +24,7 @@ from .helper.networks import (
     Inpaint_Edge_Net,
 )
 from .helper.utils import get_MiDaS_sample, read_MiDaS_depth
+from vc.service.file import FileService
 
 
 @dataclass
@@ -42,6 +44,7 @@ class InpaintingOptions:
     specific: str = ''
     longer_side_len: int = 400
     input_file: str = 'output.png'
+    output_filename: str = 'output.png'
     depth_folder: str = 'depth'
     mesh_folder: str = 'mesh'
     video_folder: str = None
@@ -79,8 +82,12 @@ class InpaintingOptions:
 
 
 class InpaintingService:
-    def handle(self, args: InpaintingOptions):
+    file_service: FileService
 
+    def __init__(self, file_service: FileService):
+        self.file_service = file_service
+
+    def handle(self, args: InpaintingOptions):
         if args.offscreen_rendering is True:
             vispy.use(app='egl')
 
@@ -268,10 +275,17 @@ class InpaintingService:
             copy.deepcopy(sample['int_mtx']),
             args,
             copy.deepcopy(sample['tgts_pose']),
-            video_basename,
             args.original_h,
             args.original_w,
             border=border,
             mean_loc_depth=mean_loc_depth
+            )
+
+        now = datetime.now()
+        return self.file_service.put(
+            args.output_filename, '%s-inpainting-%s' % (
+                now.strftime('%Y-%m-%d-%H-%M-%S'),
+                args.output_filename
+            )
         )
 

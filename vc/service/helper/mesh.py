@@ -49,6 +49,7 @@ from vc.service.helper.mesh_tools import (
     dilate_valid_size,
     size_operation,
 )
+from vc.service.inpainting import InpaintingOptions
 from vc.service.helper.diagnosis import DiagnosisHelper as dh
 
 
@@ -3553,9 +3554,8 @@ def output_3d_photo(
     ref_pose,
     output_dir,
     int_mtx,
-    args,
+    args: InpaintingOptions,
     tgts_pose,
-    video_basename: str,
     original_H=None,
     original_W=None,
     border=None,
@@ -3731,7 +3731,7 @@ def output_3d_photo(
         img = img[o_t:H_c - o_b, o_l:W_c - o_r]
         img = cv2.resize(img, (W_c, H_c), interpolation=cv2.INTER_CUBIC)
 
-    path = video_basename + '.png'
+    path = args.output_filename
     if output_dir:
         path = os.path.join(output_dir, path)
     print("mesh.py:", "Writing Inpainting output frame:", os.path.abspath(path))
