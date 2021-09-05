@@ -1,10 +1,11 @@
-import cv2
 import copy
-import torch
-import os
 import gc
-import transforms3d
+import os
+
+import cv2
 import numpy as np
+import torch
+import transforms3d
 
 try:
     import cynetworkx as netx
@@ -49,7 +50,6 @@ from vc.service.helper.mesh_tools import (
     dilate_valid_size,
     size_operation,
 )
-from vc.service.inpainting import InpaintingOptions
 from vc.service.helper.diagnosis import DiagnosisHelper as dh
 
 
@@ -3554,7 +3554,7 @@ def output_3d_photo(
     ref_pose,
     output_dir,
     int_mtx,
-    args: InpaintingOptions,
+    args,
     tgts_pose,
     original_H=None,
     original_W=None,
@@ -3741,4 +3741,3 @@ def output_3d_photo(
     del img, normal_canvas, cam_mesh
     gc.collect()
     torch.cuda.empty_cache()
-
