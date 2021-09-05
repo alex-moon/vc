@@ -24,6 +24,22 @@ class VideoService:
         output_file=OUTPUT_FILENAME,
         steps_dir=STEPS_DIR
     ):
+        self.new_method(last_frame, output_file, steps_dir)
+        now = datetime.now()
+        self.file_service.put(output_file, '%s-%s' % (
+            now.strftime('%Y-%m-%d-%H-%M-%S'),
+            output_file
+        ))
+
+    def new_method(self, last_frame, output_file, steps_dir):
+        os.system(' '.join([
+            'ffmpeg -y -i "%s/%%04d.png"' % steps_dir,
+            '-b:v 8M -c:v h264_nvenc -pix_fmt yuv420p -strict -2',
+            '-filter:v "minterpolate=\'mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=60\'"',
+            output_file
+        ]))
+
+    def old_method(self, last_frame, output_file, steps_dir):
         init_frame = 1
 
         min_fps = 10
@@ -43,30 +59,27 @@ class VideoService:
         # fps = last_frame/10
         fps = np.clip(total_frames / length, min_fps, max_fps)
 
-        p = Popen([
-            'ffmpeg',
-            '-y',
-            '-f', 'image2pipe',
-            '-vcodec', 'png',
-            '-r', str(fps),
-            '-i',
-            '-',
-            '-vcodec', 'libx264',
-            '-vf', '"pad=ceil(iw/2)*2:ceil(ih/2)*2"',
-            '-r', str(fps),
-            '-pix_fmt', 'yuv420p',
-            '-crf', '17',
-            '-preset', 'veryslow',
-            output_file
-        ], stdin=PIPE)
+        p = Popen(
+            [
+                'ffmpeg',
+                '-y',
+                '-f', 'image2pipe',
+                '-vcodec', 'png',
+                '-r', str(fps),
+                '-i',
+                '-',
+                '-vcodec', 'libx264',
+                '-vf', '"pad=ceil(iw/2)*2:ceil(ih/2)*2"',
+                '-r', str(fps),
+                '-pix_fmt', 'yuv420p',
+                '-crf', '17',
+                '-preset', 'veryslow',
+                output_file
+            ], stdin=PIPE
+        )
         for im in tqdm(frames):
             im.save(p.stdin, 'PNG')
         p.stdin.close()
         p.wait()
 
-        now = datetime.now()
-        self.file_service.put(output_file, '%s-%s' % (
-            now.strftime('%Y-%m-%d-%H-%M-%S'),
-            output_file
-        ))
 
