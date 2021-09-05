@@ -1,9 +1,9 @@
 import copy
-from datetime import datetime
 import gc
 import os
 import time
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import List
 
 import cv2
@@ -11,10 +11,12 @@ import imageio
 import numpy as np
 import torch
 import vispy
+from injector import inject
 
 import MiDaS.MiDaS_utils as MiDaS_utils
 from MiDaS.monodepth_net import MonoDepthNet
 from MiDaS.run import run_depth
+from vc.service.file import FileService
 from .helper.bilateral_filtering import sparse_bilateral_filtering
 from .helper.boostmonodepth_utils import run_boostmonodepth
 from .helper.mesh import write_ply, read_ply, output_3d_photo
@@ -24,7 +26,6 @@ from .helper.networks import (
     Inpaint_Edge_Net,
 )
 from .helper.utils import get_MiDaS_sample, read_MiDaS_depth
-from vc.service.file import FileService
 
 
 @dataclass
@@ -84,6 +85,7 @@ class InpaintingOptions:
 class InpaintingService:
     file_service: FileService
 
+    @inject
     def __init__(self, file_service: FileService):
         self.file_service = file_service
 
