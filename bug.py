@@ -15,6 +15,161 @@ from vispy.io import write_png
 from functools import reduce
 
 
+class CanvasView:
+    def __init__(
+        self,
+        fov,
+        verts,
+        faces,
+        colors,
+        canvas: scene.SceneCanvas,
+        view,
+        mesh
+    ):
+        self.canvas = canvas
+        self.view = view
+        self.view.camera.fov = fov
+        self.mesh = mesh
+        self.tr = self.view.camera.transform
+        self.mesh.set_data(
+            vertices=verts,
+            faces=faces,
+            vertex_colors=colors[:, :3]
+        )
+        self.translate([0, 0, 0])
+        self.rotate(axis=[1, 0, 0], angle=180)
+        self.view_changed()
+
+    def translate(self, trans=None):
+        if trans is None:
+            trans = [0, 0, 0]
+        self.tr.translate(trans)
+
+    def rotate(self, axis=None, angle=0):
+        if axis is None:
+            axis = [1, 0, 0]
+        self.tr.rotate(axis=axis, angle=angle)
+
+    def view_changed(self):
+        self.view.camera.view_changed()
+
+    def render(self):
+        return self.canvas.render()
+
+    def reinit_camera(self, fov):
+        self.view.camera.fov = fov
+        self.view.camera.view_changed()
+
+
+class CanvasViewFactory:
+    instance = None
+    canvas = None
+    view = None
+    mesh = None
+
+    @classmethod
+    def new(
+        cls,
+        canvas_size,
+        fov,
+        verts,
+        faces,
+        colors
+    ):
+        if True or cls.canvas is None:
+            cls.canvas = scene.SceneCanvas(
+                bgcolor=Color('blue'),
+                size=(canvas_size, canvas_size)
+            )
+            cls.view = cls.canvas.central_widget.add_view()
+            cls.view.camera = 'perspective'
+            cls.mesh = visuals.Mesh(shading=None)
+            cls.mesh.attach(Alpha(1.0))
+            cls.view.add(cls.mesh)
+
+        return CanvasView(
+            fov,
+            verts,
+            faces,
+            colors,
+            cls.canvas,
+            cls.view,
+            cls.mesh
+        )
+
+
+def output_3d_photo(
+    verts,
+    colors,
+    faces,
+    z_shift
+):
+    colors = colors[..., :3]
+
+    canvas_size = 400
+
+    fov = 60
+
+    normal_canvas = CanvasViewFactory.new(
+        canvas_size,
+        fov,
+        verts,
+        faces,
+        colors
+    )
+
+    img = normal_canvas.render()
+
+    border = [0, img.shape[0], 0, img.shape[1]]
+
+    img_h_len = 400
+    anchor = [
+        int(
+            max(
+                0,
+                int((img.shape[0]) // 2 - img_h_len // 2)
+            )
+        ),
+        int(
+            min(
+                int((img.shape[0]) // 2 + img_h_len // 2),
+                (img.shape[0]) - 1
+            )
+        ),
+        0,
+        img.shape[1]
+    ]
+
+    anchor = np.array(anchor)
+    ref_pose = np.eye(4)
+    tgts_pose = ref_pose * 1.
+    tgts_pose[:3, -1] = np.array([0., 0., z_shift])
+
+    rel_pose = np.linalg.inv(np.dot(tgts_pose, np.linalg.inv(ref_pose)))
+    axis, angle = transforms3d.axangles.mat2axangle(rel_pose[0:3, 0:3])
+    normal_canvas.rotate(axis=axis, angle=(angle * 180) / np.pi)
+    normal_canvas.translate(rel_pose[:3, 3])
+
+    normal_canvas.reinit_camera(fov)
+
+    normal_canvas.view_changed()
+    img = normal_canvas.render()
+
+    img = img[
+      anchor[0]:anchor[1],
+      anchor[2]:anchor[3]
+    ]
+    img = img[
+      int(border[0]):int(border[1]),
+      int(border[2]):int(border[3])
+    ]
+
+    path = 'tmp/output-%s.png' % z_shift
+    print("mesh.py:", "Writing Inpainting output frame:", os.path.abspath(path))
+
+    write_png(path, img)
+
+
 def read_ply(mesh_fi):
     ply_fi = open(mesh_fi, 'r')
     Height = None
@@ -70,4 +225,11 @@ def read_ply(mesh_fi):
 
 mesh_fi = 'mesh/output.ply'
 verts, colors, faces, height, width, hfov, vfov = read_ply(mesh_fi)
-import ipdb;ipdb.set_trace()
+
+for z_shift in range(0, 10):
+    output_3d_photo(
+        verts,
+        colors,
+        faces,
+        z_shift * -0.1
+    )

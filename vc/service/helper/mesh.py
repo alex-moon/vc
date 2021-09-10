@@ -3507,11 +3507,6 @@ class CanvasView:
 
 
 class CanvasViewFactory:
-    instance = None
-    canvas = None
-    view = None
-    mesh = None
-
     @classmethod
     def new(
         cls,
@@ -3522,25 +3517,24 @@ class CanvasViewFactory:
         faces,
         colors
     ):
-        if cls.canvas is None:
-            cls.canvas = scene.SceneCanvas(
-                bgcolor=Color('blue'),
-                size=(canvas_size * factor, canvas_size * factor)
-            )
-            cls.view = cls.canvas.central_widget.add_view()
-            cls.view.camera = 'perspective'
-            cls.mesh = visuals.Mesh(shading=None)
-            cls.mesh.attach(Alpha(1.0))
-            cls.view.add(cls.mesh)
+        canvas = scene.SceneCanvas(
+            bgcolor=Color('blue'),
+            size=(canvas_size * factor, canvas_size * factor)
+        )
+        view = canvas.central_widget.add_view()
+        view.camera = 'perspective'
+        mesh = visuals.Mesh(shading=None)
+        mesh.attach(Alpha(1.0))
+        view.add(mesh)
 
         return CanvasView(
             fov,
             verts,
             faces,
             colors,
-            cls.canvas,
-            cls.view,
-            cls.mesh
+            canvas,
+            view,
+            mesh
         )
 
 
@@ -3737,8 +3731,3 @@ def output_3d_photo(
     print("mesh.py:", "Writing Inpainting output frame:", os.path.abspath(path))
 
     write_png(path, img)
-
-    # shouldn't need these
-    # del img, normal_canvas, cam_mesh
-    # gc.collect()
-    # torch.cuda.empty_cache()
