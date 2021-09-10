@@ -27,6 +27,7 @@ from .helper.networks import (
     Inpaint_Edge_Net,
 )
 from .helper.utils import get_MiDaS_sample, read_MiDaS_depth
+from .helper.diagnosis import DiagnosisHelper as dh
 
 
 @dataclass
@@ -240,23 +241,25 @@ class InpaintingService:
                 print('Failed to write ply')
                 return
 
-            del depth
-            del rgb_model
-            del depth_edge_model
-            del depth_feat_model
+            # del depth
+            # del rgb_model
+            # del depth_edge_model
+            # del depth_feat_model
 
         if args.save_ply is True or args.load_ply is True:
+            dh.debug('reading poly')
             verts, colors, faces, height, width, hfov, vfov = read_ply(mesh_fi)
         elif rt_info is not False:
+            dh.debug('getting from rt_info (should never get here)')
             verts, colors, faces, height, width, hfov, vfov = rt_info
         else:
             print('Could not determine ply')
             return
 
-        del rt_info
+        # del rt_info
 
-        gc.collect()
-        torch.cuda.empty_cache()
+        # gc.collect()
+        # torch.cuda.empty_cache()
 
         print(f"Making inpainting frame at {time.time()}")
 
@@ -273,18 +276,36 @@ class InpaintingService:
         down, right = top + args.output_h, left + args.output_w
         border = [int(xx) for xx in [top, down, left, right]]
 
+        # output_3d_photo(
+        #     verts.copy(),
+        #     colors.copy(),
+        #     faces.copy(),
+        #     copy.deepcopy(height),
+        #     copy.deepcopy(width),
+        #     sample['video_postfix'],
+        #     copy.deepcopy(sample['ref_pose']),
+        #     args.video_folder,
+        #     copy.deepcopy(sample['int_mtx']),
+        #     args,
+        #     copy.deepcopy(sample['tgts_pose']),
+        #     args.original_h,
+        #     args.original_w,
+        #     border=border,
+        #     mean_loc_depth=mean_loc_depth
+        # )
+
         output_3d_photo(
-            verts.copy(),
-            colors.copy(),
-            faces.copy(),
-            copy.deepcopy(height),
-            copy.deepcopy(width),
+            verts,
+            colors,
+            faces,
+            height,
+            width,
             sample['video_postfix'],
-            copy.deepcopy(sample['ref_pose']),
+            sample['ref_pose'],
             args.video_folder,
-            copy.deepcopy(sample['int_mtx']),
+            sample['int_mtx'],
             args,
-            copy.deepcopy(sample['tgts_pose']),
+            sample['tgts_pose'],
             args.original_h,
             args.original_w,
             border=border,
