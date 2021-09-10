@@ -1163,6 +1163,8 @@ def refine_color_around_edge(mesh, info_on_pix, edge_ccs):
         far_nodes = set()
         near_nodes = set()
         end_nodes = set()
+        new_tmp_far_nodes = set()
+        new_tmp_near_nodes = set()
         for i in range(5):
             if i == 0:
                 for edge_node in edge_cc:
@@ -1214,14 +1216,12 @@ def refine_color_around_edge(mesh, info_on_pix, edge_ccs):
             else:
                 tmp_far_nodes = new_tmp_far_nodes
                 tmp_near_nodes = new_tmp_near_nodes
-                new_tmp_far_nodes = None
-                new_tmp_near_nodes = None
             new_tmp_far_nodes = set()
             new_tmp_near_nodes = set()
             for node in tmp_near_nodes:
                 for ne_node in mesh.neighbors(node):
-                    if far_maps[ne_node[0], ne_node[1]] == False and \
-                        near_maps[ne_node[0], ne_node[1]] == False:
+                    if far_maps[ne_node[0], ne_node[1]] is False and \
+                        near_maps[ne_node[0], ne_node[1]] is False:
                         if mesh.nodes[ne_node].get('inpaint_id') == 1:
                             new_tmp_near_nodes.add(ne_node)
                             near_maps[ne_node[0], ne_node[1]] = True
@@ -1243,8 +1243,8 @@ def refine_color_around_edge(mesh, info_on_pix, edge_ccs):
             near_nodes.update(new_tmp_near_nodes)
             for node in tmp_far_nodes:
                 for ne_node in mesh.neighbors(node):
-                    if far_maps[ne_node[0], ne_node[1]] == False and \
-                        near_maps[ne_node[0], ne_node[1]] == False:
+                    if far_maps[ne_node[0], ne_node[1]] is False and \
+                        near_maps[ne_node[0], ne_node[1]] is False:
                         if mesh.nodes[ne_node].get('inpaint_id') == 1:
                             new_tmp_far_nodes.add(ne_node)
                             far_maps[ne_node[0], ne_node[1]] = True
@@ -1269,8 +1269,8 @@ def refine_color_around_edge(mesh, info_on_pix, edge_ccs):
             continue
         for node in new_tmp_far_nodes | new_tmp_near_nodes:
             for ne_node in mesh.neighbors(node):
-                if far_maps[ne_node[0], ne_node[1]] == False and near_maps[
-                    ne_node[0], ne_node[1]] == False:
+                if far_maps[ne_node[0], ne_node[1]] is False and near_maps[
+                    ne_node[0], ne_node[1]] is False:
                     end_nodes.add(node)
                     mesh.nodes[ne_node]['backup_depth'] = ne_node[2] \
                         if mesh.nodes[ne_node].get('real_depth') is None else \
@@ -1579,7 +1579,7 @@ def find_anchors(matrix):
 def find_largest_rect(dst_img, bg_color=(128, 128, 128)):
     valid = np.any(dst_img[..., :3] != bg_color, axis=-1)
     dst_h, dst_w = dst_img.shape[:2]
-    ret, labels = cv2.connectedComponents(np.uint8(valid == False))
+    ret, labels = cv2.connectedComponents(np.uint8(valid is False))
     red_mat = np.zeros_like(labels)
     # denoise 
     for i in range(1, np.max(labels) + 1, 1):

@@ -5,6 +5,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List
+from shutil import copy2
 
 import cv2
 import imageio
@@ -90,6 +91,8 @@ class InpaintingService:
         self.file_service = file_service
 
     def handle(self, args: InpaintingOptions):
+        now = datetime.now()
+
         if args.offscreen_rendering is True:
             vispy.use(app='egl')
 
@@ -228,6 +231,11 @@ class InpaintingService:
                 depth_feat_model
             )
 
+            copy2(mesh_fi, '%s-%s.ply' % (
+                mesh_fi.replace('.ply', ''),
+                now.strftime('%Y-%m-%d-%H-%M-%S')
+            ))
+
             if rt_info is False:
                 print('Failed to write ply')
                 return
@@ -251,7 +259,7 @@ class InpaintingService:
         torch.cuda.empty_cache()
 
         print(f"Making inpainting frame at {time.time()}")
-        video_basename = sample['tgt_name']
+
         top = (
             args.original_h // 2
             - sample['int_mtx'][1, 2]
@@ -281,9 +289,8 @@ class InpaintingService:
             args.original_w,
             border=border,
             mean_loc_depth=mean_loc_depth
-            )
+        )
 
-        now = datetime.now()
         return self.file_service.put(
             args.output_filename, '%s-inpainting-%s' % (
                 now.strftime('%Y-%m-%d-%H-%M-%S'),

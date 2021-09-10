@@ -3738,6 +3738,7 @@ def output_3d_photo(
 
     write_png(path, img)
 
-    del img, normal_canvas, cam_mesh
-    gc.collect()
-    torch.cuda.empty_cache()
+    # shouldn't need these
+    # del img, normal_canvas, cam_mesh
+    # gc.collect()
+    # torch.cuda.empty_cache()
