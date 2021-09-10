@@ -1,11 +1,10 @@
-import copy
 import gc
 import os
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List
 from shutil import copy2
+from typing import List
 
 import cv2
 import imageio
@@ -27,7 +26,6 @@ from .helper.networks import (
     Inpaint_Edge_Net,
 )
 from .helper.utils import get_MiDaS_sample, read_MiDaS_depth
-from .helper.diagnosis import DiagnosisHelper as dh
 
 
 @dataclass
@@ -247,10 +245,8 @@ class InpaintingService:
             del depth_feat_model
 
         if args.save_ply is True or args.load_ply is True:
-            dh.debug('reading poly')
             verts, colors, faces, height, width, hfov, vfov = read_ply(mesh_fi)
         elif rt_info is not False:
-            dh.debug('getting from rt_info (should never get here)')
             verts, colors, faces, height, width, hfov, vfov = rt_info
         else:
             print('Could not determine ply')

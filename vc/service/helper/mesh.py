@@ -3507,6 +3507,10 @@ class CanvasView:
 
 
 class CanvasViewFactory:
+    canvas = None
+    view = None
+    mesh = None
+
     @classmethod
     def new(
         cls,
@@ -3517,24 +3521,30 @@ class CanvasViewFactory:
         faces,
         colors
     ):
-        canvas = scene.SceneCanvas(
-            bgcolor=Color('blue'),
-            size=(canvas_size * factor, canvas_size * factor)
-        )
-        view = canvas.central_widget.add_view()
-        view.camera = 'perspective'
-        mesh = visuals.Mesh(shading=None)
-        mesh.attach(Alpha(1.0))
-        view.add(mesh)
+        if cls.canvas is None:
+            cls.canvas = scene.SceneCanvas  (
+                bgcolor=Color('blue'),
+                size=(canvas_size * factor, canvas_size * factor)
+            )
+            cls.mesh = visuals.Mesh(shading=None)
+            cls.mesh.attach(Alpha(1.0))
+        else:
+            cls.view.parent = None
+            del cls.view
+            gc.collect()
+
+        cls.view = cls.canvas.central_widget.add_view()
+        cls.view.camera = 'perspective'
+        cls.view.add(cls.mesh)
 
         return CanvasView(
             fov,
             verts,
             faces,
             colors,
-            canvas,
-            view,
-            mesh
+            cls.canvas,
+            cls.view,
+            cls.mesh
         )
 
 

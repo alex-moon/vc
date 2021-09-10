@@ -1,18 +1,13 @@
-import copy
 import gc
 import os
 
 import numpy as np
-import torch
 import transforms3d
-
-from typing import List
 from vispy import scene
-from vispy.scene import visuals
 from vispy.color import Color
-from vispy.visuals.filters import Alpha
 from vispy.io import write_png
-from functools import reduce
+from vispy.scene import visuals
+from vispy.visuals.filters import Alpha
 
 
 class CanvasView:
@@ -31,6 +26,9 @@ class CanvasView:
         self.view.camera.fov = fov
         self.mesh = mesh
         self.tr = self.view.camera.transform
+        self.init(verts, faces, colors)
+
+    def init(self, verts, faces, colors):
         self.mesh.set_data(
             vertices=verts,
             faces=faces,
@@ -54,7 +52,8 @@ class CanvasView:
         self.view.camera.view_changed()
 
     def render(self):
-        return self.canvas.render()
+        result = self.canvas.render()
+        return result
 
     def reinit_camera(self, fov):
         self.view.camera.fov = fov
@@ -62,7 +61,6 @@ class CanvasView:
 
 
 class CanvasViewFactory:
-    instance = None
     canvas = None
     view = None
     mesh = None
@@ -71,21 +69,27 @@ class CanvasViewFactory:
     def new(
         cls,
         canvas_size,
+        factor,
         fov,
         verts,
         faces,
         colors
     ):
-        if True or cls.canvas is None:
-            cls.canvas = scene.SceneCanvas(
+        if cls.canvas is None:
+            cls.canvas = scene.SceneCanvas  (
                 bgcolor=Color('blue'),
-                size=(canvas_size, canvas_size)
+                size=(canvas_size * factor, canvas_size * factor)
             )
-            cls.view = cls.canvas.central_widget.add_view()
-            cls.view.camera = 'perspective'
             cls.mesh = visuals.Mesh(shading=None)
             cls.mesh.attach(Alpha(1.0))
-            cls.view.add(cls.mesh)
+        else:
+            cls.view.parent = None
+            del cls.view
+            gc.collect()
+
+        cls.view = cls.canvas.central_widget.add_view()
+        cls.view.camera = 'perspective'
+        cls.view.add(cls.mesh)
 
         return CanvasView(
             fov,
@@ -107,11 +111,12 @@ def output_3d_photo(
     colors = colors[..., :3]
 
     canvas_size = 400
-
+    init_factor = 1
     fov = 60
 
     normal_canvas = CanvasViewFactory.new(
         canvas_size,
+        init_factor,
         fov,
         verts,
         faces,
@@ -231,5 +236,5 @@ for z_shift in range(0, 10):
         verts,
         colors,
         faces,
-        z_shift * -0.1
+        z_shift * 0.01
     )
