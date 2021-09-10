@@ -17,7 +17,7 @@ from vc.value_object import GenerationSpec, ImageSpec
 class GenerationService:
     STEPS_DIR = 'steps'
     OUTPUT_FILENAME = 'output.png'
-    ACCELERATION = 0.01
+    ACCELERATION = 0.1
     TRANSITION_SPEED = 0.0005
     VELOCITY_MULTIPLIER = -0.0001
     INTERIM_STEPS = 5
