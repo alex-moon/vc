@@ -286,24 +286,29 @@ class GenerationService:
             self.handle_interim(
                 steps_completed,
                 steps_total,
-                time() - start
+                time() - start,
+                runner.generation_name
             )
 
         print('done in %s', timedelta(seconds=time() - start))
 
-    def handle_interim(self, step, steps, seconds):
-        dh.debug('Completed %s of %s steps (%s%%) in %s' % (
+    def handle_interim(self, step, steps, seconds, name):
+        dh.debug('Completed %s of %s steps (%s%%) for %s in %s' % (
             step,
             steps,
             round(step / steps * 100, 2),
+            name,
             timedelta(seconds=seconds)
         ))
 
         if step % self.INTERIM_STEPS == 0:
-            self.make_interim_video()
+            self.make_interim_video(name)
 
-    def make_interim_video(self):
-        output_file = self.OUTPUT_FILENAME.replace('.png', '-interim.mp4')
+    def make_interim_video(self, name):
+        output_file = self.OUTPUT_FILENAME.replace(
+            '.png',
+            '-%s-interim.mp4' % name
+        )
         dh.debug('making interim video', output_file)
         self.video.make_video(output_file, self.STEPS_DIR)
 
