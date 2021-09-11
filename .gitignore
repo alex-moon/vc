@@ -24,4 +24,5 @@ mesh
 .env
 *.log
 log
+output-interim.mp4
 
