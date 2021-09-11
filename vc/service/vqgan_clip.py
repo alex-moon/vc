@@ -2,7 +2,6 @@ import json
 import math
 import os
 from dataclasses import dataclass, field, asdict
-from datetime import datetime
 from typing import List
 from urllib.request import urlopen
 
@@ -22,7 +21,6 @@ from CLIP import clip
 from vc.service import FileService
 from .helper.torch import TorchHelper
 from .helper.vqgan import VqganHelper
-from .helper.diagnosis import DiagnosisHelper as dh
 
 
 @dataclass
@@ -275,13 +273,13 @@ class VqganClipService:
         del model, perceptor, opt
         torch.cuda.empty_cache()
 
-        now = datetime.now()
-        return self.file_service.put(
-            args.output_filename, '%s-vqgan_clip-%s' % (
-                now.strftime('%Y-%m-%d-%H-%M-%S'),
-                args.output_filename
+        if os.getenv('DEBUG_FILES'):
+            self.file_service.put(
+                args.output_filename,
+                'vqgan_clip-%s' % (
+                    args.output_filename
+                )
             )
-        )
 
     def sinc(self, x):
         return torch.where(

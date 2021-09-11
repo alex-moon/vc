@@ -1,13 +1,19 @@
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 from shutil import copy
 from time import time
 from typing import Callable
 from dataclasses import dataclass
+from random_word import RandomWords
 
 from injector import inject
 
-from vc.service import VqganClipService, InpaintingService, VideoService
+from vc.service import (
+    VqganClipService,
+    InpaintingService,
+    VideoService,
+    FileService,
+)
 from vc.service.helper import DiagnosisHelper as dh
 from vc.service.inpainting import InpaintingOptions
 from vc.service.vqgan_clip import VqganClipOptions
@@ -46,9 +52,14 @@ class GenerationRunner:
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
     video: VideoService
+    file: FileService
 
     output_filename: str
     steps_dir: str
+
+    generation_name: str
+
+    init_done = False
 
     x_velocity = 0.
     y_velocity = 0.
@@ -64,25 +75,28 @@ class GenerationRunner:
         vqgan_clip: VqganClipService,
         inpainting: InpaintingService,
         video: VideoService,
+        file: FileService,
         output_filename: str,
         steps_dir: str
     ):
         self.vqgan_clip = vqgan_clip
         self.inpainting = inpainting
         self.video = video
+        self.file = file
         self.output_filename = output_filename
         self.steps_dir = steps_dir
+        self.generation_name = RandomWords().get_random_word()
 
     def handle(self, step: GenerationStep):
         if isinstance(step, ImageGenerationStep):
             dh.debug('GenerationRunner', 'generate_image', step)
-            self.generate_image(step)
+            return self.generate_image(step)
         if isinstance(step, VideoGenerationStep):
             dh.debug('GenerationRunner', 'make_video', step)
-            self.make_video(step)
+            return self.make_video(step)
         if isinstance(step, CleanFilesStep):
             dh.debug('GenerationRunner', 'clean_files', step)
-            self.clean_files(step)
+            return self.clean_files(step)
 
     def generate_image(self, step: ImageGenerationStep):
         spec = step.spec
@@ -152,6 +166,14 @@ class GenerationRunner:
         dh.debug('GenerationRunner', 'y_shift', y_shift)
         dh.debug('GenerationRunner', 'z_shift', z_shift)
 
+        if spec.init_iterations and not self.init_done:
+            dh.debug('GenerationRunner', 'init', spec.init_iterations)
+            self.vqgan_clip.handle(VqganClipOptions(**{
+                'prompts': prompt,
+                'max_iterations': spec.init_iterations,
+                'output_filename': self.output_filename,
+            }))
+
         dh.debug('GenerationRunner', 'vqgan_clip', 'handle')
         self.vqgan_clip.handle(VqganClipOptions(**{
             'prompts': prompt,
@@ -184,9 +206,22 @@ class GenerationRunner:
                 os.path.join(self.steps_dir, step_filename)
             )
 
+        if os.getenv('DEBUG_FILES'):
+            return self.file.put(
+                self.output_filename,
+                '%s-%s.png' % (
+                   self.generation_name,
+                   f'{step.step:04}'
+                )
+            )
+
+        return None
+
     def make_video(self, step: VideoGenerationStep):
-        self.video.make_video(
-            output_file=self.output_filename.replace('png', 'mp4'),
+        filename = self.output_filename.replace('png', 'mp4')
+        filename = '%s-%s' % (self.generation_name, filename)
+        return self.video.make_video(
+            output_file=filename,
             steps_dir=self.steps_dir
         )
 
@@ -198,15 +233,18 @@ class GenerationRunner:
             if os.path.isfile(filepath):
                 os.remove(filepath)
 
+        return None
+
 
 class GenerationService:
     STEPS_DIR = 'steps'
     OUTPUT_FILENAME = 'output.png'
-    INTERIM_STEPS = 5
+    INTERIM_STEPS = 20
 
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
     video: VideoService
+    file: FileService
 
     hpy = None
 
@@ -215,11 +253,13 @@ class GenerationService:
         self,
         vqgan_clip: VqganClipService,
         inpainting: InpaintingService,
-        video: VideoService
+        video: VideoService,
+        file: FileService
     ):
         self.vqgan_clip = vqgan_clip
         self.inpainting = inpainting
         self.video = video
+        self.file = file
 
     def handle(self, spec: GenerationSpec, callback: Callable):
         print('starting')
@@ -229,6 +269,7 @@ class GenerationService:
             self.vqgan_clip,
             self.inpainting,
             self.video,
+            self.file,
             self.OUTPUT_FILENAME,
             self.STEPS_DIR
         )
@@ -237,10 +278,11 @@ class GenerationService:
 
         for step in self.iterate_steps(spec):
             steps_completed = step.step
-            runner.handle(step)
+            result = runner.handle(step)
             callback(GenerationProgress(
                 steps_completed=steps_completed,
-                steps_total=steps_total
+                steps_total=steps_total,
+                result=result
             ))
             self.handle_interim(
                 steps_completed,

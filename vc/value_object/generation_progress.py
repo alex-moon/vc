@@ -5,3 +5,4 @@ from dataclasses import dataclass
 class GenerationProgress:
     steps_total: int
     steps_completed: int
+    result: str = None

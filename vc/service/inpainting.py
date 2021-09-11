@@ -2,7 +2,6 @@ import gc
 import os
 import time
 from dataclasses import dataclass, field
-from datetime import datetime
 from typing import List
 
 import cv2
@@ -89,8 +88,6 @@ class InpaintingService:
         self.file_service = file_service
 
     def handle(self, args: InpaintingOptions):
-        now = datetime.now()
-
         if args.offscreen_rendering is True:
             vispy.use(app='egl')
 
@@ -284,9 +281,9 @@ class InpaintingService:
             mean_loc_depth=mean_loc_depth
         )
 
-        return self.file_service.put(
-            args.output_filename, '%s-inpainting-%s' % (
-                now.strftime('%Y-%m-%d-%H-%M-%S'),
-                args.output_filename
+        if os.getenv('DEBUG_FILES'):
+            return self.file_service.put(
+                args.output_filename, 'inpainting-%s' % (
+                    args.output_filename
+                )
             )
-        )

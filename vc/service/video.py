@@ -27,8 +27,4 @@ class VideoService:
             output_file
         ]))
 
-        now = datetime.now()
-        self.file_service.put(output_file, '%s-%s' % (
-            now.strftime('%Y-%m-%d-%H-%M-%S'),
-            output_file
-        ))
+        return self.file_service.put(output_file, output_file)

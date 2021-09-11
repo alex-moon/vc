@@ -11,6 +11,7 @@ class ImageSpec:
     texts: List[str] = None
     styles: List[str] = None
     iterations: int = 500
+    init_iterations: int = None
     epochs: int = 1
     x_velocity: float = 0.
     y_velocity: float = 0.
@@ -19,7 +20,8 @@ class ImageSpec:
     schema = api.model('Image Spec', {
         'texts': fields.List(fields.String, default_factory=list),
         'styles': fields.List(fields.String, default_factory=list),
-        'iterations': fields.Integer(default=50),
+        'iterations': fields.Integer(default=500),
+        'init_iterations': fields.Integer(default=None),
         'epochs': fields.Integer(default=10),
         'x_velocity': fields.Float(default=0.),
         'y_velocity': fields.Float(default=0.),
