@@ -2,7 +2,7 @@ import os
 from dataclasses import dataclass
 
 import numpy as np
-from ISR.models import RDN
+from ISR.models import RRDN
 from PIL import Image
 from injector import inject
 
@@ -23,12 +23,17 @@ class IsrService:
         self.file_service = file_service
 
     def handle(self, args: IsrOptions):
-        img = Image.open(args.input_file)
-        lr_img = np.array(img)
+        image = Image.open(args.input_file)
+        image = image.convert('RGB')
+        pil_image = np.array(image)
 
-        rdn = RDN(weights='psnr-small')
-        sr_img = rdn.predict(lr_img)
-        output = Image.fromarray(sr_img)
+        model = RRDN(weights='gans')
+        result = model.predict(pil_image)
+        output = Image.fromarray(result)
+
+        # @todo intended size?
+        # output.resize((width, height), Image.LANCZOS)
+        output.thumbnail(image.size, Image.ANTIALIAS)
         output.save(args.output_file)
 
         if os.getenv('DEBUG_FILES'):
