@@ -1,12 +1,12 @@
 import os
-from datetime import datetime, timedelta
+from dataclasses import dataclass
+from datetime import timedelta
 from shutil import copy
 from time import time
 from typing import Callable
-from dataclasses import dataclass
-from random_word import RandomWords
 
 from injector import inject
+from random_word import RandomWords
 
 from vc.service import (
     VqganClipService,
@@ -58,8 +58,6 @@ class GenerationRunner:
     steps_dir: str
 
     generation_name: str
-
-    init_done = False
 
     x_velocity = 0.
     y_velocity = 0.
@@ -166,7 +164,7 @@ class GenerationRunner:
         dh.debug('GenerationRunner', 'y_shift', y_shift)
         dh.debug('GenerationRunner', 'z_shift', z_shift)
 
-        if spec.init_iterations and not self.init_done:
+        if spec.init_iterations and not os.path.isfile(self.output_filename):
             dh.debug('GenerationRunner', 'init', spec.init_iterations)
             self.vqgan_clip.handle(VqganClipOptions(**{
                 'prompts': prompt,
