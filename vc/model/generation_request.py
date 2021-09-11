@@ -13,5 +13,8 @@ class GenerationRequest(db.Model):
     completed = db.Column(db.DateTime)
     failed = db.Column(db.DateTime)
 
+    steps_completed = db.Column(db.Integer)
+    steps_total = db.Column(db.Integer)
+
     def __repr__(self):
         return '<GenerationRequest %r>' % self.id

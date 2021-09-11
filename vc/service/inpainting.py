@@ -3,7 +3,6 @@ import os
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
-from shutil import copy2
 from typing import List
 
 import cv2
@@ -229,11 +228,6 @@ class InpaintingService:
                 depth_edge_model,
                 depth_feat_model
             )
-
-            copy2(mesh_fi, '%s-%s.ply' % (
-                mesh_fi.replace('.ply', ''),
-                now.strftime('%Y-%m-%d-%H-%M-%S')
-            ))
 
             if rt_info is False:
                 print('Failed to write ply')
