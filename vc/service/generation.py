@@ -6,7 +6,6 @@ from time import time
 from typing import Callable
 
 from injector import inject
-from random_word import RandomWords
 
 from vc.service import (
     VqganClipService,
@@ -16,6 +15,7 @@ from vc.service import (
 )
 from vc.service.helper import DiagnosisHelper as dh
 from vc.service.inpainting import InpaintingOptions
+from vc.service.random_word import RandomWord
 from vc.service.vqgan_clip import VqganClipOptions
 from vc.value_object import GenerationSpec, ImageSpec
 from vc.value_object.generation_progress import GenerationProgress
@@ -83,7 +83,7 @@ class GenerationRunner:
         self.file = file
         self.output_filename = output_filename
         self.steps_dir = steps_dir
-        self.generation_name = RandomWords().get_random_word()
+        self.generation_name = RandomWord.get()
 
     def handle(self, step: GenerationStep):
         if isinstance(step, ImageGenerationStep):

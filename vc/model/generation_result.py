@@ -14,7 +14,6 @@ class GenerationResult(db.Model):
     )
 
     url = db.Column(db.String, nullable=False)
-    # mode = db.Column(db.String, nullable=False) # @todo YAGNI?
 
     created = db.Column(db.DateTime, nullable=False, server_default=func.now())
     updated = db.Column(db.DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
