@@ -25,4 +25,6 @@ mesh
 *.log
 log
 output-interim.mp4
+output-upscaled.png
+sofar.mp4
 
