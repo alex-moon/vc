@@ -12,7 +12,7 @@ from vc.service import FileService
 @dataclass
 class IsrOptions:
     output_file: str = 'output.png'
-    input_file: str = 'output.png'
+    input_file: str = 'output-upscaled.png'
 
 
 class IsrService:
@@ -25,10 +25,10 @@ class IsrService:
     def handle(self, args: IsrOptions):
         image = Image.open(args.input_file)
         image = image.convert('RGB')
-        pil_image = np.array(image)
+        image_array = np.array(image)
 
         model = RRDN(weights='gans')
-        result = model.predict(pil_image)
+        result = model.predict(image_array)
         output = Image.fromarray(result)
 
         output.save(args.output_file)
@@ -36,7 +36,7 @@ class IsrService:
         if os.getenv('DEBUG_FILES'):
             self.file_service.put(
                 args.output_file,
-                'visr-%s' % (
+                'isr-%s' % (
                     args.output_file
                 )
             )
