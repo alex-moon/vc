@@ -1,7 +1,7 @@
+import kornia.augmentation as K
 import torch
 from torch import nn
 from torch.nn import functional as F
-import kornia.augmentation as K
 
 
 class ReplaceGrad(torch.autograd.Function):
@@ -26,7 +26,8 @@ class ClampWithGrad(torch.autograd.Function):
     @staticmethod
     def backward(ctx, grad_in):
         input, = ctx.saved_tensors
-        return grad_in * (grad_in * (input - input.clamp(ctx.min, ctx.max)) >= 0), None, None
+        return grad_in * (grad_in * (
+            input - input.clamp(ctx.min, ctx.max)) >= 0), None, None
 
 
 class Prompt(nn.Module):
@@ -40,7 +41,9 @@ class Prompt(nn.Module):
     def forward(self, input):
         input_normed = F.normalize(input.unsqueeze(1), dim=2)
         embed_normed = F.normalize(self.embed.unsqueeze(0), dim=2)
-        dists = input_normed.sub(embed_normed).norm(dim=2).div(2).arcsin().pow(2).mul(2)
+        dists = input_normed.sub(embed_normed).norm(dim=2).div(2).arcsin().pow(
+            2
+        ).mul(2)
         dists = dists * self.weight.sign()
         return self.weight.abs() * self.torch_helper.replace_grad(
             dists,
@@ -72,10 +75,12 @@ class MakeCutouts(nn.Module):
                 augment_list.append(K.RandomSharpness(sharpness=0.4, p=0.7))
             elif item == 'Gn':
                 augment_list.append(
-                    K.RandomGaussianNoise(mean=0.0, std=1., p=0.5))
+                    K.RandomGaussianNoise(mean=0.0, std=1., p=0.5)
+                )
             elif item == 'Pe':
                 augment_list.append(
-                    K.RandomPerspective(distortion_scale=0.7, p=0.7))
+                    K.RandomPerspective(distortion_scale=0.7, p=0.7)
+                )
             elif item == 'Ro':
                 augment_list.append(K.RandomRotation(degrees=15, p=0.7))
             elif item == 'Af':
@@ -91,15 +96,22 @@ class MakeCutouts(nn.Module):
                 augment_list.append(K.RandomElasticTransform(p=0.7))
             elif item == 'Ts':
                 augment_list.append(
-                    K.RandomThinPlateSpline(scale=0.3, same_on_batch=False,
-                                            p=0.7))
+                    K.RandomThinPlateSpline(
+                        scale=0.3, same_on_batch=False,
+                        p=0.7
+                    )
+                )
             elif item == 'Cr':
                 augment_list.append(
-                    K.RandomCrop(size=(self.cut_size, self.cut_size), p=0.5))
+                    K.RandomCrop(size=(self.cut_size, self.cut_size), p=0.5)
+                )
             elif item == 'Er':
                 augment_list.append(
-                    K.RandomErasing((.1, .4), (.3, 1 / .3), same_on_batch=True,
-                                    p=0.7))
+                    K.RandomErasing(
+                        (.1, .4), (.3, 1 / .3), same_on_batch=True,
+                        p=0.7
+                    )
+                )
             elif item == 'Re':
                 augment_list.append(
                     K.RandomResizedCrop(
@@ -161,8 +173,10 @@ class MakeCutouts(nn.Module):
         batch = self.augs(torch.cat(cutouts, dim=0))
 
         if self.noise_fac:
-            facs = batch.new_empty([self.cutn, 1, 1, 1]).uniform_(0,
-                                                                  self.noise_fac)
+            facs = batch.new_empty([self.cutn, 1, 1, 1]).uniform_(
+                0,
+                self.noise_fac
+            )
             batch = batch + facs * torch.randn_like(batch)
         return batch
 

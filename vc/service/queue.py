@@ -3,6 +3,8 @@ from flask_rq import get_queue, get_connection
 from injector import Binder, inject
 from rq import Queue, SimpleWorker, Worker
 
+from vc.service.helper import DiagnosisHelper as dh
+
 
 class JobSerializer:
     binder: Binder
@@ -49,7 +51,7 @@ class JobSerializer:
 
 
 class QueueService:
-    TIMEOUT = 600
+    TIMEOUT = '7d'  # these are liable to be long-running jobs
 
     job_serializer: JobSerializer
     queue: Queue = None

@@ -1,8 +1,11 @@
+import gc
 import sys
+
 sys.path.append('taming-transformers')
 
 from omegaconf import OmegaConf
 from taming.models import cond_transformer, vqgan
+import torch
 
 
 class VqganHelper:
@@ -24,11 +27,17 @@ class VqganHelper:
             model.init_from_ckpt(checkpoint_path)
             self.gumbel = True
         elif config.model.target == 'taming.models.cond_transformer.Net2NetTransformer':
-            parent_model = cond_transformer.Net2NetTransformer(**config.model.params)
+            parent_model = cond_transformer.Net2NetTransformer(
+                **config.model.params
+            )
             parent_model.eval().requires_grad_(False)
             parent_model.init_from_ckpt(checkpoint_path)
             model = parent_model.first_stage_model
         else:
             raise ValueError(f'unknown model type: {config.model.target}')
+
         del model.loss
+        gc.collect()
+        torch.cuda.empty_cache()
+
         return model

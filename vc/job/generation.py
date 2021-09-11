@@ -7,6 +7,7 @@ from vc.manager.generation_request import GenerationRequestManager
 from vc.model.generation_request import GenerationRequest
 from vc.service.generation import GenerationService
 from vc.job.base import Job
+from vc.value_object.generation_progress import GenerationProgress
 
 
 class GenerationJob(Job):
@@ -31,8 +32,12 @@ class GenerationJob(Job):
             data_class=GenerationSpec,
             data=generation_request.spec
         )
+
+        def update_progress(generation_progress: GenerationProgress):
+            self.update_progress(generation_request, generation_progress)
+
         try:
-            self.service.handle(spec)
+            self.service.handle(spec, update_progress)
             self.mark_completed(generation_request)
         except Exception as e:
             self.mark_failed(generation_request)
@@ -48,4 +53,13 @@ class GenerationJob(Job):
 
     def mark_failed(self, generation_request: GenerationRequest):
         generation_request.failed = datetime.now()
+        self.manager.save(generation_request)
+
+    def update_progress(
+        self,
+        generation_request: GenerationRequest,
+        generation_progress: GenerationProgress
+    ):
+        generation_request.steps_total = generation_progress.steps_total
+        generation_request.steps_completed = generation_progress.steps_completed
         self.manager.save(generation_request)

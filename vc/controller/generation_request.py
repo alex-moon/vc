@@ -21,6 +21,8 @@ model = ns.model('Generation Request', {
     'started': fields.DateTime(),
     'completed': fields.DateTime(),
     'failed': fields.DateTime(),
+    'steps_completed': fields.Integer,
+    'steps_total': fields.Integer,
 })
 post_model = ns.model('Generation Request', {
     'spec': fields.Nested(GenerationSpec.schema),

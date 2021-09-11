@@ -1,31 +1,28 @@
-from datetime import datetime
 import json
 import math
 import os
 from dataclasses import dataclass, field, asdict
+from datetime import datetime
 from typing import List
 from urllib.request import urlopen
-from injector import inject
-from tqdm import tqdm
 
+import numpy as np
 # @todo remove all torch imports
 import torch
+from PIL import ImageFile, Image, PngImagePlugin
+from injector import inject
 from torch import optim
 from torch.nn import functional as F
+from torch_optimizer import DiffGrad, AdamP, RAdam
 from torchvision import transforms
 from torchvision.transforms import functional as TF
-from torch_optimizer import DiffGrad, AdamP, RAdam
+from tqdm import tqdm
 
 from CLIP import clip
-import numpy as np
-import imageio
-from PIL import ImageFile, Image, PngImagePlugin
-from subprocess import Popen, PIPE
-import re
-
+from vc.service import FileService
 from .helper.torch import TorchHelper
 from .helper.vqgan import VqganHelper
-from vc.service import FileService
+from .helper.diagnosis import DiagnosisHelper as dh
 
 
 @dataclass
@@ -35,8 +32,9 @@ class VqganClipOptions:
     max_iterations: int = 500
     display_freq: int = 50
     size: int = None
-    init_image: str = None
-    init_noise: str = 'pixels'
+    init_image: str = 'output.png'
+    output_filename: str = 'output.png'
+    init_noise: str = 'gradient'
     init_weight: float = 0.
     clip_model: str = 'ViT-B/32'
     vqgan_config: str = f'checkpoints/vqgan_imagenet_f16_16384.yaml'
@@ -48,8 +46,6 @@ class VqganClipOptions:
     cut_pow: float = 1.
     seed: int = None
     optimiser: str = 'Adam'
-    output: str = "output.png"
-    make_video: bool = False
     cudnn_determinism: bool = False
     augments: str = None
 
@@ -71,7 +67,6 @@ class VqganClipService:
         self.file_service = file_service
 
     def handle(self, args: VqganClipOptions):
-        print("VQGAN/CLIP starting with spec:")
         print(json.dumps(asdict(args), indent=4))
 
         if args.cudnn_determinism:
@@ -82,8 +77,11 @@ class VqganClipService:
 
         # Split text prompts using the pipe character
         if args.prompts:
-            args.prompts = [phrase.strip() for phrase in
-                            args.prompts.split("|")]
+            args.prompts = [
+                phrase.strip()
+                for phrase
+                in args.prompts.split("|")
+            ]
 
         # Split target images using the pipe character
         if args.image_prompts:
@@ -92,10 +90,9 @@ class VqganClipService:
         else:
             args.image_prompts = []
 
-        # Make video steps directory
-        if args.make_video:
-            if not os.path.exists('steps'):
-                os.mkdir('steps')
+        # Make video steps directory @todo do this elsewhere
+        if not os.path.exists('steps'):
+            os.mkdir('steps')
 
         if args.size is None:
             args.size = [400, 400]
@@ -121,13 +118,17 @@ class VqganClipService:
         if self.vqgan_helper.gumbel:
             e_dim = 256
             n_toks = model.quantize.n_embed
-            z_min = model.quantize.embed.weight.min(dim=0).values[None, :, None, None]
-            z_max = model.quantize.embed.weight.max(dim=0).values[None, :, None, None]
+            z_min = model.quantize.embed.weight.min(dim=0).values[None, :, None,
+                    None]
+            z_max = model.quantize.embed.weight.max(dim=0).values[None, :, None,
+                    None]
         else:
             e_dim = model.quantize.e_dim
             n_toks = model.quantize.n_e
-            z_min = model.quantize.embedding.weight.min(dim=0).values[None, :, None, None]
-            z_max = model.quantize.embedding.weight.max(dim=0).values[None, :, None, None]
+            z_min = model.quantize.embedding.weight.min(dim=0).values[None, :,
+                    None, None]
+            z_max = model.quantize.embedding.weight.max(dim=0).values[None, :,
+                    None, None]
 
         # Image initialisation
         if args.init_image:
@@ -138,23 +139,30 @@ class VqganClipService:
             pil_image = img.convert('RGB')
             pil_image = pil_image.resize((sideX, sideY), Image.LANCZOS)
             pil_tensor = TF.to_tensor(pil_image)
-            z, *_ = model.encode(pil_tensor.to(self.device).unsqueeze(0) * 2 - 1)
+            z, *_ = model.encode(
+                pil_tensor.to(self.device).unsqueeze(0) * 2 - 1
+            )
         elif args.init_noise == 'pixels':
             img = self.random_noise_image(args.size[0], args.size[1])
             pil_image = img.convert('RGB')
             pil_image = pil_image.resize((sideX, sideY), Image.LANCZOS)
             pil_tensor = TF.to_tensor(pil_image)
-            z, *_ = model.encode(pil_tensor.to(self.device).unsqueeze(0) * 2 - 1)
+            z, *_ = model.encode(
+                pil_tensor.to(self.device).unsqueeze(0) * 2 - 1
+            )
         elif args.init_noise == 'gradient':
             img = self.random_gradient_image(args.size[0], args.size[1])
             pil_image = img.convert('RGB')
             pil_image = pil_image.resize((sideX, sideY), Image.LANCZOS)
             pil_tensor = TF.to_tensor(pil_image)
-            z, *_ = model.encode(pil_tensor.to(self.device).unsqueeze(0) * 2 - 1)
+            z, *_ = model.encode(
+                pil_tensor.to(self.device).unsqueeze(0) * 2 - 1
+            )
         else:
             one_hot = F.one_hot(
                 torch.randint(n_toks, [toksY * toksX], device=self.device),
-                n_toks).float()
+                n_toks
+            ).float()
             if self.vqgan_helper.gumbel:
                 z = one_hot @ model.quantize.embed.weight
             else:
@@ -170,7 +178,9 @@ class VqganClipService:
         # CLIP tokenize/encode
         for prompt in args.prompts:
             txt, weight, stop = self.parse_prompt(prompt)
-            embed = perceptor.encode_text(clip.tokenize(txt).to(self.device)).float()
+            embed = perceptor.encode_text(
+                clip.tokenize(txt).to(self.device)
+            ).float()
             prompts.append(
                 self.torch_helper.prompt(embed, weight, stop).to(self.device)
             )
@@ -180,13 +190,20 @@ class VqganClipService:
             img = Image.open(path)
             pil_image = img.convert('RGB')
             img = self.resize_image(pil_image, (sideX, sideY))
-            batch = self.make_cutouts(args, perceptor, TF.to_tensor(img).unsqueeze(0).to(self.device))
+            batch = self.make_cutouts(
+                args,
+                perceptor,
+                TF.to_tensor(img).unsqueeze(0).to(self.device)
+            )
             embed = perceptor.encode_image(self.normalize(batch)).float()
             prompts.append(
                 self.torch_helper.prompt(embed, weight, stop).to(self.device)
             )
 
-        for seed, weight in zip(args.noise_prompt_seeds, args.noise_prompt_weights):
+        for seed, weight in zip(
+            args.noise_prompt_seeds,
+            args.noise_prompt_weights
+        ):
             gen = torch.Generator().manual_seed(seed)
             embed = torch.empty(
                 [1, perceptor.visual.output_dim]
@@ -255,56 +272,16 @@ class VqganClipService:
         except KeyboardInterrupt:
             pass
 
+        del model, perceptor, opt
+        torch.cuda.empty_cache()
+
         now = datetime.now()
-        self.file_service.put(args.output, '%s-%s' % (
-            now.strftime('%Y-%m-%d-%H-%M-%S'),
-            args.output
-        ))
-
-        # Video generation
-        if args.make_video:
-            init_frame = 1  # This is the frame where the video will start
-            last_frame = i  # You can change i to the number of the last frame you want to generate. It will raise an error if that number of frames does not exist.
-
-            min_fps = 10
-            max_fps = 60
-
-            total_frames = last_frame - init_frame
-
-            length = 15  # Desired time of the video in seconds
-
-            frames = []
-            tqdm.write('Generating video...')
-            for i in range(init_frame, last_frame):  #
-                frames.append(Image.open("./steps/" + str(i) + '.png'))
-
-            # fps = last_frame/10
-            fps = np.clip(total_frames / length, min_fps, max_fps)
-            output_file = re.compile('\.png$').sub('.mp4', args.output)
-            p = Popen([
-                'ffmpeg',
-                '-y',
-                '-f', 'image2pipe',
-                '-vcodec', 'png',
-                '-r', str(fps),
-                '-i',
-                '-',
-                '-vcodec', 'libx264',
-                '-r', str(fps),
-                '-pix_fmt', 'yuv420p',
-                '-crf', '17',
-                '-preset', 'veryslow',
-                '-metadata', f'comment={args.prompts}',
-                output_file
-            ], stdin=PIPE)
-            for im in tqdm(frames):
-                im.save(p.stdin, 'PNG')
-            p.stdin.close()
-            p.wait()
-            self.file_service.put(output_file, '%s-%s' % (
+        return self.file_service.put(
+            args.output_filename, '%s-vqgan_clip-%s' % (
                 now.strftime('%Y-%m-%d-%H-%M-%S'),
-                output_file
-            ))
+                args.output_filename
+            )
+        )
 
     def sinc(self, x):
         return torch.where(
@@ -315,7 +292,11 @@ class VqganClipService:
 
     def lanczos(self, x, a):
         cond = torch.logical_and(-a < x, x < a)
-        out = torch.where(cond, self.sinc(x) * self.sinc(x / a), x.new_zeros([]))
+        out = torch.where(
+            cond,
+            self.sinc(x) * self.sinc(x / a),
+            x.new_zeros([])
+        )
         return out / out.sum()
 
     def ramp(self, ratio, width):
@@ -339,19 +320,35 @@ class VqganClipService:
         else:
             return np.tile(np.linspace(start, stop, height), (width, 1)).T
 
-    def gradient_3d(self, width, height, start_list, stop_list, is_horizontal_list):
+    def gradient_3d(
+        self,
+        width,
+        height,
+        start_list,
+        stop_list,
+        is_horizontal_list
+    ):
         result = np.zeros((height, width, len(start_list)), dtype=float)
 
         for i, (start, stop, is_horizontal) in enumerate(
-            zip(start_list, stop_list, is_horizontal_list)):
-            result[:, :, i] = self.gradient_2d(start, stop, width, height, is_horizontal)
+            zip(start_list, stop_list, is_horizontal_list)
+        ):
+            result[:, :, i] = self.gradient_2d(
+                start,
+                stop,
+                width,
+                height,
+                is_horizontal
+            )
 
         return result
 
     def random_gradient_image(self, w, h):
-        array = self.gradient_3d(w, h, (0, 0, np.random.randint(0, 255)), (
-        np.random.randint(1, 255), np.random.randint(2, 255),
-        np.random.randint(3, 128)), (True, False, False))
+        array = self.gradient_3d(
+            w, h, (0, 0, np.random.randint(0, 255)), (
+                np.random.randint(1, 255), np.random.randint(2, 255),
+                np.random.randint(3, 128)), (True, False, False)
+        )
         random_image = Image.fromarray(np.uint8(array))
         return random_image
 
@@ -370,7 +367,9 @@ class VqganClipService:
         )(batch)
 
     def vector_quantize(self, x, codebook):
-        d = x.pow(2).sum(dim=-1, keepdim=True) + codebook.pow(2).sum(dim=1) - 2 * x @ codebook.T
+        d = x.pow(2).sum(dim=-1, keepdim=True) + codebook.pow(2).sum(
+            dim=1
+        ) - 2 * x @ codebook.T
         indices = d.argmin(-1)
         x_q = F.one_hot(indices, codebook.shape[0]).to(d.dtype) @ codebook
         return self.torch_helper.replace_grad(x_q, x)
@@ -383,7 +382,7 @@ class VqganClipService:
     def resize_image(self, image, out_size):
         ratio = image.size[0] / image.size[1]
         area = min(image.size[0] * image.size[1], out_size[0] * out_size[1])
-        size = round((area * ratio)**0.5), round((area / ratio)**0.5)
+        size = round((area * ratio) ** 0.5), round((area / ratio) ** 0.5)
         return image.resize(size, Image.LANCZOS)
 
     def synth(self, model, z):
@@ -406,10 +405,13 @@ class VqganClipService:
     @torch.no_grad()
     def checkin(self, model, z, prompts, output, i, losses):
         losses_str = ', '.join(f'{loss.item():g}' for loss in losses)
-        tqdm.write(f'i: {i}, loss: {sum(losses).item():g}, losses: {losses_str}')
+        tqdm.write(
+            f'i: {i}, loss: {sum(losses).item():g}, losses: {losses_str}'
+        )
         out = self.synth(model, z)
         info = PngImagePlugin.PngInfo()
         info.add_text('comment', f'{prompts}')
+        print("vqgan_clip.py:", "Writing VQGAN/CLIP output frame:", os.path.abspath(output))
         TF.to_pil_image(out[0].cpu()).save(output, pnginfo=info)
 
     def ascend_txt(self, model, perceptor, args, prompts, z_orig, z, i):
@@ -427,32 +429,53 @@ class VqganClipService:
         result = []
 
         if args.init_weight:
-            # result.append(F.mse_loss(z, z_orig) * args.init_weight / 2)
-            result.append(F.mse_loss(
-                z,
-                torch.zeros_like(z_orig)
-            ) * (
-                (1 / torch.tensor(i * 2 + 1)) * args.init_weight
-            ) / 2)
+            result.append(
+                F.mse_loss(
+                    z,
+                    torch.zeros_like(z_orig)
+                ) * (
+                    (1 / torch.tensor(i * 2 + 1)) * args.init_weight
+                ) / 2
+            )
 
         for prompt in prompts:
             result.append(prompt(iii))
 
-        if args.make_video:
-            img = np.array(
-                out.mul(255).clamp(0, 255)[0].cpu().detach().numpy().astype(
-                    np.uint8))[:, :, :]
-            img = np.transpose(img, (1, 2, 0))
-            imageio.imwrite('./steps/' + str(i) + '.png', np.array(img))
-
         return result
 
-    def train(self, model, perceptor, args, prompts, opt, z, z_min, z_max, z_orig, i):
+    def train(
+        self,
+        model,
+        perceptor,
+        args,
+        prompts,
+        opt,
+        z,
+        z_min,
+        z_max,
+        z_orig,
+        i
+    ):
         opt.zero_grad(set_to_none=True)
-        loss_all = self.ascend_txt(model, perceptor, args, prompts, z_orig, z, i)
+        loss_all = self.ascend_txt(
+            model,
+            perceptor,
+            args,
+            prompts,
+            z_orig,
+            z,
+            i
+        )
 
         if i % args.display_freq == 0:
-            self.checkin(model, z, args.prompts, args.output, i, loss_all)
+            self.checkin(
+                model,
+                z,
+                args.prompts,
+                args.output_filename,
+                i,
+                loss_all
+            )
 
         loss = sum(loss_all)
         loss.backward()

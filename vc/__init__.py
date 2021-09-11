@@ -1,4 +1,6 @@
-from dotenv import dotenv_values
+import os
+
+from dotenv import load_dotenv
 from flask import Flask
 from flask_injector import FlaskInjector
 
@@ -11,10 +13,13 @@ from .services import modules
 
 
 def create_app():
+    # initialise os.environ
+    load_dotenv(override=True)
+
     # initialise the app
     app = Flask(__name__)
-    config = dict(dotenv_values())
-    app.config.update(config)
+    app.config.update(os.environ)
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
 
     # spin everything up
     api.init_app(app)
