@@ -172,6 +172,7 @@ class GenerationRunner:
                 'prompts': prompt,
                 'max_iterations': spec.init_iterations,
                 'output_filename': self.output_filename,
+                'init_image': None
             }))
 
         dh.debug('GenerationRunner', 'vqgan_clip', 'handle')
