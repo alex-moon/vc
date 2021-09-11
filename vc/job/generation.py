@@ -2,6 +2,7 @@ from dacite import from_dict
 from datetime import datetime
 from injector import inject
 
+from vc.manager.generation_result import GenerationResultManager
 from vc.value_object import GenerationSpec
 from vc.manager.generation_request import GenerationRequestManager
 from vc.model.generation_request import GenerationRequest
@@ -12,19 +13,22 @@ from vc.value_object.generation_progress import GenerationProgress
 
 class GenerationJob(Job):
     service: GenerationService
-    manager: GenerationRequestManager
+    request_manager: GenerationRequestManager
+    result_manager: GenerationResultManager
 
     @inject
     def __init__(
         self,
         service: GenerationService,
-        manager: GenerationRequestManager
+        request_manager: GenerationRequestManager,
+        result_manager: GenerationResultManager
     ):
         self.service = service
-        self.manager = manager
+        self.request_manager = request_manager
+        self.result_manager = result_manager
 
     def handle(self, id_: int):
-        generation_request = self.manager.find_or_throw(id_)
+        generation_request = self.request_manager.find_or_throw(id_)
 
         self.mark_started(generation_request)
 
@@ -45,15 +49,15 @@ class GenerationJob(Job):
 
     def mark_started(self, generation_request: GenerationRequest):
         generation_request.started = datetime.now()
-        self.manager.save(generation_request)
+        self.request_manager.save(generation_request)
 
     def mark_completed(self, generation_request: GenerationRequest):
         generation_request.completed = datetime.now()
-        self.manager.save(generation_request)
+        self.request_manager.save(generation_request)
 
     def mark_failed(self, generation_request: GenerationRequest):
         generation_request.failed = datetime.now()
-        self.manager.save(generation_request)
+        self.request_manager.save(generation_request)
 
     def update_progress(
         self,
@@ -62,5 +66,10 @@ class GenerationJob(Job):
     ):
         generation_request.steps_total = generation_progress.steps_total
         generation_request.steps_completed = generation_progress.steps_completed
-        # @todo add results - generation_progress.result - need to push to list
-        self.manager.save(generation_request)
+        if generation_progress.result:
+            self.result_manager.create({
+                'request_id': generation_request.id,
+                'url': generation_progress.result
+            })
+
+        self.request_manager.save(generation_request)

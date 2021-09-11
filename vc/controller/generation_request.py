@@ -6,6 +6,7 @@ from werkzeug.exceptions import NotFound, InternalServerError
 from vc.api import api
 from vc.exception import NotFoundException, VcException
 from vc.manager import GenerationRequestManager
+from vc.model.generation_request import GenerationRequest
 from vc.value_object.generation_spec import GenerationSpec
 
 ns = api.namespace(
@@ -13,17 +14,7 @@ ns = api.namespace(
     description='Generation requests'
 )
 
-model = ns.model('Generation Request', {
-    'id': fields.Integer,
-    'spec': fields.Nested(GenerationSpec.schema),
-    'created': fields.DateTime(),
-    'updated': fields.DateTime(),
-    'started': fields.DateTime(),
-    'completed': fields.DateTime(),
-    'failed': fields.DateTime(),
-    'steps_completed': fields.Integer,
-    'steps_total': fields.Integer,
-})
+model = GenerationRequest.schema
 post_model = ns.model('Generation Request', {
     'spec': fields.Nested(GenerationSpec.schema),
 })
