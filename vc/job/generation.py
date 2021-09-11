@@ -62,4 +62,5 @@ class GenerationJob(Job):
     ):
         generation_request.steps_total = generation_progress.steps_total
         generation_request.steps_completed = generation_progress.steps_completed
+        # @todo add results - generation_progress.result - need to push to list
         self.manager.save(generation_request)
