@@ -15,6 +15,7 @@ from vc.service import (
 )
 from vc.service.helper import DiagnosisHelper as dh
 from vc.service.inpainting import InpaintingOptions
+from vc.service.isr import IsrService, IsrOptions
 from vc.service.random_word import RandomWord
 from vc.service.vqgan_clip import VqganClipOptions
 from vc.value_object import GenerationSpec, ImageSpec
@@ -51,6 +52,7 @@ class GenerationRunner:
 
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
+    isr: IsrService
     video: VideoService
     file: FileService
 
@@ -73,12 +75,14 @@ class GenerationRunner:
         vqgan_clip: VqganClipService,
         inpainting: InpaintingService,
         video: VideoService,
+        isr: IsrService,
         file: FileService,
         output_filename: str,
         steps_dir: str
     ):
         self.vqgan_clip = vqgan_clip
         self.inpainting = inpainting
+        self.isr = isr
         self.video = video
         self.file = file
         self.output_filename = output_filename
@@ -197,6 +201,12 @@ class GenerationRunner:
         else:
             dh.debug('GenerationRunner', 'inpainting', 'skipped')
 
+        dh.debug('GenerationRunner', 'isr', 'handle')
+        self.isr.handle(IsrOptions(**{
+            'input_file': self.output_filename,
+            'output_file': self.output_filename,
+        }))
+
         if step.video_step:
             step_filename = f'{step.video_step:04}.png'
             dh.debug('GenerationRunner', 'video_step', step_filename)
@@ -242,6 +252,7 @@ class GenerationService:
 
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
+    isr: IsrService
     video: VideoService
     file: FileService
 
@@ -252,11 +263,13 @@ class GenerationService:
         self,
         vqgan_clip: VqganClipService,
         inpainting: InpaintingService,
+        isr: IsrService,
         video: VideoService,
         file: FileService
     ):
         self.vqgan_clip = vqgan_clip
         self.inpainting = inpainting
+        self.isr = isr
         self.video = video
         self.file = file
 
@@ -267,6 +280,7 @@ class GenerationService:
         runner = GenerationRunner(
             self.vqgan_clip,
             self.inpainting,
+            self.isr,
             self.video,
             self.file,
             self.OUTPUT_FILENAME,
