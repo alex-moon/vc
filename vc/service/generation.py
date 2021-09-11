@@ -201,17 +201,18 @@ class GenerationRunner:
         else:
             dh.debug('GenerationRunner', 'inpainting', 'skipped')
 
+        upscaled_filename = self.output_filename.replace('.png', '-upscaled.png')
         dh.debug('GenerationRunner', 'isr', 'handle')
         self.isr.handle(IsrOptions(**{
             'input_file': self.output_filename,
-            'output_file': self.output_filename,
+            'output_file': upscaled_filename,
         }))
 
         if step.video_step:
             step_filename = f'{step.video_step:04}.png'
             dh.debug('GenerationRunner', 'video_step', step_filename)
             copy(
-                self.output_filename,
+                upscaled_filename,
                 os.path.join(self.steps_dir, step_filename)
             )
 

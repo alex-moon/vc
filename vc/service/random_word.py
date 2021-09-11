@@ -1121,4 +1121,4 @@ class RandomWord:
             'zinc',
             'zipper',
             'zoo',
-        ], 1)
+        ], 1)[0]

@@ -31,9 +31,6 @@ class IsrService:
         result = model.predict(pil_image)
         output = Image.fromarray(result)
 
-        # @todo intended size?
-        # output.resize((width, height), Image.LANCZOS)
-        output.thumbnail(image.size, Image.ANTIALIAS)
         output.save(args.output_file)
 
         if os.getenv('DEBUG_FILES'):
