@@ -3,7 +3,7 @@
 while true; do
   echo 'Diagnostics as at ' $(date)
   echo 'top'
-  top -bn1 -o +%MEM | head -n10
+  top -bn1 -o +%MEM | head -n10 | tail -n4 |  awk '{ printf("%-8s  %-8s  %-8s\n", $9, $10, $12); }'
   echo
   echo 'db'
   ./db.sh -c "
@@ -11,7 +11,7 @@ while true; do
     FROM generation_request WHERE id = (SELECT MAX(id) FROM generation_request)
   "
   echo 'logs'
-  tail -n1000 log/vc.* | grep DIAG
-  sleep 10
+  grep "DEBUG.*DEBUG" log/vc.* | tail -n10
+  sleep 5
   clear
 done
