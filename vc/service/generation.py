@@ -74,8 +74,8 @@ class GenerationRunner:
         self,
         vqgan_clip: VqganClipService,
         inpainting: InpaintingService,
-        video: VideoService,
         isr: IsrService,
+        video: VideoService,
         file: FileService,
         output_filename: str,
         steps_dir: str
