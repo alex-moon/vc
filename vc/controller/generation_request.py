@@ -49,7 +49,7 @@ class GenerationRequestsController(Resource):
     @ns.expect(post_model, validate=True)
     def post(self):
         try:
-            return self.manager.create(request)
+            return self.manager.create(request.json)
         except VcException as e:
             raise InternalServerError(e.message)
 
@@ -81,4 +81,4 @@ class GenerationRequestController(Resource):
 
     @ns.marshal_with(model)
     def put(self, id_):
-        return self.manager.update(request, id_)
+        return self.manager.update(id_, request.json)
