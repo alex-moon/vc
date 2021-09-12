@@ -66,6 +66,13 @@ class GenerationJob(Job):
     ):
         generation_request.steps_total = generation_progress.steps_total
         generation_request.steps_completed = generation_progress.steps_completed
+
+        if generation_progress.name:
+            generation_request.name = generation_progress.name
+
+        if generation_progress.preview:
+            generation_request.preview = generation_progress.preview
+
         if generation_progress.result:
             self.result_manager.create({
                 'request_id': generation_request.id,

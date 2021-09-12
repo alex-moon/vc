@@ -1,6 +1,6 @@
 import os
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import timedelta, datetime
 from shutil import copy
 from time import time
 from typing import Callable
@@ -59,6 +59,7 @@ class GenerationRunner:
     steps_dir: str
 
     generation_name: str
+    now: datetime
 
     spec: ImageSpec = None
     translate: Translate = None
@@ -86,6 +87,7 @@ class GenerationRunner:
         self.output_filename = output_filename
         self.steps_dir = steps_dir
         self.generation_name = RandomWord.get()
+        self.now = datetime.now()
 
     def handle(self, step: GenerationStep):
         if isinstance(step, ImageGenerationStep):
@@ -207,16 +209,11 @@ class GenerationRunner:
                 os.path.join(self.steps_dir, step_filename)
             )
 
-        if os.getenv('DEBUG_FILES'):
-            return self.file.put(
-                self.output_filename,
-                '%s-%s.png' % (
-                   self.generation_name,
-                   f'{step.step:04}'
-                )
-            )
-
-        return None
+        return self.file.put(
+            self.output_filename,
+            '%s-preview.png' % self.generation_name,
+            self.now
+        )
 
     def make_video(self, step: VideoGenerationStep):
         filename = self.output_filename.replace('png', 'mp4')
@@ -284,10 +281,14 @@ class GenerationService:
         for step in self.iterate_steps(spec):
             steps_completed = step.step
             result = runner.handle(step)
+            preview = result if isinstance(step, VideoGenerationStep) else None
+            result = result if isinstance(step, VideoGenerationStep) else None
             callback(GenerationProgress(
                 steps_completed=steps_completed,
                 steps_total=steps_total,
-                result=result
+                name=runner.generation_name,
+                result=result,
+                preview=preview
             ))
             self.handle_interim(
                 steps_completed,

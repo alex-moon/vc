@@ -22,8 +22,8 @@ class FileService:
         self.bucket = app.config.get('AWS_BUCKET_NAME')
         self.region = app.config.get('AWS_BUCKET_REGION')
 
-    def put(self, local_file, filename):
-        filename = self.get_filename(filename)
+    def put(self, local_file, filename, now: datetime = None):
+        filename = self.get_filename(filename, now)
         url = self.URL_PATTERN.format(
             bucket=self.bucket,
             region=self.region,
@@ -38,8 +38,9 @@ class FileService:
         )
         return url
 
-    def get_filename(self, filename):
-        now = datetime.now()
+    def get_filename(self, filename, now: datetime = None):
+        if now is None:
+            now = datetime.now()
         return '%s-%s' % (
             now.strftime('%Y-%m-%d-%H-%M-%S'),
             filename

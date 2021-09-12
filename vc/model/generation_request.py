@@ -20,6 +20,9 @@ class GenerationRequest(db.Model):
     steps_completed = db.Column(db.Integer)
     steps_total = db.Column(db.Integer)
 
+    name = db.Column(db.String, nullable=True)
+    preview = db.Column(db.String, nullable=True)
+
     results = db.relationship('GenerationResult', backref='request')
 
     def __repr__(self):
@@ -35,5 +38,7 @@ class GenerationRequest(db.Model):
         'failed': fields.DateTime(),
         'steps_completed': fields.Integer,
         'steps_total': fields.Integer,
+        'name': fields.String,
+        'preview': fields.String,
         'results': fields.List(fields.Nested(GenerationResult.schema)),
     })
