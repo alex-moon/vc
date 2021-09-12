@@ -1,28 +1,22 @@
 function Vc() {
-    this.manager = new Manager(this);
-    this.manager.index();
+    this.service = new Service(this);
+    this.refresh();
 
     // poll every ten seconds
-    window.setTimeout(
-        this.manager.fetch.bind(this.manager),
-        10000
-    );
+    window.setTimeout(this.refresh.bind(this), 10000);
 }
 Object.assign(Vc.prototype, {
-    create(e) {
-        e.preventDefault();
-        const form = e.target;
-        const formData = new FormData(form)
-        const request = new GenerationRequest()
-        request.marshall(formData);
-        this.manager.create(request);
-        return false;
+    create(raw) {
+        this.service.create(raw, this.draw.bind(this));
+    },
+    refresh() {
+        this.service.refresh(this.draw.bind(this));
     },
     draw(requests) {
         document
             .querySelector('generation-requests')
             .update(requests);
-    }
+    },
 });
 document.addEventListener('DOMContentLoaded', () => {
     window.vc = new Vc();

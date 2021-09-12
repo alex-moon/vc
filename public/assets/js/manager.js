@@ -1,16 +1,22 @@
-function Manager(vc) {
-    this.vc = vc;
+function Manager() {
     this.requests = [];
 }
 Object.assign(Manager.prototype, {
     base_url: '/api/generation-request',
     async fetch (url = '') {
+        if (window.env === 'local') {
+            return {data: window.dummy_data};
+        }
         const response = await fetch(this.base_url + url, {
             mode: 'no-cors',
         });
         return response.json();
     },
     async post (data, url = '') {
+        if (window.env === 'local') {
+            console.log('POST', data);
+            return {};
+        }
         const response = await fetch(this.base_url + url, {
             method: 'POST',
             mode: 'no-cors',
@@ -21,19 +27,15 @@ Object.assign(Manager.prototype, {
         });
         return response.json();
     },
-    index() {
-        if (window.env === 'local') {
-            this.load(window.dummy_data);
-            return;
-        }
-        this.fetch().then(this.handleResponse.bind(this));
+    index(callback) {
+        this.fetch().then((response) => {
+            this.handleResponse(response);
+            callback(this.requests);
+        });
     },
-    create(data) {
-        if (window.env === 'local') {
-            return;
-        }
+    create(data, callback) {
         this.post(data);
-        this.index();
+        this.index(callback);
     },
     handleResponse(response) {
         this.load(response.data);
@@ -44,7 +46,6 @@ Object.assign(Manager.prototype, {
             request = new GenerationRequest(raw);
             this.requests.push(request);
         }
-        this.vc.draw(this.requests);
     },
 });
 

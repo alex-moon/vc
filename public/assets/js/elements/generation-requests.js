@@ -13,10 +13,7 @@ class GenerationRequestsElement extends HTMLElement {
         const template = window.templates['generation-requests'];
         this.appendChild(template.content.cloneNode(true));
         this.$root = this.querySelector('.requests');
-        this.update([]);
     }
-
-    disconnectedCallback() {}
 
     update(requests) {
         this._requests = requests;

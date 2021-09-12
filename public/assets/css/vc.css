@@ -63,7 +63,7 @@ a:active {
     justify-content: space-between;
 }
 
-.content .form {
+.content generation-request-form {
     display: flex;
     background-color: #d7e6d6;
     padding: 16px;

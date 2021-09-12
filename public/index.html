@@ -8,10 +8,12 @@
         <!-- comment out this line to use live API -->
         <script>window.env = 'local'</script>
 
+        <script type="text/javascript" src="/assets/js/elements/generation-request-form.js"></script>
         <script type="text/javascript" src="/assets/js/elements/generation-request.js"></script>
         <script type="text/javascript" src="/assets/js/elements/generation-requests.js"></script>
         <script type="text/javascript" src="/assets/js/generation-request.js"></script>
         <script type="text/javascript" src="/assets/js/manager.js"></script>
+        <script type="text/javascript" src="/assets/js/service.js"></script>
         <script type="text/javascript" src="/assets/js/vc.js"></script>
         <link href="https://fonts.googleapis.com/css?family=Roboto+Slab" rel="stylesheet">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -29,12 +31,7 @@
                 </div>
             </div>
             <div class="content">
-                <div class="form">
-                    <form onsubmit="return window.vc.create(event)">
-                        <input type="text" name="prompt" placeholder="prompt" />
-                        <button type="submit">Save</button>
-                    </form>
-                </div>
+                <generation-request-form></generation-request-form>
                 <generation-requests></generation-requests>
             </div>
             <div class="footer">
