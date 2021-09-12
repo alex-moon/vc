@@ -2,4 +2,4 @@
 
 git pull origin $(git rev-parse --abbrev-ref HEAD)
 sudo service supervisor restart
-tail -f /var/log/supervisor/*worker*
+tail -f /var/log/supervisor/* /opt/vc/log/*
