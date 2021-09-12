@@ -1,10 +1,15 @@
 function Manager() {
     this.requests = [];
+    this.is_local = [
+        'vc.local',
+        'localhost',
+        '127.0.0.1',
+    ].includes(window.location.hostname);
 }
 Object.assign(Manager.prototype, {
     base_url: '/api/generation-request',
     async fetch (url = '') {
-        if (window.env === 'local') {
+        if (this.is_local) {
             return {data: window.dummy_data};
         }
         const response = await fetch(this.base_url + url, {
@@ -13,7 +18,7 @@ Object.assign(Manager.prototype, {
         return response.json();
     },
     async post (data, url = '') {
-        if (window.env === 'local') {
+        if (this.is_local) {
             console.log('POST', data);
             return {};
         }
