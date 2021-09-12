@@ -22,6 +22,7 @@ Object.assign(Manager.prototype, {
         this.fetch().then(this.handleResponse.bind(this));
     },
     create(data) {
+        console.log('got data', data);
         this.post(data);
         this.index();
     },

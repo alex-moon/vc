@@ -24,9 +24,9 @@
                 </div>
             </div>
             <div class="content">
-                <div class="request-new">
-                    <form onsubmit="javascript:window.vc.create(this); return false">
-                        <input type="text" placeholder="prompt" />
+                <div class="form">
+                    <form onsubmit="return window.vc.create(event)">
+                        <input type="text" name="prompt" placeholder="prompt" />
                         <button type="submit">Save</button>
                     </form>
                 </div>
