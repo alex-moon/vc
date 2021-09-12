@@ -1,7 +1,8 @@
 function Manager() {
     this.requests = [];
-    // change false to true to use dummy data (for local dev)
-    this.is_local = false && [
+
+    const useDummyData = true;
+    this.isLocal = useDummyData && [
         'vc.local',
         'localhost',
         '127.0.0.1',
@@ -10,16 +11,16 @@ function Manager() {
 Object.assign(Manager.prototype, {
     base_url: '/api/generation-request/',
     async fetch (url = '') {
-        if (this.is_local) {
-            return {data: window.dummy_data};
+        if (this.isLocal) {
+            return window.dummy_data;
         }
         const response = await fetch(this.base_url + url);
         return response.json();
     },
     async post (data, url = '') {
-        if (this.is_local) {
-            console.log('POST', data);
-            return {};
+        if (this.isLocal) {
+            window.dummy_data.push(data);
+            return data;
         }
         const response = await fetch(this.base_url + url, {
             method: 'POST',
@@ -50,40 +51,6 @@ Object.assign(Manager.prototype, {
 });
 
 window.dummy_data = [
-    {
-        "id": 2,
-        "spec": {
-            "images": null,
-            "videos": [
-                {
-                    "steps": [
-                        {
-                            "texts": [
-                                "I walk a long a very straight inner city street at night, lit by the colours of buildings"
-                            ],
-                            "iterations": 75,
-                            "init_iterations": 200,
-                            "epochs": 10,
-                            "x_velocity": 0.0,
-                            "y_velocity": 0.0,
-                            "z_velocity": 0.0,
-                            "upscale": false
-                        }
-                    ]
-                }
-            ]
-        },
-        "created": "2021-09-12T18:03:45.131823",
-        "updated": "2021-09-12T18:03:45.131823",
-        "started": null,
-        "completed": null,
-        "failed": null,
-        "steps_completed": null,
-        "steps_total": null,
-        "name": null,
-        "preview": null,
-        "results": []
-    },
     {
         "id": 1,
         "spec": {

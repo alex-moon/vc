@@ -5,7 +5,7 @@ function Vc() {
 Object.assign(Vc.prototype, {
     refreshInterval: 10000,
     autoRefresh: true,
-    timeout = null,
+    timeout: null,
     create(raw) {
         this.service.create(raw, this.draw.bind(this));
     },
