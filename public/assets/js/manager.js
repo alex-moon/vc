@@ -12,9 +12,7 @@ Object.assign(Manager.prototype, {
         if (this.is_local) {
             return {data: window.dummy_data};
         }
-        const response = await fetch(this.base_url + url, {
-            mode: 'no-cors',
-        });
+        const response = await fetch(this.base_url + url);
         return response.json();
     },
     async post (data, url = '') {
@@ -24,7 +22,6 @@ Object.assign(Manager.prototype, {
         }
         const response = await fetch(this.base_url + url, {
             method: 'POST',
-            mode: 'no-cors',
             headers: {
                 'Content-Type': 'application/json',
             },
