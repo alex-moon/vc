@@ -281,7 +281,7 @@ class GenerationService:
         for step in self.iterate_steps(spec):
             steps_completed = step.step
             result = runner.handle(step)
-            preview = result if isinstance(step, VideoGenerationStep) else None
+            preview = result if isinstance(step, ImageGenerationStep) else None
             result = result if isinstance(step, VideoGenerationStep) else None
             callback(GenerationProgress(
                 steps_completed=steps_completed,
