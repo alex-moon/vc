@@ -36,8 +36,8 @@ Object.assign(Manager.prototype, {
             callback(this.requests);
         });
     },
-    create(data, callback) {
-        this.post(data);
+    create(request, callback) {
+        this.post(request);
         this.index(callback);
     },
     load(data) {

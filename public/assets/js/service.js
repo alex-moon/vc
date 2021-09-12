@@ -7,9 +7,13 @@ Object.assign(Service.prototype, {
     },
     create(data, callback) {
         const request = new GenerationRequest({
-            videos: [{
-                texts: [data.prompt]
-            }]
+            spec: {
+                videos: [
+                    {
+                        texts: [data.prompt]
+                    }
+                ],
+            },
         });
         this.manager.create(request, callback);
     },
