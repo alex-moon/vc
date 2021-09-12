@@ -134,14 +134,14 @@ class Translate:
         else:
             self.velocity = Velocity()
 
-    def move(self):
+    def move(self, autodecelerate=False):
         accelerating = self.velocity.accelerate(
             self.x_target,
             self.y_target,
             self.z_target
         )
 
-        if not accelerating:
+        if autodecelerate and not accelerating:
             self.velocity.decelerate(
                 self.x_target,
                 self.y_target,

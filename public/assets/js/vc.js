@@ -10,16 +10,13 @@ Object.assign(Vc.prototype, {
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form)
-        const data = this.marshall(formData);
-        this.manager.create(data);
+        const request = new GenerationRequest()
+        request.marshall(formData);
+        this.manager.create(request);
         return false;
     },
     marshall(formData) {
-        data = {};
-        for (let [key, value] of formData.entries()) {
-            data[key] = value;
-        }
-        return data;
+
     }
 });
 (function(window) {
