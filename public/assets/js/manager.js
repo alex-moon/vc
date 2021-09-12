@@ -7,7 +7,7 @@ function Manager() {
     ].includes(window.location.hostname);
 }
 Object.assign(Manager.prototype, {
-    base_url: '/api/generation-request',
+    base_url: '/api/generation-request/',
     async fetch (url = '') {
         if (this.is_local) {
             return {data: window.dummy_data};
