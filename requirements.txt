@@ -25,6 +25,7 @@ dacite==1.6.0
 dataclasses==0.8
 decorator==5.0.9
 einops==0.3.0
+flask-cors
 flask-restplus
 flask-rq
 freetype-py==2.2.0

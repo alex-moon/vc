@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask
 from flask_injector import FlaskInjector
+from flask_cors import CORS
 
 from .api import api
 from .controller import init_app
@@ -20,6 +21,9 @@ def create_app():
     app = Flask(__name__)
     app.config.update(os.environ)
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
+
+    # CORS
+    CORS(app, resources={r"/*": {"origins": "*"}})
 
     # spin everything up
     api.init_app(app)
