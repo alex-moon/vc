@@ -1,9 +1,12 @@
-function Vc(window) {
-    this.window = window;
-    this.manager = new Manager();
+function Vc() {
+    this.manager = new Manager(this);
     this.manager.index();
+
     // poll every ten seconds
-    this.window.setTimeout(this.manager.fetch.bind(this.manager), 10000);
+    window.setTimeout(
+        this.manager.fetch.bind(this.manager),
+        10000
+    );
 }
 Object.assign(Vc.prototype, {
     create(e) {
@@ -15,10 +18,12 @@ Object.assign(Vc.prototype, {
         this.manager.create(request);
         return false;
     },
-    marshall(formData) {
-
+    draw(requests) {
+        document
+            .querySelector('generation-requests')
+            .update(requests);
     }
 });
-(function(window) {
-    window.vc = new Vc(window);
-})(window);
+document.addEventListener('DOMContentLoaded', () => {
+    window.vc = new Vc();
+});

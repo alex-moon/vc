@@ -8,8 +8,9 @@
         <!-- comment out this line to use live API -->
         <script>window.env = 'local'</script>
 
-        <script type="text/javascript" src="/assets/js/elements.js"></script>
-        <script type="text/javascript" src="/assets/js/generation_request.js"></script>
+        <script type="text/javascript" src="/assets/js/elements/generation-request.js"></script>
+        <script type="text/javascript" src="/assets/js/elements/generation-requests.js"></script>
+        <script type="text/javascript" src="/assets/js/generation-request.js"></script>
         <script type="text/javascript" src="/assets/js/manager.js"></script>
         <script type="text/javascript" src="/assets/js/vc.js"></script>
         <link href="https://fonts.googleapis.com/css?family=Roboto+Slab" rel="stylesheet">
@@ -34,14 +35,7 @@
                         <button type="submit">Save</button>
                     </form>
                 </div>
-                <div class="requests">
-                    <template id="generation-request">
-                        <div class="request">
-                            <p>request works :)</p>
-                        </div>
-                    </template>
-                    <generation-request></generation-request>
-                </div>
+                <generation-requests></generation-requests>
             </div>
             <div class="footer">
                 <a target="_blank" href="https://github.com/alex-moon/vc">an Alex Moon production</a>

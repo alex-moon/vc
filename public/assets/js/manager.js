@@ -1,4 +1,5 @@
-function Manager() {
+function Manager(vc) {
+    this.vc = vc;
     this.requests = [];
 }
 Object.assign(Manager.prototype, {
@@ -22,7 +23,6 @@ Object.assign(Manager.prototype, {
     },
     index() {
         if (window.env === 'local') {
-            console.log('manager.index');
             this.load(window.dummy_data);
             return;
         }
@@ -30,7 +30,6 @@ Object.assign(Manager.prototype, {
     },
     create(data) {
         if (window.env === 'local') {
-            console.log('manager.create', data);
             return;
         }
         this.post(data);
@@ -45,10 +44,8 @@ Object.assign(Manager.prototype, {
             request = new GenerationRequest(raw);
             this.requests.push(request);
         }
+        this.vc.draw(this.requests);
     },
-    all() {
-        return this.requests;
-    }
 });
 
 window.dummy_data = [
