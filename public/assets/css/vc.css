@@ -61,6 +61,7 @@ a:active {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    overflow: hidden;
 }
 
 .content generation-request-form {
@@ -72,6 +73,7 @@ a:active {
 .content generation-requests {
     flex-grow: 1;
     background-color: #e6cfb9;
+    overflow: auto;
 }
 
 .content generation-requests generation-request {
@@ -80,6 +82,50 @@ a:active {
     margin: 2px;
     border-radius: 5px;
     background-color: white;
+}
+
+.content generation-requests generation-request .request {
+    display: flex;
+    justify-content: space-between;
+}
+
+.content generation-requests generation-request .summary .name {
+    display: block;
+    font-weight: bold;
+}
+
+.content generation-requests generation-request .panels {
+    display: flex;
+}
+
+.content generation-requests generation-request .panel {
+    display: block;
+    font-weight: bold;
+    width: 200px;
+    height: 200px;
+}
+
+.content generation-requests generation-request .panel .preview {
+    width: 100%;
+    height: 100%;
+}
+
+.content generation-requests generation-request .panel .result {
+    width: 100%;
+    height: 100%;
+}
+
+@media only screen and (max-width: 600px) {
+    .content generation-requests generation-request .request {
+        flex-direction: column;
+    }
+
+    .content generation-requests generation-request .panels {
+        flex-direction: column;
+    }
+    .content generation-requests generation-request .panel {
+        width: 100%;
+    }
 }
 
 .footer {
