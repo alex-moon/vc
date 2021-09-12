@@ -1,6 +1,7 @@
 function Manager() {
     this.requests = [];
-    this.is_local = [
+    // change false to true to use dummy data (for local dev)
+    this.is_local = false && [
         'vc.local',
         'localhost',
         '127.0.0.1',
@@ -31,16 +32,13 @@ Object.assign(Manager.prototype, {
     },
     index(callback) {
         this.fetch().then((response) => {
-            this.handleResponse(response);
+            this.load(response);
             callback(this.requests);
         });
     },
     create(data, callback) {
         this.post(data);
         this.index(callback);
-    },
-    handleResponse(response) {
-        this.load(response.data);
     },
     load(data) {
         this.requests = [];
