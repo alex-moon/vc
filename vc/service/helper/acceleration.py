@@ -99,6 +99,12 @@ class Velocity:
     def to_tuple(self):
         return self.x, self.y, self.z
 
+    def moving(self, x_target, y_target, z_target):
+        x_result = self.x > 0 if x_target * Multiplier.x > 0 else self.x <= 0
+        y_result = self.y > 0 if y_target * Multiplier.y > 0 else self.y <= 0
+        z_result = self.z > 0 if z_target * Multiplier.z > 0 else self.z <= 0
+        return x_result or y_result or z_result
+
 
 class Translate:
     velocity: Velocity
@@ -142,19 +148,15 @@ class Translate:
                 self.z_target
             )
 
-        moving = self.moving()
-
         self.x += self.velocity.x
         self.y += self.velocity.y
         self.z += self.velocity.z
 
-        return moving
-
-    def moving(self):
-        x_result = self.x > 0 if self.x_target > 0 else self.x <= 0
-        y_result = self.y > 0 if self.y_target > 0 else self.y <= 0
-        z_result = self.z > 0 if self.z_target > 0 else self.z <= 0
-        return x_result or y_result or z_result
+        return self.velocity.moving(
+            self.x_target,
+            self.y_target,
+            self.z_target
+        )
 
     def to_tuple(self):
         return self.x, self.y, self.z
