@@ -106,7 +106,8 @@ def output_3d_photo(
     verts,
     colors,
     faces,
-    z_shift
+    i,
+    translate,
 ):
     colors = colors[..., :3]
 
@@ -148,7 +149,7 @@ def output_3d_photo(
     anchor = np.array(anchor)
     ref_pose = np.eye(4)
     tgts_pose = ref_pose * 1.
-    tgts_pose[:3, -1] = np.array([0., 0., z_shift])
+    tgts_pose[:3, -1] = np.array(translate)
 
     rel_pose = np.linalg.inv(np.dot(tgts_pose, np.linalg.inv(ref_pose)))
     axis, angle = transforms3d.axangles.mat2axangle(rel_pose[0:3, 0:3])
@@ -169,7 +170,7 @@ def output_3d_photo(
       int(border[2]):int(border[3])
     ]
 
-    path = 'tmp/output-%s.png' % z_shift
+    path = f'tmp/{i:04}.png'
     print("mesh.py:", "Writing Inpainting output frame:", os.path.abspath(path))
 
     write_png(path, img)
@@ -231,10 +232,165 @@ def read_ply(mesh_fi):
 mesh_fi = 'mesh/output.ply'
 verts, colors, faces, height, width, hfov, vfov = read_ply(mesh_fi)
 
-for z_shift in range(0, 10):
+
+class Acceleration:
+    x = -0.001
+    y = 0.001
+    z = -0.001
+
+
+class Target:
+    x = -0.01
+    y = 0.01
+    z = -0.01
+
+    @classmethod
+    def accelerate_x(cls, x):
+        return x < cls.x if cls.x > 0 else x > cls.x
+
+    @classmethod
+    def accelerate_y(cls, y):
+        return y < cls.y if cls.y > 0 else y > cls.y
+
+    @classmethod
+    def accelerate_z(cls, z):
+        return z < cls.z if cls.z > 0 else z > cls.z
+
+
+class Zero:
+    @classmethod
+    def accelerate_x(cls, x):
+        return x > 0 if Target.x > 0 else x < 0
+
+    @classmethod
+    def accelerate_y(cls, y):
+        return y > 0 if Target.y > 0 else y < 0
+
+    @classmethod
+    def accelerate_z(cls, z):
+        return z > 0 if Target.z > 0 else z < 0
+
+
+class Velocity:
+    x = 0.
+    y = 0.
+    z = 0.
+
+    @classmethod
+    def accelerate_x(cls):
+        result = Target.accelerate_x(cls.x)
+        if result:
+            cls.x += Acceleration.x
+        return result
+
+    @classmethod
+    def accelerate_y(cls):
+        result = Target.accelerate_x(cls.y)
+        if result:
+            cls.y += Acceleration.y
+        return result
+
+    @classmethod
+    def accelerate_z(cls):
+        result = Target.accelerate_z(cls.z)
+        if result:
+            cls.z += Acceleration.z
+        return result
+
+    @classmethod
+    def decelerate_x(cls):
+        result = Zero.accelerate_x(cls.x)
+        if result:
+            cls.x -= Acceleration.x
+        return result
+
+    @classmethod
+    def decelerate_y(cls):
+        result = Zero.accelerate_x(cls.y)
+        if result:
+            cls.y -= Acceleration.y
+        return result
+
+    @classmethod
+    def decelerate_z(cls):
+        result = Zero.accelerate_z(cls.z)
+        if result:
+            cls.z -= Acceleration.z
+        return result
+
+
+class Translate:
+    x = 0.
+    y = 0.
+    z = 0.
+
+    @classmethod
+    def to_list(cls):
+        cls.x += Velocity.x
+        cls.y += Velocity.y
+        cls.z += Velocity.z
+        return [cls.x, cls.y, cls.z]
+
+    @classmethod
+    def reset(cls):
+        cls.x = 0.
+        cls.y = 0.
+        cls.z = 0.
+
+
+def get_translates():
+    translates = []
+
+    # z
+    while Velocity.accelerate_z():
+        translates.append(Translate.to_list())
+    while Velocity.decelerate_z():
+        translates.append(Translate.to_list())
+
+    translates += reversed(translates)
+    Translate.reset()
+
+    # y
+    while Velocity.accelerate_y():
+        translates.append(Translate.to_list())
+    while Velocity.decelerate_y():
+        translates.append(Translate.to_list())
+
+    translates += reversed(translates)
+    Translate.reset()
+
+    # x
+    while Velocity.accelerate_x():
+        translates.append(Translate.to_list())
+    while Velocity.decelerate_x():
+        translates.append(Translate.to_list())
+
+    translates += reversed(translates)
+    Translate.reset()
+
+    return translates
+
+
+translates = get_translates()
+print('Doing %s translates' % len(translates))
+
+for i, translate in enumerate(translates):
+    print('Doing', i, translate)
     output_3d_photo(
         verts,
         colors,
         faces,
-        z_shift * 0.01
+        i,
+        translate
     )
+
+os.system(
+    ' '.join(
+        [
+            'ffmpeg -y -i "tmp/%04d.png"',
+            '-b:v 8M -c:v h264_nvenc -pix_fmt yuv420p -strict -2',
+            '-filter:v "minterpolate=\'mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=60\'"',
+            'tmp/result.mp4'
+        ]
+    )
+)

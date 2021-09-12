@@ -14,6 +14,7 @@ from vc.service import (
     FileService,
 )
 from vc.service.helper import DiagnosisHelper as dh
+from vc.service.helper.acceleration import Translate
 from vc.service.inpainting import InpaintingOptions
 from vc.service.isr import IsrService, IsrOptions
 from vc.service.random_word import RandomWord
@@ -46,9 +47,7 @@ class CleanFilesStep(GenerationStep):
 
 
 class GenerationRunner:
-    ACCELERATION = 0.1
     TRANSITION_SPEED = 0.01
-    VELOCITY_MULTIPLIER = -0.001
 
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
@@ -61,9 +60,8 @@ class GenerationRunner:
 
     generation_name: str
 
-    x_velocity = 0.
-    y_velocity = 0.
-    z_velocity = 0.
+    spec: ImageSpec = None
+    translate: Translate = None
 
     last_text = None
     text_transition = 0.
@@ -101,22 +99,17 @@ class GenerationRunner:
             return self.clean_files(step)
 
     def generate_image(self, step: ImageGenerationStep):
-        spec = step.spec
+        if step.spec != self.spec:
+            self.spec = step.spec
+            self.translate = Translate(
+                self.spec.x_velocity,
+                self.spec.y_velocity,
+                self.spec.z_velocity,
+                previous=self.translate
+            )
+
         text = step.text
         style = step.style
-
-        if self.x_velocity > spec.x_velocity:
-            self.x_velocity -= self.ACCELERATION
-        if self.x_velocity < spec.x_velocity:
-            self.x_velocity += self.ACCELERATION
-        if self.y_velocity > spec.y_velocity:
-            self.y_velocity -= self.ACCELERATION
-        if self.y_velocity < spec.y_velocity:
-            self.y_velocity += self.ACCELERATION
-        if self.z_velocity > spec.z_velocity:
-            self.z_velocity -= self.ACCELERATION
-        if self.z_velocity < spec.z_velocity:
-            self.z_velocity += self.ACCELERATION
 
         if self.last_text is None:
             self.last_text = text
@@ -156,23 +149,19 @@ class GenerationRunner:
 
             prompt = '%s | %s' % (prompt, styles)
 
-        x_shift = self.x_velocity * self.VELOCITY_MULTIPLIER
-        y_shift = self.y_velocity * self.VELOCITY_MULTIPLIER
-        z_shift = self.z_velocity * self.VELOCITY_MULTIPLIER
+        self.translate.move()
+        x_shift, y_shift, z_shift = self.translate.velocity.to_tuple()
 
         dh.debug('GenerationRunner', 'prompt', prompt)
-        dh.debug('GenerationRunner', 'x_velocity', self.x_velocity)
-        dh.debug('GenerationRunner', 'y_velocity', self.y_velocity)
-        dh.debug('GenerationRunner', 'z_velocity', self.z_velocity)
         dh.debug('GenerationRunner', 'x_shift', x_shift)
         dh.debug('GenerationRunner', 'y_shift', y_shift)
         dh.debug('GenerationRunner', 'z_shift', z_shift)
 
-        if spec.init_iterations and not os.path.isfile(self.output_filename):
-            dh.debug('GenerationRunner', 'init', spec.init_iterations)
+        if self.spec.init_iterations and not os.path.isfile(self.output_filename):
+            dh.debug('GenerationRunner', 'init', self.spec.init_iterations)
             self.vqgan_clip.handle(VqganClipOptions(**{
                 'prompts': prompt,
-                'max_iterations': spec.init_iterations,
+                'max_iterations': self.spec.init_iterations,
                 'output_filename': self.output_filename,
                 'init_image': None
             }))
@@ -180,7 +169,7 @@ class GenerationRunner:
         dh.debug('GenerationRunner', 'vqgan_clip', 'handle')
         self.vqgan_clip.handle(VqganClipOptions(**{
             'prompts': prompt,
-            'max_iterations': spec.iterations,
+            'max_iterations': self.spec.iterations,
             'init_image': (
                 self.output_filename
                 if os.path.isfile(self.output_filename)
@@ -189,30 +178,29 @@ class GenerationRunner:
             'output_filename': self.output_filename,
         }))
 
-        if self.x_velocity != 0. or self.y_velocity != 0. or self.z_velocity != 0.:
-            dh.debug('GenerationRunner', 'inpainting', 'handle')
-            self.inpainting.handle(InpaintingOptions(**{
-                'input_file': self.output_filename,
-                'x_shift': x_shift,
-                'y_shift': y_shift,
-                'z_shift': z_shift,
-                'output_filename': self.output_filename,
-            }))
-        else:
-            dh.debug('GenerationRunner', 'inpainting', 'skipped')
-
-        upscaled_filename = self.output_filename.replace('.png', '-upscaled.png')
-        dh.debug('GenerationRunner', 'isr', 'handle')
-        self.isr.handle(IsrOptions(**{
+        dh.debug('GenerationRunner', 'inpainting', 'handle')
+        self.inpainting.handle(InpaintingOptions(**{
             'input_file': self.output_filename,
-            'output_file': upscaled_filename,
+            'x_shift': x_shift,
+            'y_shift': y_shift,
+            'z_shift': z_shift,
+            'output_filename': self.output_filename,
         }))
+
+        filename_to_use = self.output_filename
+        if self.spec.upscale:
+            filename_to_use = filename_to_use.replace('.png', '-upscaled.png')
+            dh.debug('GenerationRunner', 'isr', 'handle')
+            self.isr.handle(IsrOptions(**{
+                'input_file': self.output_filename,
+                'output_file': filename_to_use,
+            }))
 
         if step.video_step:
             step_filename = f'{step.video_step:04}.png'
             dh.debug('GenerationRunner', 'video_step', step_filename)
             copy(
-                upscaled_filename,
+                filename_to_use,
                 os.path.join(self.steps_dir, step_filename)
             )
 

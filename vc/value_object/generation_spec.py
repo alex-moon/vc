@@ -16,6 +16,7 @@ class ImageSpec:
     x_velocity: float = 0.
     y_velocity: float = 0.
     z_velocity: float = 0.
+    upscale: bool = True
 
     schema = api.model('Image Spec', {
         'texts': fields.List(fields.String, default_factory=list),
@@ -26,6 +27,7 @@ class ImageSpec:
         'x_velocity': fields.Float(default=0.),
         'y_velocity': fields.Float(default=0.),
         'z_velocity': fields.Float(default=0.),
+        'upscale': fields.Boolean(default=True),
     })
 
 
