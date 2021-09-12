@@ -18,14 +18,18 @@ a:active {
 }
 
 .container {
+    height: 100%;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
 }
 
 .header {
-    padding: 8px;
     height: 64px;
     display: flex;
+    background-color: #efedd4;
+    box-sizing: border-box;
+    padding: 16px;
 }
 
 .header .header-first {
@@ -43,4 +47,35 @@ a:active {
     margin: 0;
     padding: 0;
     color: rgba(0, 0, 0, 0);
+}
+
+.header .header-second {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.content {
+    flex-grow: 1;
+    display: flex;
+}
+
+.footer {
+    display: flex;
+    justify-content: center;
+    background-color: #535c69;
+    color: white;
+    box-sizing: border-box;
+    padding: 16px;
+}
+.footer a {
+    text-decoration: none;
+    color: #c5d9dd;
+}
+.footer a:hover {
+    color: #d7e6d6;
+}
+.footer a:active {
+    color: #efedd4;
 }

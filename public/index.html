@@ -2,7 +2,11 @@
 <html>
     <head>
         <title>vc: Virtual Content</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="/assets/css/vc.css" />
+        <script type="text/javascript" src="/assets/js/elements.js"></script>
+        <script type="text/javascript" src="/assets/js/generation_request.js"></script>
+        <script type="text/javascript" src="/assets/js/manager.js"></script>
         <script type="text/javascript" src="/assets/js/vc.js"></script>
         <link href="https://fonts.googleapis.com/css?family=Roboto+Slab" rel="stylesheet">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -15,20 +19,24 @@
                         <h1>vc: Virtual Content</h1>
                     </a>
                 </div>
+                <div class="header-second">
+                    <a href="/api">Swagger</a>
+                </div>
             </div>
             <div class="content">
                 <div class="request-new">
-                    <form onsubmit="javascript:window.vc.create()">
-
+                    <form onsubmit="javascript:window.vc.create(this); return false">
+                        <input type="text" placeholder="prompt" />
+                        <button type="submit">Save</button>
                     </form>
                 </div>
                 <div class="requests">
-                    <template id="request">
+                    <template id="generation-request">
                         <div class="request">
-
+                            <p>request works :)</p>
                         </div>
                     </template>
-                    <request></request>
+                    <generation-request></generation-request>
                 </div>
             </div>
             <div class="footer">
