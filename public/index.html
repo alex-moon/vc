@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>vc: Virtual Content</title>
+        <link rel="stylesheet" href="/assets/css/vc.css" />
+        <script type="text/javascript" src="/assets/js/vc.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Slab" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="header-first">
+                    <a href="/">
+                        <h1>vc: Virtual Content</h1>
+                    </a>
+                </div>
+            </div>
+            <div class="content">
+                <div class="request-new">
+                    <form onsubmit="javascript:window.vc.create()">
+
+                    </form>
+                </div>
+                <div class="requests">
+                    <template id="request">
+                        <div class="request">
+
+                        </div>
+                    </template>
+                    <request></request>
+                </div>
+            </div>
+            <div class="footer">
+                <a target="_blank" href="https://github.com/alex-moon/vc">an Alex Moon production</a>
+            </div>
+        </div>
+    </body>
+</html>
