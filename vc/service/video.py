@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 
 from injector import inject
 

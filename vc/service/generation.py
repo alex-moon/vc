@@ -149,7 +149,7 @@ class GenerationRunner:
 
             prompt = '%s | %s' % (prompt, styles)
 
-        self.translate.move()
+        moving = self.translate.move()
         x_shift, y_shift, z_shift = self.translate.velocity.to_tuple()
 
         dh.debug('GenerationRunner', 'prompt', prompt)
@@ -178,14 +178,17 @@ class GenerationRunner:
             'output_filename': self.output_filename,
         }))
 
-        dh.debug('GenerationRunner', 'inpainting', 'handle')
-        self.inpainting.handle(InpaintingOptions(**{
-            'input_file': self.output_filename,
-            'x_shift': x_shift,
-            'y_shift': y_shift,
-            'z_shift': z_shift,
-            'output_filename': self.output_filename,
-        }))
+        if moving:
+            dh.debug('GenerationRunner', 'inpainting', 'handle')
+            self.inpainting.handle(InpaintingOptions(**{
+                'input_file': self.output_filename,
+                'x_shift': x_shift,
+                'y_shift': y_shift,
+                'z_shift': z_shift,
+                'output_filename': self.output_filename,
+            }))
+        else:
+            dh.debug('GenerationRunner', 'inpainting', 'skipped (not moving)')
 
         filename_to_use = self.output_filename
         if self.spec.upscale:
