@@ -1,23 +1,34 @@
 .panels {
+    margin-top: 16px;
     display: flex;
+    overflow: hidden;
+    max-height: 0;
+    transition: $transition;
 
-    @include mobile {
-        flex-direction: column;
+    &.expanded {
+        max-height: 100px;
+        margin-bottom: 16px;
+    }
+
+    p {
+        opacity: 0.5;
+        padding: 0;
+        margin: 0;
     }
 
     .panel {
-        display: block;
-        font-weight: bold;
-        width: 200px;
-        height: 200px;
-
-        @include mobile {
-            width: 100%;
-        }
+        margin-right: 16px;
+        width: 100px;
+        height: 100px;
+        border-radius: $border-radius;
+        border: solid 2px #535c69;
+        box-sizing: border-box;
+        background-color: #535c69;
 
         img, video {
             width: 100%;
             height: 100%;
+            border-radius: $border-radius;
         }
     }
 }

@@ -21,7 +21,7 @@ window.templates['generation-request'].innerHTML = `
             </div>
             <div class="actions">
                 <button class="material-icons">
-                    expand_circle_down
+                    expand_more
                 </button>
             </div>
         </div>
@@ -33,6 +33,7 @@ class GenerationRequestElement extends HTMLElement {
     constructor() {
         super();
         this._request = null;
+        this._expanded = false;
     }
 
     connectedCallback() {
@@ -42,7 +43,20 @@ class GenerationRequestElement extends HTMLElement {
         this.$name = this.querySelector('.name');
         this.$stepsCompleted = this.querySelector('.steps-completed');
         this.$stepsTotal = this.querySelector('.steps-total');
+        this.$barCompleted = this.querySelector('.bar .completed');
         this.$preview = this.querySelector('.preview img');
+        this.$expand = this.querySelector('.actions button');
+        this.$expand.addEventListener('click', (e) => {
+            if (this._expanded) {
+                this.$panels.classList.remove('expanded');
+                this.$expand.innerHTML = 'expand_more';
+                this._expanded = false;
+            } else {
+                this.$panels.classList.add('expanded');
+                this.$expand.innerHTML = 'expand_less';
+                this._expanded = true;
+            }
+        });
         this.$panels = this.querySelector('.panels');
     }
 
@@ -51,13 +65,9 @@ class GenerationRequestElement extends HTMLElement {
         this.$name.textContent = this._request.name;
         this.$stepsCompleted.textContent = this._request.steps_completed;
         this.$stepsTotal.textContent = this._request.steps_total;
+        this.updateBar(this._request.steps_completed, this._request.steps_total);
         this.$preview.src = this._request.preview || '/assets/placeholder.png';
-        /*
-            <div class="panel">
-                <video class="result" width="200" height="200" controls></video>
-            </div>
-        */
-        this.$panels.innerHtml = '';
+        this.$panels.innerHTML = '';
         if (this._request.interim) {
             const panel = this.createVideoPanel(this._request.interim);
             this.$panels.appendChild(panel);
@@ -68,6 +78,20 @@ class GenerationRequestElement extends HTMLElement {
                 this.$panels.appendChild(panel);
             });
         }
+        if (!this._request.interim && !this._request.results.length) {
+            this.$panels.innerHTML = '<p>Results will appear here when ready.</p>';
+        }
+    }
+
+    updateBar(completed, total) {
+        let percentage = 0;
+        if (total > 0) {
+            percentage = 100 * completed / total
+        }
+        this.$barCompleted.setAttribute(
+            'style',
+            'width: ' + percentage + '%'
+        )
     }
 
     createVideoPanel(url) {

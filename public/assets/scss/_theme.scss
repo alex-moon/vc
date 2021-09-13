@@ -1,5 +1,10 @@
 @import "normalize";
 
+$border-radius: 8px;
+$button-height: 48px;
+$button-width: 9em;
+$transition: 0.5s;
+
 button {
   background: #f9f8ef;
   border: solid 1px #5c6267;

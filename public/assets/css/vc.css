@@ -136,42 +136,63 @@ a:active {
     overflow: hidden; }
     .container .content generation-request-form {
       display: flex;
-      background-color: #d7e6d6;
-      padding: 16px; }
+      background-color: #d7e6d6; }
       .container .content generation-request-form .request-form {
         width: 100%; }
         .container .content generation-request-form .request-form h2 {
-          font-size: medium;
-          margin: 0; }
-        .container .content generation-request-form .request-form h3 {
-          font-size: medium;
-          margin: 0; }
-        .container .content generation-request-form .request-form .text-input {
-          background: #f9f8ef;
-          border: solid 1px #5c6267;
-          border-radius: 8px;
-          padding: 8px;
-          margin: 8px 0;
-          position: relative; }
-          .container .content generation-request-form .request-form .text-input textarea, .container .content generation-request-form .request-form .text-input input {
-            border: none;
-            background: none;
-            resize: none;
-            outline: none; }
-          .container .content generation-request-form .request-form .text-input button {
-            position: absolute;
-            bottom: 8px;
-            right: 8px; }
-        .container .content generation-request-form .request-form .actions {
+          font-size: x-large;
+          margin: 0;
+          padding: 16px;
           display: flex;
-          justify-content: flex-end; }
+          align-items: center;
+          cursor: pointer; }
+          @media (max-width: 599px) {
+            .container .content generation-request-form .request-form h2 {
+              font-size: large; } }
+          .container .content generation-request-form .request-form h2 span {
+            margin-left: 2px; }
+        .container .content generation-request-form .request-form form {
+          padding: 0 16px;
+          overflow: hidden;
+          max-height: 0;
+          transition: 0.5s;
+          box-sizing: border-box; }
+          .container .content generation-request-form .request-form form.expanded {
+            max-height: 500px;
+            padding: 0 16px 16px; }
+          .container .content generation-request-form .request-form form h3 {
+            font-size: medium;
+            margin: 0; }
+          .container .content generation-request-form .request-form form .text-input {
+            background: #f9f8ef;
+            border: solid 1px #5c6267;
+            border-radius: 8px;
+            padding: 8px;
+            margin: 8px 0;
+            position: relative; }
+            .container .content generation-request-form .request-form form .text-input textarea, .container .content generation-request-form .request-form form .text-input input {
+              border: none;
+              background: none;
+              resize: none;
+              outline: none;
+              width: calc(100% - 32px);
+              margin-top: 4px; }
+            .container .content generation-request-form .request-form form .text-input textarea {
+              height: 5em; }
+            .container .content generation-request-form .request-form form .text-input button {
+              position: absolute;
+              bottom: 8px;
+              right: 8px; }
+          .container .content generation-request-form .request-form form .actions {
+            display: flex;
+            justify-content: flex-end; }
     .container .content generation-requests {
       flex-grow: 1;
       background-color: #63575b;
       overflow: auto; }
       .container .content generation-requests generation-request {
         display: block;
-        padding: 16px;
+        padding: 16px 16px 0;
         margin: 2px 2px 0;
         border-radius: 5px;
         background-color: #e6cfb9; }
@@ -225,7 +246,7 @@ a:active {
                 border-radius: 8px;
                 border: solid 2px #535c69;
                 box-sizing: border-box;
-                height: 4 8px; }
+                height: 48px; }
                 @media (max-width: 599px) {
                   .container .content generation-requests generation-request .request .summary .progress .bar {
                     height: 36px; } }
@@ -250,21 +271,30 @@ a:active {
                 font-size: 64px;
                 line-height: 64px; }
           .container .content generation-requests generation-request .request .panels {
-            display: flex; }
-            @media (max-width: 599px) {
-              .container .content generation-requests generation-request .request .panels {
-                flex-direction: column; } }
+            margin-top: 16px;
+            display: flex;
+            overflow: hidden;
+            max-height: 0;
+            transition: 0.5s; }
+            .container .content generation-requests generation-request .request .panels.expanded {
+              max-height: 100px;
+              margin-bottom: 16px; }
+            .container .content generation-requests generation-request .request .panels p {
+              opacity: 0.5;
+              padding: 0;
+              margin: 0; }
             .container .content generation-requests generation-request .request .panels .panel {
-              display: block;
-              font-weight: bold;
-              width: 200px;
-              height: 200px; }
-              @media (max-width: 599px) {
-                .container .content generation-requests generation-request .request .panels .panel {
-                  width: 100%; } }
+              margin-right: 16px;
+              width: 100px;
+              height: 100px;
+              border-radius: 8px;
+              border: solid 2px #535c69;
+              box-sizing: border-box;
+              background-color: #535c69; }
               .container .content generation-requests generation-request .request .panels .panel img, .container .content generation-requests generation-request .request .panels .panel video {
                 width: 100%;
-                height: 100%; }
+                height: 100%;
+                border-radius: 8px; }
   .container .footer {
     display: flex;
     justify-content: center;

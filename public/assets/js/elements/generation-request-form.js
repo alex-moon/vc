@@ -2,7 +2,10 @@ window.templates = window.templates || {}
 window.templates['generation-request-form'] = document.createElement('template');
 window.templates['generation-request-form'].innerHTML = `
     <div class="request-form">
-        <h2>Create virtual content</h2>
+        <h2>
+            Create virtual content
+            <span class="material-icons">expand_more</span>
+        </h2>
         <form>
             <div class="texts">
                 <div class="text-input">
@@ -32,15 +35,28 @@ window.templates['generation-request-form'].innerHTML = `
 class GenerationRequestFormElement extends HTMLElement {
     constructor() {
         super();
+        this._expanded = false;
     }
 
     connectedCallback() {
         const template = window.templates['generation-request-form'];
         this.appendChild(template.content.cloneNode(true));
         this.$root = this.querySelector('.request-form');
-        this.$form = this.querySelector('form');
 
-        this.$prompt = this.querySelector('input[name=prompt]');
+        this.$header = this.querySelector('h2');
+        this.$header.addEventListener('click', (e) => {
+            if (this._expanded) {
+                this.$form.classList.remove('expanded');
+                this.$header.querySelector('span').innerHTML = 'expand_more';
+                this._expanded = false;
+            } else {
+                this.$form.classList.add('expanded');
+                this.$header.querySelector('span').innerHTML = 'expand_less';
+                this._expanded = true;
+            }
+        });
+
+        this.$form = this.querySelector('form');
         this.$form.addEventListener("submit", (e) => {
             e.preventDefault();
             if (!this.validate()) {

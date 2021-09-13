@@ -1,42 +1,71 @@
 generation-request-form {
     display: flex;
     background-color: #d7e6d6;
-    padding: 16px;
     .request-form {
         width: 100%;
 
         h2 {
-            font-size: medium;
+            font-size: x-large;
             margin: 0;
-        }
-        h3 {
-            font-size: medium;
-            margin: 0;
-        }
-        .text-input {
-            background: #f9f8ef;
-            border: solid 1px #5c6267;
-            border-radius: $border-radius;
-            padding: 8px;
-            margin: 8px 0;
-            position: relative;
-
-            textarea, input {
-                border: none;
-                background: none;
-                resize: none;
-                outline: none;
-            }
-
-            button {
-                position: absolute;
-                bottom: 8px;
-                right: 8px;
-            }
-        }
-        .actions {
+            padding: 16px;
             display: flex;
-            justify-content: flex-end;
+            align-items: center;
+            cursor: pointer;
+
+            @include mobile {
+                font-size: large;
+            }
+
+            span {
+                margin-left: 2px;
+            }
+        }
+        form {
+            padding: 0 16px;
+            overflow: hidden;
+            max-height: 0;
+            transition: $transition;
+            box-sizing: border-box;
+
+            &.expanded {
+                max-height: 500px;
+                padding: 0 16px 16px;
+            }
+
+            h3 {
+                font-size: medium;
+                margin: 0;
+            }
+            .text-input {
+                background: #f9f8ef;
+                border: solid 1px #5c6267;
+                border-radius: $border-radius;
+                padding: 8px;
+                margin: 8px 0;
+                position: relative;
+
+                textarea, input {
+                    border: none;
+                    background: none;
+                    resize: none;
+                    outline: none;
+                    width: calc(100% - 32px);
+                    margin-top: 4px;
+                }
+                textarea {
+                    height: 5em;
+                }
+
+                button {
+                    position: absolute;
+                    bottom: 8px;
+                    right: 8px;
+                }
+            }
+            .actions {
+                display: flex;
+                justify-content: flex-end;
+            }
         }
     }
 }
