@@ -122,10 +122,11 @@ window.dummy_data = [
         "steps_total": 92,
         "name": "comparison",
         "preview": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-12-16-47-49-comparison-preview.png",
+        "interim": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-12-20-14-28-comparison-output.mp4",
         "results": [
             {
                 "id": 1,
-                "url": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-12-20-14-28-comparison-output.mp4",
+                "url": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-13-11-10-08-output-vegetable-interim.mp4",
                 "created": "2021-09-12T20:14:28.123456",
                 "updated": "2021-09-12T20:14:28.123456"
             }

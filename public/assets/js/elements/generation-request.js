@@ -11,9 +11,6 @@ window.templates['generation-request'].innerHTML = `
             <div class="panel">
                 <img class="preview" />
             </div>
-            <div class="panel">
-                <video class="result" width="200" height="200" controls></video>
-            </div>
         </div>
     </div>
 `;
@@ -30,9 +27,9 @@ class GenerationRequestElement extends HTMLElement {
         this.$root = this.querySelector('.request');
         this.$name = this.querySelector('.name');
         this.$stepsCompleted = this.querySelector('.steps-completed');
-        this.$stepsTotal  = this.querySelector('.steps-total');
-        this.$preview  = this.querySelector('.preview');
-        this.$result  = this.querySelector('.result');
+        this.$stepsTotal = this.querySelector('.steps-total');
+        this.$preview = this.querySelector('.preview');
+        this.$panels = this.querySelector('.panels');
     }
 
     update(request) {
@@ -41,10 +38,39 @@ class GenerationRequestElement extends HTMLElement {
         this.$stepsCompleted.textContent = this._request.steps_completed;
         this.$stepsTotal.textContent = this._request.steps_total;
         this.$preview.src = this._request.preview || '/assets/placeholder.png';
-        this.$result.innerHTML = '';
+        /*
+            <div class="panel">
+                <video class="result" width="200" height="200" controls></video>
+            </div>
+        */
+        this.$panels.innerHtml = '';
+        if (this._request.interim) {
+            const panel = this.createVideoPanel(this._request.interim);
+            this.$panels.appendChild(panel);
+        }
+        if (this._request.results) {
+            this._request.results.forEach((result) => {
+                const panel = this.createVideoPanel(result.url);
+                this.$panels.appendChild(panel);
+            });
+        }
+    }
+
+    createVideoPanel(url) {
+        const panel = document.createElement('div');
+        panel.setAttribute('class', 'panel');
+
+        const video = document.createElement('video');
+        video.setAttribute('controls', true);
+        video.setAttribute('width', 200);
+        video.setAttribute('height', 200);
+
         const source = document.createElement('source');
-        source.src = this._request.results[0].url;
-        this.$result.appendChild(source);
+        source.src = url;
+
+        video.appendChild(source);
+        panel.appendChild(video);
+        return panel;
     }
 }
 
