@@ -73,6 +73,9 @@ class GenerationJob(Job):
         if generation_progress.preview:
             generation_request.preview = generation_progress.preview
 
+        if generation_progress.interim:
+            generation_request.interim = generation_progress.interim
+
         if generation_progress.result:
             self.result_manager.create({
                 'request_id': generation_request.id,

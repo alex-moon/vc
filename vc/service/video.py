@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from injector import inject
 
@@ -17,7 +18,8 @@ class VideoService:
     def make_video(
         self,
         output_file=OUTPUT_FILENAME,
-        steps_dir=STEPS_DIR
+        steps_dir=STEPS_DIR,
+        now: datetime = None
     ):
         os.system(' '.join([
             'ffmpeg -y -i "%s/%%04d.png"' % steps_dir,
@@ -26,4 +28,4 @@ class VideoService:
             output_file
         ]))
 
-        return self.file_service.put(output_file, output_file)
+        return self.file_service.put(output_file, output_file, now)

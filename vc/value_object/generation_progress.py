@@ -8,3 +8,4 @@ class GenerationProgress:
     name: str
     result: str = None
     preview: str = None
+    interim: str = None

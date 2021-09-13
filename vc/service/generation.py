@@ -42,6 +42,11 @@ class VideoGenerationStep(GenerationStep):
 
 
 @dataclass
+class HandleInterimStep(VideoGenerationStep):
+    pass
+
+
+@dataclass
 class CleanFilesStep(GenerationStep):
     pass
 
@@ -93,6 +98,9 @@ class GenerationRunner:
         if isinstance(step, ImageGenerationStep):
             dh.debug('GenerationRunner', 'generate_image', step)
             return self.generate_image(step)
+        if isinstance(step, HandleInterimStep):
+            dh.debug('GenerationRunner', 'handle_interim', step)
+            return self.handle_interim(step)
         if isinstance(step, VideoGenerationStep):
             dh.debug('GenerationRunner', 'make_video', step)
             return self.make_video(step)
@@ -215,12 +223,21 @@ class GenerationRunner:
             self.now
         )
 
+    def handle_interim(self, step: HandleInterimStep):
+        return self.make_video(step)
+
     def make_video(self, step: VideoGenerationStep):
+        is_interim = isinstance(step, HandleInterimStep)
         filename = self.output_filename.replace('png', 'mp4')
-        filename = '%s-%s' % (self.generation_name, filename)
+        filename = '%s-%s-%s' % (
+            self.generation_name,
+            'interim' if is_interim else 'result',
+            filename
+        )
         return self.video.make_video(
             output_file=filename,
-            steps_dir=self.steps_dir
+            steps_dir=self.steps_dir,
+            now=self.now if is_interim else None
         )
 
     def clean_files(self, step: CleanFilesStep):
@@ -280,44 +297,27 @@ class GenerationService:
 
         for step in self.iterate_steps(spec):
             steps_completed = step.step
-            result = runner.handle(step)
-            preview = result if isinstance(step, ImageGenerationStep) else None
-            result = result if isinstance(step, VideoGenerationStep) else None
+            returned = runner.handle(step)
+            interim = returned if isinstance(step, HandleInterimStep) else None
+            preview = returned if isinstance(step, ImageGenerationStep) else None
+            result = returned if interim is None and preview is None else None
             callback(GenerationProgress(
                 steps_completed=steps_completed,
                 steps_total=steps_total,
                 name=runner.generation_name,
                 result=result,
-                preview=preview
+                preview=preview,
+                interim=interim
             ))
-            self.handle_interim(
+            dh.debug('Completed %s of %s steps (%s%%) for %s in %s' % (
                 steps_completed,
                 steps_total,
-                time() - start,
-                runner.generation_name
-            )
+                round(steps_completed / steps_total * 100, 2),
+                runner.generation_name,
+                timedelta(seconds=time() - start)
+            ))
 
         print('done in %s', timedelta(seconds=time() - start))
-
-    def handle_interim(self, step, steps, seconds, name):
-        dh.debug('Completed %s of %s steps (%s%%) for %s in %s' % (
-            step,
-            steps,
-            round(step / steps * 100, 2),
-            name,
-            timedelta(seconds=seconds)
-        ))
-
-        if step % self.INTERIM_STEPS == 0:
-            self.make_interim_video(name)
-
-    def make_interim_video(self, name):
-        output_file = self.OUTPUT_FILENAME.replace(
-            '.png',
-            '-%s-interim.mp4' % name
-        )
-        dh.debug('making interim video', output_file)
-        self.video.make_video(output_file, self.STEPS_DIR)
 
     def calculate_total_steps(self, spec):
         steps_total = 0
@@ -345,6 +345,12 @@ class GenerationService:
                                         text=text,
                                         style=style
                                     )
+
+                                    if step % self.INTERIM_STEPS == 0:
+                                        step += 1
+                                        yield HandleInterimStep(
+                                            step=step
+                                        )
                         else:
                             for i in range(step_spec.epochs):
                                 step += 1
@@ -353,6 +359,12 @@ class GenerationService:
                                     step=step,
                                     text=text
                                 )
+
+                                if step % self.INTERIM_STEPS == 0:
+                                    step += 1
+                                    yield HandleInterimStep(
+                                        step=step
+                                    )
 
         if spec.videos:
             for video in spec.videos:
@@ -375,6 +387,12 @@ class GenerationService:
                                                 style=style,
                                                 video_step=video_step
                                             )
+
+                                            if step % self.INTERIM_STEPS == 0:
+                                                step += 1
+                                                yield HandleInterimStep(
+                                                    step=step
+                                                )
                                 else:
                                     for i in range(step_spec.epochs):
                                         video_step += 1
@@ -385,6 +403,12 @@ class GenerationService:
                                             text=text,
                                             video_step=video_step
                                         )
+
+                                        if step % self.INTERIM_STEPS == 0:
+                                            step += 1
+                                            yield HandleInterimStep(
+                                                step=step
+                                            )
 
                 step += 1
                 yield VideoGenerationStep(step=step)
