@@ -20,9 +20,9 @@ window.templates['generation-request'].innerHTML = `
                 </div>
             </div>
             <div class="actions">
-                <span class="material-icons">
+                <button class="material-icons">
                     expand_circle_down
-                </span>
+                </button>
             </div>
         </div>
         <div class="panels"></div>

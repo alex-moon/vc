@@ -1,0 +1,23 @@
+.panels {
+    display: flex;
+
+    @include mobile {
+        flex-direction: column;
+    }
+
+    .panel {
+        display: block;
+        font-weight: bold;
+        width: 200px;
+        height: 200px;
+
+        @include mobile {
+            width: 100%;
+        }
+
+        img, video {
+            width: 100%;
+            height: 100%;
+        }
+    }
+}

@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "scripts": {
-    "scss": "node-sass --watch public/assets/scss -o public/assets/css"
+    "scss": "node-sass --watch --recursive public/assets/scss -o public/assets/css"
   },
   "repository": {
     "type": "git",

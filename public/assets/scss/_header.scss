@@ -1,0 +1,31 @@
+.header {
+    height: 64px;
+    display: flex;
+    background-color: #efedd4;
+    box-sizing: border-box;
+    padding: 16px;
+
+    .header-first {
+        flex: 0;
+        display: flex;
+        align-items: center;
+
+        h1 {
+            cursor: pointer;
+            background: url('/assets/logo-sm.png');
+            background-size: contain;
+            width: 64px;
+            height: 64px;
+            margin: 0;
+            padding: 0;
+            color: rgba(0, 0, 0, 0);
+        }
+    }
+
+    .header-second {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+}

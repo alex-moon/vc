@@ -1,3 +1,87 @@
+/**
+ * 1. Change the font styles in all browsers.
+ * 2. Remove the margin in Firefox and Safari.
+ */
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+  /* 1 */
+  font-size: 100%;
+  /* 1 */
+  line-height: 1.15;
+  /* 1 */
+  margin: 0;
+  /* 2 */ }
+
+/**
+ * Show the overflow in IE.
+ * 1. Show the overflow in Edge.
+ */
+button,
+input {
+  /* 1 */
+  overflow: visible; }
+
+/**
+ * Remove the inheritance of text transform in Edge, Firefox, and IE.
+ * 1. Remove the inheritance of text transform in Firefox.
+ */
+button,
+select {
+  /* 1 */
+  text-transform: none; }
+
+/**
+ * Correct the inability to style clickable types in iOS and Safari.
+ */
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+  -webkit-appearance: button; }
+
+button {
+  background: #f9f8ef;
+  border: solid 1px #5c6267;
+  border-radius: 8px;
+  height: 48px;
+  width: 9em;
+  cursor: pointer; }
+  button:hover {
+    background: #f0f5f0; }
+  button:active {
+    background: #d7e6d6; }
+  button[disabled] {
+    background: none;
+    border: none;
+    opacity: 0.5; }
+    button[disabled]:hover {
+      background: none; }
+    button[disabled]:active {
+      background: none; }
+  button.material-icons {
+    display: inline-block;
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: none;
+    height: inherit;
+    width: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    text-align: center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    opacity: 0.5;
+    color: #63575b; }
+    button.material-icons:hover {
+      opacity: 1; }
+    button.material-icons:active {
+      color: black; }
+
 html, body {
   width: 100%;
   height: 100%;
@@ -54,6 +138,33 @@ a:active {
       display: flex;
       background-color: #d7e6d6;
       padding: 16px; }
+      .container .content generation-request-form .request-form {
+        width: 100%; }
+        .container .content generation-request-form .request-form h2 {
+          font-size: medium;
+          margin: 0; }
+        .container .content generation-request-form .request-form h3 {
+          font-size: medium;
+          margin: 0; }
+        .container .content generation-request-form .request-form .text-input {
+          background: #f9f8ef;
+          border: solid 1px #5c6267;
+          border-radius: 8px;
+          padding: 8px;
+          margin: 8px 0;
+          position: relative; }
+          .container .content generation-request-form .request-form .text-input textarea, .container .content generation-request-form .request-form .text-input input {
+            border: none;
+            background: none;
+            resize: none;
+            outline: none; }
+          .container .content generation-request-form .request-form .text-input button {
+            position: absolute;
+            bottom: 8px;
+            right: 8px; }
+        .container .content generation-request-form .request-form .actions {
+          display: flex;
+          justify-content: flex-end; }
     .container .content generation-requests {
       flex-grow: 1;
       background-color: #63575b;
@@ -114,7 +225,7 @@ a:active {
                 border-radius: 8px;
                 border: solid 2px #535c69;
                 box-sizing: border-box;
-                height: 48px; }
+                height: 4 8px; }
                 @media (max-width: 599px) {
                   .container .content generation-requests generation-request .request .summary .progress .bar {
                     height: 36px; } }
@@ -123,42 +234,37 @@ a:active {
                   border-radius: 8px;
                   height: 100%;
                   width: 75%; }
-        .container .content generation-requests generation-request .actions {
-          width: 100px;
-          height: 100px;
-          margin-left: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          color: #63575b;
-          opacity: 0.5; }
-          .container .content generation-requests generation-request .actions:hover {
-            opacity: 1; }
-          @media (max-width: 599px) {
-            .container .content generation-requests generation-request .actions {
-              width: 50px;
-              font-size: 50px;
-              line-height: 50px; } }
-          .container .content generation-requests generation-request .actions span {
-            font-size: 64px;
-            line-height: 64px; }
-      .container .content generation-requests .panels {
-        display: flex; }
-        @media (max-width: 599px) {
-          .container .content generation-requests .panels {
-            flex-direction: column; } }
-        .container .content generation-requests .panels .panel {
-          display: block;
-          font-weight: bold;
-          width: 200px;
-          height: 200px; }
-          @media (max-width: 599px) {
-            .container .content generation-requests .panels .panel {
-              width: 100%; } }
-          .container .content generation-requests .panels .panel img, .container .content generation-requests .panels .panel video {
-            width: 100%;
-            height: 100%; }
+            .container .content generation-requests generation-request .request .summary .actions {
+              width: 100px;
+              height: 100px;
+              margin-left: 16px;
+              display: flex;
+              align-items: center;
+              justify-content: center; }
+              @media (max-width: 599px) {
+                .container .content generation-requests generation-request .request .summary .actions {
+                  width: 50px;
+                  font-size: 50px;
+                  line-height: 50px; } }
+              .container .content generation-requests generation-request .request .summary .actions button {
+                font-size: 64px;
+                line-height: 64px; }
+          .container .content generation-requests generation-request .request .panels {
+            display: flex; }
+            @media (max-width: 599px) {
+              .container .content generation-requests generation-request .request .panels {
+                flex-direction: column; } }
+            .container .content generation-requests generation-request .request .panels .panel {
+              display: block;
+              font-weight: bold;
+              width: 200px;
+              height: 200px; }
+              @media (max-width: 599px) {
+                .container .content generation-requests generation-request .request .panels .panel {
+                  width: 100%; } }
+              .container .content generation-requests generation-request .request .panels .panel img, .container .content generation-requests generation-request .request .panels .panel video {
+                width: 100%;
+                height: 100%; }
   .container .footer {
     display: flex;
     justify-content: center;

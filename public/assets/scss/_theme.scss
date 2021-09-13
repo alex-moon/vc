@@ -1,0 +1,55 @@
+@import "normalize";
+
+button {
+  background: #f9f8ef;
+  border: solid 1px #5c6267;
+  border-radius: $border-radius;
+  height: $button-height;
+  width: $button-width;
+  cursor: pointer;
+
+  &:hover {
+    background: #f0f5f0;
+  }
+  &:active {
+    background: #d7e6d6;
+  }
+
+  &[disabled] {
+    background: none;
+    border: none;
+    opacity: 0.5;
+
+    &:hover {
+      background: none;
+    }
+    &:active {
+      background: none;
+    }
+  }
+
+  &.material-icons {
+    display: inline-block;
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: none;
+    height: inherit;
+    width: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    text-align: center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    opacity: 0.5;
+    color: #63575b;
+
+    &:hover {
+      opacity: 1;
+    }
+    &:active {
+      color: black;
+    }
+  }
+}

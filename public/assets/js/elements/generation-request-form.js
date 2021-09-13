@@ -2,9 +2,29 @@ window.templates = window.templates || {}
 window.templates['generation-request-form'] = document.createElement('template');
 window.templates['generation-request-form'].innerHTML = `
     <div class="request-form">
+        <h2>Create virtual content</h2>
         <form>
-            <input type="text" name="prompt" placeholder="prompt" />
-            <button type="submit">Save</button>
+            <div class="texts">
+                <div class="text-input">
+                    <h3>Text</h3>
+                    <textarea placeholder="Primary prompt"></textarea>
+                    <button class="material-icons">
+                        add_circle
+                    </button>
+                </div>
+            </div>
+            <div class="styles">
+                <div class="text-input">
+                    <h3>Styles</h3>
+                    <input placeholder="Secondary prompt"/>
+                    <button class="material-icons">
+                        add_circle
+                    </button>
+                </div>
+            </div>
+            <div class="actions">
+                <button type="submit">Save</button>
+            </div>
         </form>
     </div>
 `;

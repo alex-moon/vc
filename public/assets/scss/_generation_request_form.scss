@@ -1,0 +1,42 @@
+generation-request-form {
+    display: flex;
+    background-color: #d7e6d6;
+    padding: 16px;
+    .request-form {
+        width: 100%;
+
+        h2 {
+            font-size: medium;
+            margin: 0;
+        }
+        h3 {
+            font-size: medium;
+            margin: 0;
+        }
+        .text-input {
+            background: #f9f8ef;
+            border: solid 1px #5c6267;
+            border-radius: $border-radius;
+            padding: 8px;
+            margin: 8px 0;
+            position: relative;
+
+            textarea, input {
+                border: none;
+                background: none;
+                resize: none;
+                outline: none;
+            }
+
+            button {
+                position: absolute;
+                bottom: 8px;
+                right: 8px;
+            }
+        }
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+    }
+}
