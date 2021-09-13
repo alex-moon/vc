@@ -1,7 +1,7 @@
 function Manager() {
     this.requests = [];
 
-    const useDummyData = true;
+    const useDummyData = false;
     this.isLocal = useDummyData && [
         'vc.local',
         'localhost',
