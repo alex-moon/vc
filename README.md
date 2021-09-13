@@ -140,3 +140,15 @@ The Javascript file that interacts with the API is `public/assets/js/manager.js`
 notice a variable `useDummyData` defined at the top. If this is `false`, you'll need to set
 up a local proxy. Assuming you've set up a domain name with SSL as above, then simply replace
 `vc.ajmoon.uk` with your domain name in `/usr/local/etc/nginx/servers/vc.conf`.
+
+### SASS
+
+I write my styles in scss because I can't bear not to. You'll need to install `node-sass`
+to compile these. On mac this is as simple as:
+
+```
+brew update
+brew install node
+npm install
+npm run scss
+```

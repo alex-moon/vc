@@ -1,0 +1,39 @@
+{
+  "name": "vc",
+  "version": "1.0.0",
+  "description": "VC (\"virtual content\") is a tiny JEMSCI app that generates explorable dream worlds.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "scss": "node-sass --watch public/assets/scss -o public/assets/css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alex-moon/vc.git"
+  },
+  "keywords": [
+    "vqgan",
+    "clip",
+    "machine",
+    "learning",
+    "artificial",
+    "intelligence",
+    "3d",
+    "photo",
+    "inpainting",
+    "image",
+    "super",
+    "resolution"
+  ],
+  "author": "Alex Moon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alex-moon/vc/issues"
+  },
+  "homepage": "https://github.com/alex-moon/vc#readme",
+  "dependencies": {
+    "node-sass": "^6.0.1"
+  }
+}

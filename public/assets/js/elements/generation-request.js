@@ -3,15 +3,29 @@ window.templates['generation-request'] = document.createElement('template');
 window.templates['generation-request'].innerHTML = `
     <div class="request">
         <div class="summary">
-            <span class="name"></span>
-            <span class="steps-completed"></span> steps completed out of
-            <span class="steps-total"></span> total
-        </div>
-        <div class="panels">
-            <div class="panel">
-                <img class="preview" />
+            <div class="preview">
+                <img />
+            </div>
+            <div class="progress">
+                <div class="labels">
+                    <div class="name"></div>
+                    <div class="steps">
+                        <span class="steps-completed"></span>
+                        /
+                        <span class="steps-total"></span>
+                    </div>
+                </div>
+                <div class="bar">
+                    <div class="completed"></div>
+                </div>
+            </div>
+            <div class="actions">
+                <span class="material-icons">
+                    expand_circle_down
+                </span>
             </div>
         </div>
+        <div class="panels"></div>
     </div>
 `;
 
@@ -28,7 +42,7 @@ class GenerationRequestElement extends HTMLElement {
         this.$name = this.querySelector('.name');
         this.$stepsCompleted = this.querySelector('.steps-completed');
         this.$stepsTotal = this.querySelector('.steps-total');
-        this.$preview = this.querySelector('.preview');
+        this.$preview = this.querySelector('.preview img');
         this.$panels = this.querySelector('.panels');
     }
 
