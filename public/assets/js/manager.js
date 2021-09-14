@@ -1,7 +1,7 @@
 function Manager() {
     this.requests = [];
 
-    const useDummyData = false;
+    const useDummyData = true;
     this.isLocal = useDummyData && [
         'vc.local',
         'localhost',
@@ -62,14 +62,10 @@ window.dummy_data = [
                             "texts": [
                                 "A stunning professional photograph of a vast meadow of wildflowers and alpine grass with mountains in the distance"
                             ],
-                            "styles": [
-                                "reuters",
-                                "ansel adams",
-                                "national geographic"
-                            ],
+                            "styles": null,
                             "iterations": 75,
                             "init_iterations": 200,
-                            "epochs": 10,
+                            "epochs": 250,
                             "x_velocity": 0.0,
                             "y_velocity": 0.0,
                             "z_velocity": 1.0,
@@ -77,16 +73,12 @@ window.dummy_data = [
                         },
                         {
                             "texts": [
-                                "A stunning professional photograph of the sky at high noon"
+                                "A stunning professional photograph of the open ocean from above"
                             ],
-                            "styles": [
-                                "reuters",
-                                "ansel adams",
-                                "national geographic"
-                            ],
+                            "styles": null,
                             "iterations": 75,
-                            "init_iterations": 200,
-                            "epochs": 10,
+                            "init_iterations": null,
+                            "epochs": 250,
                             "x_velocity": 0.0,
                             "y_velocity": 1.0,
                             "z_velocity": 0.0,
@@ -94,16 +86,12 @@ window.dummy_data = [
                         },
                         {
                             "texts": [
-                                "A stunning professional photograph of a sandy beach with grass on the left and the open ocean on the right"
+                                "A stunning professional photograph of an enormous rocky canyon from above"
                             ],
-                            "styles": [
-                                "reuters",
-                                "ansel adams",
-                                "national geographic"
-                            ],
+                            "styles": null,
                             "iterations": 75,
-                            "init_iterations": 200,
-                            "epochs": 10,
+                            "init_iterations": null,
+                            "epochs": 250,
                             "x_velocity": 1.0,
                             "y_velocity": 0.0,
                             "z_velocity": 0.0,
@@ -113,23 +101,16 @@ window.dummy_data = [
                 }
             ]
         },
-        "created": "2021-09-12T16:47:49.120632",
-        "updated": "2021-09-12T18:09:25.136033",
-        "started": "2021-09-12T16:47:49.433647",
+        "created": "2021-09-12T22:31:59.955942",
+        "updated": "2021-09-13T20:53:27.756953",
+        "started": "2021-09-12T22:32:03.858918",
         "completed": null,
-        "failed": null,
-        "steps_completed": 37,
-        "steps_total": 92,
-        "name": "comparison",
-        "preview": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-12-16-47-49-comparison-preview.png",
-        "interim": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-12-20-14-28-comparison-output.mp4",
-        "results": [
-            {
-                "id": 1,
-                "url": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-13-11-10-08-output-vegetable-interim.mp4",
-                "created": "2021-09-12T20:14:28.123456",
-                "updated": "2021-09-12T20:14:28.123456"
-            }
-        ]
+        "failed": "2021-09-13T20:53:27.752803",
+        "steps_completed": 590,
+        "steps_total": 752,
+        "name": "vegetable",
+        "preview": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-12-22-32-03-vegetable-preview.png",
+        "interim": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-13-20-31-04-output-vegetable-interim.mp4",
+        "results": []
     }
 ];
