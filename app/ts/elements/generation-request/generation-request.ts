@@ -23,8 +23,6 @@ class GenerationRequest extends HTMLElement {
     }
 
     connectedCallback() {
-        const template = window.templates['generation-request'];
-        this.appendChild(template.content.cloneNode(true));
         this.$root = this.querySelector('.request');
         this.$name = this.querySelector('.name');
         this.$stepsCompleted = this.querySelector('.steps-completed');

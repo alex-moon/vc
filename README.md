@@ -117,38 +117,24 @@ This should be as straightforward as replacing `vc.ajmoon.uk` with your domain n
 sudo service nginx restart
 ```
 
-## Local development
+### Local development
 
-If you want to work on the front-end locally, simply set up nginx locally. If you're on a Mac,
-this is as straightforward as doing:
-```
-brew update
-brew install nginx
-mkdir -p /usr/local/etc/nginx/servers/
-cp nginx.local.conf /usr/local/etc/nginx/servers/vc.conf
-nginx
-```
-
-Set up your hostname for local:
-```
-sudo sed -i '' 's/localhost/localhost vc.local/g' /etc/hosts
-```
-
-Then visit http://vc.local in your browser.
-
-The Javascript file that interacts with the API is `public/assets/js/manager.js` - you'll
-notice a variable `useDummyData` defined at the top. If this is `false`, you'll need to set
-up a local proxy. Assuming you've set up a domain name with SSL as above, then simply replace
-`vc.ajmoon.uk` with your domain name in `/usr/local/etc/nginx/servers/vc.conf`.
-
-### SASS
-
-I write my styles in scss because I can't bear not to. You'll need to install `node-sass`
-to compile these. On mac this is as simple as:
-
+If you want to work on the front-end locally, simply install node:
 ```
 brew update
 brew install node
 npm install
-npm run scss
 ```
+And then run webpack:
+```
+npx webpoack
+npx webpack serve
+```
+
+And visit http://localhost:8080/ in your browser.
+
+The typescript file that interacts with the API is `app/ts/manager.ts` - you'll
+notice a variable `useDummyData` defined at the top. If this is `false`, you'll need to set
+up a local proxy.
+
+`@todo how to do this with webpack`
