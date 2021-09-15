@@ -1,16 +1,20 @@
-window.templates = window.templates || {}
-window.templates['generation-requests'] = document.createElement('template');
-window.templates['generation-requests'].innerHTML = `
-    <div class="requests"></div>
-`;
+import {CustomElement} from 'custom-elements-ts';
 
-class GenerationRequestsElement extends HTMLElement {
+@CustomElement({
+  tag: 'generation-requests',
+  templateUrl: 'generation-requests.html',
+  styleUrl: 'generation-requests.scss'
+})
+export class GenerationRequests extends HTMLElement {
+    $root
+    _requests
+    $request
+
     constructor() {
         super();
     }
 
     connectedCallback() {
-        const template = window.templates['generation-requests'];
         this.appendChild(template.content.cloneNode(true));
         this.$root = this.querySelector('.requests');
     }
@@ -22,9 +26,7 @@ class GenerationRequestsElement extends HTMLElement {
         this._requests.forEach((request, index) => {
             const $request = document.createElement('generation-request');
             this.$root.appendChild($request);
-            $request.update(request);
+            ($request as any).update(request);
         });
     }
 }
-
-customElements.define('generation-requests', GenerationRequestsElement);

@@ -1,39 +1,25 @@
-window.templates = window.templates || {}
-window.templates['generation-request'] = document.createElement('template');
-window.templates['generation-request'].innerHTML = `
-    <div class="request">
-        <div class="summary">
-            <div class="preview">
-                <img />
-            </div>
-            <div class="progress">
-                <div class="labels">
-                    <div class="name"></div>
-                </div>
-                <div class="bar">
-                    <div class="completed"></div>
-                    <div class="steps">
-                        <span class="steps-completed"></span>
-                        /
-                        <span class="steps-total"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="actions">
-                <button class="material-icons">
-                    expand_more
-                </button>
-            </div>
-        </div>
-        <div class="panels"></div>
-    </div>
-`;
+import {CustomElement} from 'custom-elements-ts';
 
-class GenerationRequestElement extends HTMLElement {
+@CustomElement({
+  tag: 'generation-request',
+  templateUrl: 'generation-request.html',
+  styleUrl: 'generation-request.scss'
+})
+class GenerationRequest extends HTMLElement {
+    $root
+    $name
+    $stepsCompleted
+    $stepsTotal
+    $barCompleted
+    $preview
+    $expand
+    $panels
+
+    _request
+    _expanded = false
+
     constructor() {
         super();
-        this._request = null;
-        this._expanded = false;
     }
 
     connectedCallback() {
@@ -111,5 +97,3 @@ class GenerationRequestElement extends HTMLElement {
         return panel;
     }
 }
-
-customElements.define('generation-request', GenerationRequestElement);
