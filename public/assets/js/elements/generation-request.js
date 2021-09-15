@@ -9,14 +9,14 @@ window.templates['generation-request'].innerHTML = `
             <div class="progress">
                 <div class="labels">
                     <div class="name"></div>
+                </div>
+                <div class="bar">
+                    <div class="completed"></div>
                     <div class="steps">
                         <span class="steps-completed"></span>
                         /
                         <span class="steps-total"></span>
                     </div>
-                </div>
-                <div class="bar">
-                    <div class="completed"></div>
                 </div>
             </div>
             <div class="actions">

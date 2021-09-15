@@ -1,3 +1,6 @@
+$bar-height: 48px;
+$bar-height-mobile: 32px;
+
 .summary {
     width: 100%;
     display: flex;
@@ -39,16 +42,6 @@
             .name {
                 font-weight: bold;
             }
-
-            .steps {
-                margin-left: 16px;
-                opacity: 0.5;
-
-                @include mobile {
-                    margin: 0;
-                    font-size: large;
-                }
-            }
         }
 
         .bar {
@@ -56,10 +49,11 @@
             border-radius: $border-radius;
             border: solid 2px #535c69;
             box-sizing: border-box;
-            height: 48px;
+            height: $bar-height;
+            position: relative;
 
             @include mobile {
-                height: 36px;
+                height: $bar-height-mobile;
             }
 
             .completed {
@@ -67,6 +61,22 @@
                 border-radius: $border-radius;
                 height: 100%;
                 width: 75%;
+            }
+
+            .steps {
+                position: absolute;
+                top: 0;
+                left: 0;
+                margin-left: 16px;
+                opacity: 0.5;
+                font-size: $bar-height / 2;
+                line-height: $bar-height;
+
+                @include mobile {
+                    margin: 0;
+                    font-size: $bar-height-mobile / 2;
+                    line-height: $bar-height-mobile;
+                }
             }
         }
     }

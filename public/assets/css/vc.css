@@ -234,27 +234,34 @@ a:active {
                     flex-grow: 1; } }
                 .container .content generation-requests generation-request .request .summary .progress .labels .name {
                   font-weight: bold; }
-                .container .content generation-requests generation-request .request .summary .progress .labels .steps {
-                  margin-left: 16px;
-                  opacity: 0.5; }
-                  @media (max-width: 599px) {
-                    .container .content generation-requests generation-request .request .summary .progress .labels .steps {
-                      margin: 0;
-                      font-size: large; } }
               .container .content generation-requests generation-request .request .summary .progress .bar {
                 background-color: #535c69;
                 border-radius: 8px;
                 border: solid 2px #535c69;
                 box-sizing: border-box;
-                height: 48px; }
+                height: 48px;
+                position: relative; }
                 @media (max-width: 599px) {
                   .container .content generation-requests generation-request .request .summary .progress .bar {
-                    height: 36px; } }
+                    height: 32px; } }
                 .container .content generation-requests generation-request .request .summary .progress .bar .completed {
                   background-color: #d7e6d6;
                   border-radius: 8px;
                   height: 100%;
                   width: 75%; }
+                .container .content generation-requests generation-request .request .summary .progress .bar .steps {
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  margin-left: 16px;
+                  opacity: 0.5;
+                  font-size: 24px;
+                  line-height: 48px; }
+                  @media (max-width: 599px) {
+                    .container .content generation-requests generation-request .request .summary .progress .bar .steps {
+                      margin: 0;
+                      font-size: 16px;
+                      line-height: 32px; } }
             .container .content generation-requests generation-request .request .summary .actions {
               width: 100px;
               height: 100px;
