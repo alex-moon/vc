@@ -1,10 +1,9 @@
 import {CustomElement} from 'custom-elements-ts';
 import {GenerationRequest as Model} from "../models/generation-request";
 import {GenerationRequest} from "./generation-request";
-import {Vc} from "../vc";
 
 @CustomElement({
-  tag: 'generation-requests',
+  tag: 'vc-generation-requests',
   shadow: false,
   style: ``,
   // @todo figure out how to make templateUrl work
@@ -25,12 +24,13 @@ export class GenerationRequests extends HTMLElement {
         this.$root = this.querySelector('.requests');
     }
 
-    update(requests: any) {
+    update(requests: Model[]) {
+        console.log('update called', requests);
         this._requests = requests;
 
         this.$root.innerHTML = '';
         this._requests.forEach((request: Model) => {
-            const $request = document.createElement('generation-request') as GenerationRequest;
+            const $request = document.createElement('vc-generation-request') as GenerationRequest;
             this.$root.appendChild($request);
             $request.update(request);
         });

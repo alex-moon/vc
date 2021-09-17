@@ -3,7 +3,7 @@ import {GenerationRequest as Model} from "../models/generation-request";
 import {GenerationResult} from "../models/generation-result";
 
 @CustomElement({
-  tag: 'generation-request',
+  tag: 'vc-generation-request',
   shadow: false,
   style: ``,
   template: `
@@ -93,7 +93,7 @@ export class GenerationRequest extends HTMLElement {
                 this.$panels.appendChild(panel);
             });
         }
-        if (!this._request.interim && !this._request.results.length) {
+        if (!this._request.interim && !(this._request.results && this._request.results.length)) {
             this.$panels.innerHTML = '<p>Results will appear here when ready.</p>';
         }
     }

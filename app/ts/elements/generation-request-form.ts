@@ -1,9 +1,10 @@
-import {CustomElement} from 'custom-elements-ts';
-import {GenerationRequest} from "../models/generation-request";
+import {CustomElement, Listen, Prop, Watch} from 'custom-elements-ts';
 import {Vc} from "../vc";
+import {ImageSpec} from "../models/image-spec";
+import {Chip} from "./chip";
 
 @CustomElement({
-  tag: 'generation-request-form',
+  tag: 'vc-generation-request-form',
   shadow: false,
   style: ``,
   template: `
@@ -21,6 +22,7 @@ import {Vc} from "../vc";
                     add_circle
                 </button>
             </div>
+            <div class="chips"></div>
         </div>
         <div class="styles">
             <div class="text-input">
@@ -30,6 +32,7 @@ import {Vc} from "../vc";
                     add_circle
                 </button>
             </div>
+            <div class="chips"></div>
         </div>
         <div class="actions">
             <button type="submit">Save</button>
@@ -42,14 +45,15 @@ export class GenerationRequestForm extends HTMLElement {
     $root: HTMLElement
     $header: HTMLElement
     $form: HTMLElement
+    $textInput: HTMLTextAreaElement
+    $textChips: HTMLElement
+    $styleInput: HTMLInputElement
+    $styleChips: HTMLElement
 
     vc: Vc;
 
-    _request: GenerationRequest
+    _spec: ImageSpec;
     _expanded = false;
-
-    _texts: string[];
-    _styles: string[];
 
     constructor() {
         super();
@@ -76,12 +80,55 @@ export class GenerationRequestForm extends HTMLElement {
         });
 
         this.$form = this.$root.querySelector('form');
-        this.$form.addEventListener("submit", (e) => {
-            e.preventDefault();
-            this.vc.create({
-                texts: this._texts,
-                styles: this._styles,
-            });
-        });
+        this.$textInput = this.$form.querySelector('.texts .text-input textarea');
+        this.$textChips = this.$form.querySelector('.texts .chips');
+        this.$styleInput = this.$form.querySelector('.styles .text-input input');
+        this.$styleChips = this.$form.querySelector('.styles .chips');
+        this._spec = new ImageSpec();
+    }
+
+    protected draw() {
+        console.log('draw called', this._spec);
+        if (!this._spec) {
+            return;
+        }
+
+        this.$textChips.innerHTML = '';
+        for (const text of this._spec.texts) {
+            const chip = document.createElement('vc-chip') as Chip;
+            this.$textChips.appendChild(chip);
+            chip.setAttribute('text', text);
+        }
+
+        this.$styleChips.innerHTML = '';
+        for (const style of this._spec.styles) {
+            const chip = document.createElement('vc-chip') as Chip;
+            this.$styleChips.appendChild(chip);
+            chip.setAttribute('text', style);
+        }
+    }
+
+    @Listen('click', '.actions button')
+    protected submit(e: MouseEvent) {
+        e.preventDefault();
+        this.vc.create(this._spec);
+        this._spec = new ImageSpec();
+        this.draw();
+    }
+
+    @Listen('click', '.texts .text-input button')
+    protected addText(e: MouseEvent) {
+        e.preventDefault();
+        this._spec.texts.push(this.$textInput.value);
+        this.$textInput.value = '';
+        this.draw();
+    }
+
+    @Listen('click', '.styles .text-input button')
+    protected addStyle(e: MouseEvent) {
+        e.preventDefault();
+        this._spec.styles.push(this.$styleInput.value);
+        this.$styleInput.value = '';
+        this.draw();
     }
 }

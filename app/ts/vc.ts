@@ -14,9 +14,9 @@ export class Vc {
 
     constructor() {
         this.service = new Service();
-        this.$form = document.querySelector('generation-request-form');
+        this.$form = document.querySelector('vc-generation-request-form');
         this.$form.connect(this);
-        this.$requests = document.querySelector('generation-requests');
+        this.$requests = document.querySelector('vc-generation-requests');
         this.refreshAndSetTimeout();
     }
 

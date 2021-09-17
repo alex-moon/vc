@@ -42,16 +42,13 @@ export class Manager {
             callback(this.requests);
         });
     }
-    create(request: any, callback: CallableFunction) {
-        this.post(request);
-        this.index(callback);
+    create(request: GenerationRequest, callback: CallableFunction) {
+        this.post(request).then(() => {
+            this.index(callback);
+        });
     }
-    load(data: any) {
-        this.requests = [];
-        for (const raw of data) {
-            const request = new GenerationRequest(raw);
-            this.requests.push(request);
-        }
+    load(data: GenerationRequest[]) {
+        this.requests = data;
     }
 
     dummy_data = [
