@@ -1,6 +1,7 @@
 import {Service} from './service'
 import {GenerationRequests} from './elements/generation-requests'
 import {GenerationRequestForm} from "./elements/generation-request-form";
+import {ImageSpec} from "./models/image-spec";
 
 export class Vc {
     $form: GenerationRequestForm;
@@ -19,8 +20,8 @@ export class Vc {
         this.refreshAndSetTimeout();
     }
 
-    create(raw: any) {
-        this.service.create(raw, this.draw.bind(this));
+    create(spec: ImageSpec) {
+        this.service.create(spec, this.draw.bind(this));
     }
 
     clearTimeout() {

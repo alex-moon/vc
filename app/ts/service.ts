@@ -1,5 +1,6 @@
 import {GenerationRequest} from "./models/generation-request";
 import {Manager} from "./manager";
+import {ImageSpec} from "./models/image-spec";
 
 export class Service {
     manager: Manager
@@ -12,20 +13,20 @@ export class Service {
         this.manager.index(callback);
     }
 
-    create(data: any, callback: CallableFunction) {
-        const request = new GenerationRequest({
+    create(spec: ImageSpec, callback: CallableFunction) {
+        const request = {
             spec: {
                 videos: [
                     {
                         steps: [
                             {
-                                data
+                                spec
                             },
                         ],
                     },
                 ],
             },
-        });
+        } as GenerationRequest;
         console.log('creating', request);
         this.manager.create(request, callback);
     }

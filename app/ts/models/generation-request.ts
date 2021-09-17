@@ -9,10 +9,4 @@ export class GenerationRequest {
     steps_completed ?: number;
     steps_total ?: number;
     results ?: GenerationResult[];
-
-    constructor(raw: any = null) {
-        if (raw) {
-            Object.assign(this, raw);
-        }
-    }
 }
