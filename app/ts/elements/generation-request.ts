@@ -10,7 +10,7 @@ import {GenerationResult} from "../models/generation-result";
 <div class="request">
     <div class="summary">
         <div class="preview">
-            <img />
+            <img src="/assets/placeholder.png"/>
         </div>
         <div class="progress">
             <div class="labels">
@@ -78,8 +78,8 @@ export class GenerationRequest extends HTMLElement {
     update(request: Model) {
         this._request = request;
         this.$name.textContent = this._request.name;
-        this.$stepsCompleted.textContent = '' + this._request.steps_completed;
-        this.$stepsTotal.textContent = '' + this._request.steps_total;
+        this.$stepsCompleted.textContent = '' + (this._request.steps_completed || '?');
+        this.$stepsTotal.textContent = '' + (this._request.steps_total || '?');
         this.updateBar(this._request.steps_completed, this._request.steps_total);
         this.$preview.src = this._request.preview || '/assets/placeholder.png';
         this.$panels.innerHTML = '';
