@@ -1,4 +1,4 @@
-import {GenerationRequest} from "./generation-request";
+import {GenerationRequest} from "./models/generation-request";
 
 export class Manager {
     requests: GenerationRequest[]
@@ -116,6 +116,6 @@ export class Manager {
             "preview": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-12-22-32-03-vegetable-preview.png",
             "interim": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-13-20-31-04-output-vegetable-interim.mp4",
             "results": [],
-        },
+        } as any,
     ]
 }

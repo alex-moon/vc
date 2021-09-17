@@ -1,4 +1,7 @@
 import {CustomElement} from 'custom-elements-ts';
+import {GenerationRequest as Model} from "../../models/generation-request";
+import {GenerationRequest} from "../generation-request/generation-request";
+import {Vc} from "../../vc";
 
 @CustomElement({
   tag: 'generation-requests',
@@ -6,27 +9,29 @@ import {CustomElement} from 'custom-elements-ts';
   styleUrl: 'generation-requests.scss'
 })
 export class GenerationRequests extends HTMLElement {
-    $root
-    _requests
-    $request
+    $root: HTMLElement;
+
+    vc: Vc;
+    _requests: Model[]
 
     constructor() {
         super();
     }
 
     connectedCallback() {
-        this.appendChild(template.content.cloneNode(true));
-        this.$root = this.querySelector('.requests');
+        this.$root = this.shadowRoot.querySelector('.requests');
+        this.vc = (global as any).vc;
+        this.vc.connect(this);
     }
 
-    update(requests) {
+    update(requests: any) {
         this._requests = requests;
 
         this.$root.innerHTML = '';
-        this._requests.forEach((request, index) => {
-            const $request = document.createElement('generation-request');
+        this._requests.forEach((request: Model) => {
+            const $request = document.createElement('generation-request') as GenerationRequest;
             this.$root.appendChild($request);
-            ($request as any).update(request);
+            $request.update(request);
         });
     }
 }

@@ -1,6 +1,9 @@
 import {Service} from './service'
+import {GenerationRequests} from './elements/generation-requests/generation-requests'
 
 export class Vc {
+    $requests: GenerationRequests;
+
     refreshInterval = 10000
     autoRefresh = false
     timeout: any
@@ -8,6 +11,10 @@ export class Vc {
 
     constructor() {
         this.service = new Service();
+    }
+
+    connect($requests: GenerationRequests) {
+        this.$requests = $requests;
         this.refreshAndSetTimeout();
     }
 
@@ -47,8 +54,7 @@ export class Vc {
     }
 
     draw(requests: any) {
-        (document.querySelector('generation-requests') as any)
-            .update(requests);
+        this.$requests.update(requests);
     }
 }
 

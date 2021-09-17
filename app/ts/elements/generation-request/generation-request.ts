@@ -1,21 +1,23 @@
 import {CustomElement} from 'custom-elements-ts';
+import {GenerationRequest as Model} from "../../models/generation-request";
+import {GenerationResult} from "../../models/generation-result";
 
 @CustomElement({
   tag: 'generation-request',
   templateUrl: 'generation-request.html',
   styleUrl: 'generation-request.scss'
 })
-class GenerationRequest extends HTMLElement {
-    $root
-    $name
-    $stepsCompleted
-    $stepsTotal
-    $barCompleted
-    $preview
-    $expand
-    $panels
+export class GenerationRequest extends HTMLElement {
+    $root: HTMLElement
+    $name: HTMLElement
+    $stepsCompleted: HTMLElement
+    $stepsTotal: HTMLElement
+    $barCompleted: HTMLElement
+    $preview: HTMLImageElement
+    $expand: HTMLElement
+    $panels: HTMLElement
 
-    _request
+    _request: Model
     _expanded = false
 
     constructor() {
@@ -23,13 +25,15 @@ class GenerationRequest extends HTMLElement {
     }
 
     connectedCallback() {
-        this.$root = this.querySelector('.request');
-        this.$name = this.querySelector('.name');
-        this.$stepsCompleted = this.querySelector('.steps-completed');
-        this.$stepsTotal = this.querySelector('.steps-total');
-        this.$barCompleted = this.querySelector('.bar .completed');
-        this.$preview = this.querySelector('.preview img');
-        this.$expand = this.querySelector('.actions button');
+        this.$root = this.shadowRoot.querySelector('.request');
+        this.$name = this.shadowRoot.querySelector('.name');
+        this.$stepsCompleted = this.shadowRoot.querySelector('.steps-completed');
+        this.$stepsTotal = this.shadowRoot.querySelector('.steps-total');
+        this.$barCompleted = this.shadowRoot.querySelector('.bar .completed');
+        this.$preview = this.shadowRoot.querySelector('.preview img');
+        this.$expand = this.shadowRoot.querySelector('.actions button');
+        this.$panels = this.shadowRoot.querySelector('.panels');
+
         this.$expand.addEventListener('click', (e) => {
             if (this._expanded) {
                 this.$panels.classList.remove('expanded');
@@ -41,14 +45,13 @@ class GenerationRequest extends HTMLElement {
                 this._expanded = true;
             }
         });
-        this.$panels = this.querySelector('.panels');
     }
 
-    update(request) {
+    update(request: Model) {
         this._request = request;
         this.$name.textContent = this._request.name;
-        this.$stepsCompleted.textContent = this._request.steps_completed;
-        this.$stepsTotal.textContent = this._request.steps_total;
+        this.$stepsCompleted.textContent = '' + this._request.steps_completed;
+        this.$stepsTotal.textContent = '' + this._request.steps_total;
         this.updateBar(this._request.steps_completed, this._request.steps_total);
         this.$preview.src = this._request.preview || '/assets/placeholder.png';
         this.$panels.innerHTML = '';
@@ -57,7 +60,7 @@ class GenerationRequest extends HTMLElement {
             this.$panels.appendChild(panel);
         }
         if (this._request.results) {
-            this._request.results.forEach((result) => {
+            this._request.results.forEach((result: GenerationResult) => {
                 const panel = this.createVideoPanel(result.url);
                 this.$panels.appendChild(panel);
             });
@@ -67,7 +70,7 @@ class GenerationRequest extends HTMLElement {
         }
     }
 
-    updateBar(completed, total) {
+    updateBar(completed: number, total: number) {
         let percentage = 0;
         if (total > 0) {
             percentage = 100 * completed / total
@@ -78,14 +81,14 @@ class GenerationRequest extends HTMLElement {
         )
     }
 
-    createVideoPanel(url) {
+    createVideoPanel(url: string) {
         const panel = document.createElement('div');
         panel.setAttribute('class', 'panel');
 
         const video = document.createElement('video');
-        video.setAttribute('controls', true);
-        video.setAttribute('width', 200);
-        video.setAttribute('height', 200);
+        video.setAttribute('controls', 'controls');
+        video.setAttribute('width', '200');
+        video.setAttribute('height', '200');
 
         const source = document.createElement('source');
         source.src = url;

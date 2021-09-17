@@ -1,4 +1,4 @@
-import {GenerationRequest} from "./generation-request";
+import {GenerationRequest} from "./models/generation-request";
 import {Manager} from "./manager";
 
 export class Service {

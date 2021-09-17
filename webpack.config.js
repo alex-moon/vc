@@ -1,12 +1,14 @@
-const webpack = require('webpack');
 const path = require('path');
 
 module.exports = {
-  entry: './app/ts/vc.ts',
+  entry: {
+    'vc': ['./app/ts/elements.ts', './app/ts/vc.ts'],
+  },
   devtool: 'inline-source-map',
   output: {
     path: path.resolve(__dirname, 'public/assets/js'),
-    filename: 'vc.js',
+    filename: '[name].js',
+    // filename: 'vc.js',
   },
   watch: true,
   devServer: {
@@ -23,11 +25,6 @@ module.exports = {
     },
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
   },
-  plugins: [
-    new webpack.DefinePlugin({
-      "typeof window": JSON.stringify("object")
-    })
-  ],
   module: {
     rules: [
       { test: /\.m?js/, resolve: { fullySpecified: false } },

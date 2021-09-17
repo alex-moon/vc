@@ -1,4 +1,5 @@
 import {CustomElement} from 'custom-elements-ts';
+import {GenerationRequest} from "../../models/generation-request";
 
 @CustomElement({
   tag: 'generation-request-form',
@@ -6,10 +7,11 @@ import {CustomElement} from 'custom-elements-ts';
   styleUrl: 'generation-request-form.scss'
 })
 export class GenerationRequestForm extends HTMLElement {
-    $root
-    $header
-    $form
+    $root: HTMLElement
+    $header: HTMLElement
+    $form: HTMLElement
 
+    _request: GenerationRequest
     _expanded = false;
 
     constructor() {
@@ -17,9 +19,9 @@ export class GenerationRequestForm extends HTMLElement {
     }
 
     connectedCallback() {
-        this.$root = this.querySelector('.request-form');
+        this.$root = this.shadowRoot.querySelector('.request-form');
 
-        this.$header = this.querySelector('h2');
+        this.$header = this.$root.querySelector('h2');
         this.$header.addEventListener('click', (e) => {
             if (this._expanded) {
                 this.$form.classList.remove('expanded');
@@ -32,7 +34,7 @@ export class GenerationRequestForm extends HTMLElement {
             }
         });
 
-        this.$form = this.querySelector('form');
+        this.$form = this.$root.querySelector('form');
         this.$form.addEventListener("submit", (e) => {
             e.preventDefault();
             // @todo do thing with vc
