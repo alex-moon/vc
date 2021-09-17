@@ -17,11 +17,16 @@ export class Service {
             spec: {
                 videos: [
                     {
-                        texts: [data.prompt]
-                    }
+                        steps: [
+                            {
+                                data
+                            },
+                        ],
+                    },
                 ],
             },
         });
+        console.log('creating', request);
         this.manager.create(request, callback);
     }
 }

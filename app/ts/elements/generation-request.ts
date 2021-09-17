@@ -1,11 +1,39 @@
 import {CustomElement} from 'custom-elements-ts';
-import {GenerationRequest as Model} from "../../models/generation-request";
-import {GenerationResult} from "../../models/generation-result";
+import {GenerationRequest as Model} from "../models/generation-request";
+import {GenerationResult} from "../models/generation-result";
 
 @CustomElement({
   tag: 'generation-request',
-  templateUrl: 'generation-request.html',
-  styleUrl: 'generation-request.scss'
+  shadow: false,
+  style: ``,
+  template: `
+<div class="request">
+    <div class="summary">
+        <div class="preview">
+            <img />
+        </div>
+        <div class="progress">
+            <div class="labels">
+                <div class="name"></div>
+            </div>
+            <div class="bar">
+                <div class="completed"></div>
+                <div class="steps">
+                    <span class="steps-completed"></span>
+                    /
+                    <span class="steps-total"></span>
+                </div>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="material-icons">
+                expand_more
+            </button>
+        </div>
+    </div>
+    <div class="panels"></div>
+</div>
+`
 })
 export class GenerationRequest extends HTMLElement {
     $root: HTMLElement
@@ -25,14 +53,14 @@ export class GenerationRequest extends HTMLElement {
     }
 
     connectedCallback() {
-        this.$root = this.shadowRoot.querySelector('.request');
-        this.$name = this.shadowRoot.querySelector('.name');
-        this.$stepsCompleted = this.shadowRoot.querySelector('.steps-completed');
-        this.$stepsTotal = this.shadowRoot.querySelector('.steps-total');
-        this.$barCompleted = this.shadowRoot.querySelector('.bar .completed');
-        this.$preview = this.shadowRoot.querySelector('.preview img');
-        this.$expand = this.shadowRoot.querySelector('.actions button');
-        this.$panels = this.shadowRoot.querySelector('.panels');
+        this.$root = this.querySelector('.request');
+        this.$name = this.querySelector('.name');
+        this.$stepsCompleted = this.querySelector('.steps-completed');
+        this.$stepsTotal = this.querySelector('.steps-total');
+        this.$barCompleted = this.querySelector('.bar .completed');
+        this.$preview = this.querySelector('.preview img');
+        this.$expand = this.querySelector('.actions button');
+        this.$panels = this.querySelector('.panels');
 
         this.$expand.addEventListener('click', (e) => {
             if (this._expanded) {

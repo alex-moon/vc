@@ -1,7 +1,9 @@
 import {Service} from './service'
-import {GenerationRequests} from './elements/generation-requests/generation-requests'
+import {GenerationRequests} from './elements/generation-requests'
+import {GenerationRequestForm} from "./elements/generation-request-form";
 
 export class Vc {
+    $form: GenerationRequestForm;
     $requests: GenerationRequests;
 
     refreshInterval = 10000
@@ -11,10 +13,9 @@ export class Vc {
 
     constructor() {
         this.service = new Service();
-    }
-
-    connect($requests: GenerationRequests) {
-        this.$requests = $requests;
+        this.$form = document.querySelector('generation-request-form');
+        this.$form.connect(this);
+        this.$requests = document.querySelector('generation-requests');
         this.refreshAndSetTimeout();
     }
 

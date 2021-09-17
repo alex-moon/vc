@@ -27,6 +27,7 @@ log
 output-interim.mp4
 output-upscaled.png
 sofar.mp4
-public/*.xcf
+*.xcf
 node_modules
+public/*
 

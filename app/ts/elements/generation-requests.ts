@@ -1,17 +1,20 @@
 import {CustomElement} from 'custom-elements-ts';
-import {GenerationRequest as Model} from "../../models/generation-request";
-import {GenerationRequest} from "../generation-request/generation-request";
-import {Vc} from "../../vc";
+import {GenerationRequest as Model} from "../models/generation-request";
+import {GenerationRequest} from "./generation-request";
+import {Vc} from "../vc";
 
 @CustomElement({
   tag: 'generation-requests',
-  templateUrl: 'generation-requests.html',
-  styleUrl: 'generation-requests.scss'
+  shadow: false,
+  style: ``,
+  // @todo figure out how to make templateUrl work
+  template: `
+<div class="requests"></div>
+`
 })
 export class GenerationRequests extends HTMLElement {
     $root: HTMLElement;
 
-    vc: Vc;
     _requests: Model[]
 
     constructor() {
@@ -19,9 +22,7 @@ export class GenerationRequests extends HTMLElement {
     }
 
     connectedCallback() {
-        this.$root = this.shadowRoot.querySelector('.requests');
-        this.vc = (global as any).vc;
-        this.vc.connect(this);
+        this.$root = this.querySelector('.requests');
     }
 
     update(requests: any) {
