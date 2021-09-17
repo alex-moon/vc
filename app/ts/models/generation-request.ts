@@ -1,6 +1,8 @@
 import {GenerationResult} from "./generation-result";
+import {GenerationSpec} from "./generation-spec";
 
 export class GenerationRequest {
+    spec: GenerationSpec;
     name: string;
     preview ?: string;
     interim ?: string;
