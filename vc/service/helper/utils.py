@@ -970,7 +970,7 @@ def get_MiDaS_sample(args, aft_certain=None):
     tgts_pose[:3, -1] = np.array([
         args.x_shift,
         args.y_shift,
-        args.z_shift
+        args.z_shift + 0.05 # @todo work out why this is needed
     ])
 
     aft_flag = True
