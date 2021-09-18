@@ -2,8 +2,14 @@
 
 ssh vc "
 cd /opt/vc
-git pull origin \$\(git rev-parse --abbrev-ref HEAD\)
-sudo service supervisor restart
-flask db migrate
+source venv/bin/activate
+
+git pull origin \$(git rev-parse --abbrev-ref HEAD)
+
+sudo service supervisor stop
+FLASK_APP=vc.app:app flask db migrate
+sudo service supervisor start
+
+npm install
 npx webpack
 "
