@@ -27,7 +27,6 @@ export class Service {
                 ],
             },
         } as GenerationRequest;
-        console.log('creating', request);
         this.manager.create(request, callback);
     }
 }

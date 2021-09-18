@@ -3,11 +3,11 @@ import {GenerationRequest as Model} from "../models/generation-request";
 import {GenerationRequest} from "./generation-request";
 
 @CustomElement({
-  tag: 'vc-generation-requests',
-  shadow: false,
-  style: ``,
-  // @todo figure out how to make templateUrl work
-  template: `
+    tag: 'vc-generation-requests',
+    shadow: false,
+    style: ``,
+    // @todo figure out how to make templateUrl work
+    template: `
 <div class="requests"></div>
 `
 })
@@ -25,7 +25,6 @@ export class GenerationRequests extends HTMLElement {
     }
 
     update(requests: Model[]) {
-        console.log('update called', requests);
         this._requests = requests;
 
         this.$root.innerHTML = '';

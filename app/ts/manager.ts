@@ -4,53 +4,6 @@ export class Manager {
     requests: GenerationRequest[]
     isLocal: boolean
     base_url = '/api/generation-request/'
-
-    constructor() {
-        this.requests = [];
-
-        const useDummyData = false;
-        this.isLocal = useDummyData && [
-            'vc.local',
-            'localhost',
-            '127.0.0.1',
-        ].includes(window.location.hostname);
-    }
-    async fetch (url = '') {
-        if (this.isLocal) {
-            return this.dummy_data;
-        }
-        const response = await fetch(this.base_url + url);
-        return response.json();
-    }
-    async post (data: any, url = '') {
-        if (this.isLocal) {
-            this.dummy_data.push(data);
-            return data;
-        }
-        const response = await fetch(this.base_url + url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        });
-        return response.json();
-    }
-    index(callback: CallableFunction) {
-        this.fetch().then((response) => {
-            this.load(response);
-            callback(this.requests);
-        });
-    }
-    create(request: GenerationRequest, callback: CallableFunction) {
-        this.post(request).then(() => {
-            this.index(callback);
-        });
-    }
-    load(data: GenerationRequest[]) {
-        this.requests = data;
-    }
-
     dummy_data = [
         {
             "id": 1,
@@ -115,4 +68,55 @@ export class Manager {
             "results": [],
         } as any,
     ]
+
+    constructor() {
+        this.requests = [];
+
+        const useDummyData = false;
+        this.isLocal = useDummyData && [
+            'vc.local',
+            'localhost',
+            '127.0.0.1',
+        ].includes(window.location.hostname);
+    }
+
+    async fetch(url = '') {
+        if (this.isLocal) {
+            return this.dummy_data;
+        }
+        const response = await fetch(this.base_url + url);
+        return response.json();
+    }
+
+    async post(data: any, url = '') {
+        if (this.isLocal) {
+            this.dummy_data.push(data);
+            return data;
+        }
+        const response = await fetch(this.base_url + url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        return response.json();
+    }
+
+    index(callback: CallableFunction) {
+        this.fetch().then((response) => {
+            this.load(response);
+            callback(this.requests);
+        });
+    }
+
+    create(request: GenerationRequest, callback: CallableFunction) {
+        this.post(request).then(() => {
+            this.index(callback);
+        });
+    }
+
+    load(data: GenerationRequest[]) {
+        this.requests = data;
+    }
 }

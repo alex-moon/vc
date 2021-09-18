@@ -3,10 +3,10 @@ import {GenerationRequest as Model} from "../models/generation-request";
 import {GenerationResult} from "../models/generation-result";
 
 @CustomElement({
-  tag: 'vc-generation-request',
-  shadow: false,
-  style: ``,
-  template: `
+    tag: 'vc-generation-request',
+    shadow: false,
+    style: ``,
+    template: `
 <div class="request">
     <div class="summary">
         <div class="preview">
