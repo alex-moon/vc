@@ -6,7 +6,10 @@ sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ 'lsb_release -cs'
 sudo apt update -y
 sudo apt install -y postgresql postgresql-contrib
 sudo snap install node --classic
+sudo npm install -g npm@latest
 sudo npm install -g npx
+sudo npm install -g n
+sudo n latest
 
 python3 -m venv venv
 source venv/bin/activate
