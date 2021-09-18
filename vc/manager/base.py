@@ -16,7 +16,9 @@ class Manager:
 
     def all(self):
         try:
-            return self.model_class.query.order_by('created desc').all()
+            return self.model_class.query.order_by(
+                self.model_class.created.desc()
+            ).all()
         except Exception as e:
             db.session.rollback()
             raise e
