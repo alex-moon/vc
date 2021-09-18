@@ -398,8 +398,8 @@ def read_ply(mesh_fi):
     return verts, colors, faces, Height, Width, hFov, vFov
 
 
-# mesh_fi = 'mesh/output.ply'
-# verts, colors, faces, height, width, hfov, vfov = read_ply(mesh_fi)
+mesh_fi = 'mesh/output.ply'
+verts, colors, faces, height, width, hfov, vfov = read_ply(mesh_fi)
 
 spec = from_dict(data_class=GenerationSpec, data={
     "images": None,
@@ -467,3 +467,22 @@ for step in GenerationRunner.iterate_steps(spec):
     print(step, video_step, 'x_shift', round(x_shift, 5))
     print(step, video_step, 'y_shift', round(y_shift, 5))
     print(step, video_step, 'z_shift', round(z_shift, 5))
+
+    output_3d_photo(
+        verts,
+        colors,
+        faces,
+        step,
+        translate.to_tuple()
+    )
+
+os.system(
+    ' '.join(
+        [
+            'ffmpeg -y -i "tmp/%04d.png"',
+            '-b:v 8M -c:v h264_nvenc -pix_fmt yuv420p -strict -2',
+            '-filter:v "minterpolate=\'mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=60\'"',
+            'tmp/result.mp4'
+        ]
+    )
+)
