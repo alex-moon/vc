@@ -1,5 +1,6 @@
 Cython==0.29.24
 Flask-Injector
+Flask-Migrate==3.1.0
 Flask-SQLAlchemy
 Flask<2
 Markdown==3.3.4

@@ -7,3 +7,4 @@ else
   sudo service supervisor restart
 fi
 npx webpack
+tail -f /var/log/supervisor/* /opt/vc/log/*
