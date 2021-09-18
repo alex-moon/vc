@@ -59,6 +59,7 @@ sudo chown ubuntu:ubuntu /opt/vc
 echo >> ~/.bashrc
 echo "cd /opt/vc" >> ~/.bashrc
 echo "source venv/bin/activate" >> ~/.bashrc
+echo "export FLASK_APP=vc.app:app" >> ~/.bashrc
 echo >> ~/.bashrc
 
 cd /opt/vc
