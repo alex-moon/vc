@@ -1,7 +1,10 @@
+from math import isclose
+
+
 class Acceleration:
-    x = -0.001
-    y = 0.001
-    z = -0.001
+    x = 0.0005
+    y = 0.0005
+    z = 0.0005
 
 
 class Multiplier:
@@ -12,34 +15,23 @@ class Multiplier:
     @classmethod
     def accelerate_x(cls, x, target):
         target = cls.x * target
-        return x < target if target > 0 else x > target
+        if isclose(x, target, abs_tol=Acceleration.x * 0.5):
+            return 0
+        return Acceleration.x if x < target else -Acceleration.x
 
     @classmethod
     def accelerate_y(cls, y, target):
         target = cls.y * target
-        return y < target if target > 0 else y > target
+        if isclose(y, target, abs_tol=Acceleration.y * 0.5):
+            return 0
+        return Acceleration.y if y < target else -Acceleration.y
 
     @classmethod
     def accelerate_z(cls, z, target):
         target = cls.z * target
-        return z < target if target > 0 else z > target
-
-
-class Zero:
-    @classmethod
-    def accelerate_x(cls, x, target):
-        target = Multiplier.x * target
-        return x > 0 if target > 0 else x < 0
-
-    @classmethod
-    def accelerate_y(cls, y, target):
-        target = Multiplier.y * target
-        return y > 0 if target > 0 else y < 0
-
-    @classmethod
-    def accelerate_z(cls, z, target):
-        target = Multiplier.z * target
-        return z > 0 if target > 0 else z < 0
+        if isclose(z, target, abs_tol=Acceleration.z * 0.5):
+            return 0
+        return Acceleration.z if z < target else -Acceleration.z
 
 
 class Velocity:
@@ -49,52 +41,18 @@ class Velocity:
         self.z = 0.
 
     def accelerate(self, x_target, y_target, z_target):
-        x_result = self.accelerate_x(x_target)
-        y_result = self.accelerate_y(y_target)
-        z_result = self.accelerate_z(z_target)
-        return x_result or y_result or z_result
-
-    def decelerate(self, x_target, y_target, z_target):
-        x_result = self.decelerate_x(x_target)
-        y_result = self.decelerate_y(y_target)
-        z_result = self.decelerate_z(z_target)
-        return x_result or y_result or z_result
+        self.accelerate_x(x_target)
+        self.accelerate_y(y_target)
+        self.accelerate_z(z_target)
 
     def accelerate_x(self, target):
-        result = Multiplier.accelerate_x(self.x, target)
-        if result:
-            self.x += Acceleration.x
-        return result
+        self.x += Multiplier.accelerate_x(self.x, target)
 
     def accelerate_y(self, target):
-        result = Multiplier.accelerate_x(self.y, target)
-        if result:
-            self.y += Acceleration.y
-        return result
+        self.y += Multiplier.accelerate_y(self.y, target)
 
     def accelerate_z(self, target):
-        result = Multiplier.accelerate_z(self.z, target)
-        if result:
-            self.z += Acceleration.z
-        return result
-
-    def decelerate_x(self, target):
-        result = Zero.accelerate_x(self.x, target)
-        if result:
-            self.x -= Acceleration.x
-        return result
-
-    def decelerate_y(self, target):
-        result = Zero.accelerate_x(self.y, target)
-        if result:
-            self.y -= Acceleration.y
-        return result
-
-    def decelerate_z(self, target):
-        result = Zero.accelerate_z(self.z, target)
-        if result:
-            self.z -= Acceleration.z
-        return result
+        self.z += Multiplier.accelerate_z(self.z, target)
 
     def to_tuple(self):
         return self.x, self.y, self.z
@@ -134,19 +92,12 @@ class Translate:
         else:
             self.velocity = Velocity()
 
-    def move(self, autodecelerate=False):
-        accelerating = self.velocity.accelerate(
+    def move(self):
+        self.velocity.accelerate(
             self.x_target,
             self.y_target,
             self.z_target
         )
-
-        if autodecelerate and not accelerating:
-            self.velocity.decelerate(
-                self.x_target,
-                self.y_target,
-                self.z_target
-            )
 
         self.x += self.velocity.x
         self.y += self.velocity.y

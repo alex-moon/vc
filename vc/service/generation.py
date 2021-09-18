@@ -11,13 +11,7 @@ from vc.service import (
     FileService,
 )
 from vc.service.helper import DiagnosisHelper as dh
-from vc.service.helper.runner import (
-    GenerationRunner,
-    VideoGenerationStep,
-    ImageGenerationStep,
-    HandleInterimStep,
-    CleanFilesStep,
-)
+from vc.service.helper.runner import GenerationRunner
 from vc.service.isr import IsrService
 from vc.value_object import GenerationSpec
 from vc.value_object.generation_progress import GenerationProgress
@@ -26,7 +20,6 @@ from vc.value_object.generation_progress import GenerationProgress
 class GenerationService:
     STEPS_DIR = 'steps'
     OUTPUT_FILENAME = 'output.png'
-    INTERIM_STEPS = 20
 
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
@@ -67,7 +60,7 @@ class GenerationService:
             self.STEPS_DIR
         )
 
-        for step in self.iterate_steps(spec):
+        for step in GenerationRunner.iterate_steps(spec):
             steps_completed = step.step
             result = runner.handle(step)
             callback(GenerationProgress(
@@ -90,94 +83,6 @@ class GenerationService:
 
     def calculate_total_steps(self, spec):
         steps_total = 0
-        for _ in self.iterate_steps(spec):
+        for _ in GenerationRunner.iterate_steps(spec):
             steps_total += 1
         return steps_total
-
-    def iterate_steps(self, spec):
-        step = 0
-
-        if spec.images:
-            for step_spec in spec.images:
-                step += 1
-                yield CleanFilesStep(step)
-
-                if step_spec.texts:
-                    for text in step_spec.texts:
-                        if step_spec.styles:
-                            for style in step_spec.styles:
-                                for i in range(step_spec.epochs):
-                                    step += 1
-                                    yield ImageGenerationStep(
-                                        spec=step_spec,
-                                        step=step,
-                                        text=text,
-                                        style=style
-                                    )
-
-                                    if step % self.INTERIM_STEPS == 0:
-                                        step += 1
-                                        yield HandleInterimStep(
-                                            step=step
-                                        )
-                        else:
-                            for i in range(step_spec.epochs):
-                                step += 1
-                                yield ImageGenerationStep(
-                                    spec=step_spec,
-                                    step=step,
-                                    text=text
-                                )
-
-                                if step % self.INTERIM_STEPS == 0:
-                                    step += 1
-                                    yield HandleInterimStep(
-                                        step=step
-                                    )
-
-        if spec.videos:
-            for video in spec.videos:
-                video_step = 0
-                step += 1
-                yield CleanFilesStep(step=step)
-                if video.steps:
-                    for step_spec in video.steps:
-                        if step_spec.texts:
-                            for text in step_spec.texts:
-                                if step_spec.styles:
-                                    for style in step_spec.styles:
-                                        for i in range(step_spec.epochs):
-                                            video_step += 1
-                                            step += 1
-                                            yield ImageGenerationStep(
-                                                spec=step_spec,
-                                                step=step,
-                                                text=text,
-                                                style=style,
-                                                video_step=video_step
-                                            )
-
-                                            if step % self.INTERIM_STEPS == 0:
-                                                step += 1
-                                                yield HandleInterimStep(
-                                                    step=step
-                                                )
-                                else:
-                                    for i in range(step_spec.epochs):
-                                        video_step += 1
-                                        step += 1
-                                        yield ImageGenerationStep(
-                                            spec=step_spec,
-                                            step=step,
-                                            text=text,
-                                            video_step=video_step
-                                        )
-
-                                        if step % self.INTERIM_STEPS == 0:
-                                            step += 1
-                                            yield HandleInterimStep(
-                                                step=step
-                                            )
-
-                step += 1
-                yield VideoGenerationStep(step=step)

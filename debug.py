@@ -1,13 +1,182 @@
 import gc
 import os
+from dataclasses import dataclass
+from typing import List
+from math import isclose
 
 import numpy as np
 import transforms3d
+from dacite import from_dict
 from vispy import scene
 from vispy.color import Color
 from vispy.io import write_png
 from vispy.scene import visuals
 from vispy.visuals.filters import Alpha
+
+
+@dataclass
+class ImageSpec:
+    texts: List[str] = None
+    styles: List[str] = None
+    iterations: int = 500
+    init_iterations: int = None
+    epochs: int = 1
+    x_velocity: float = 0.
+    y_velocity: float = 0.
+    z_velocity: float = 0.
+    upscale: bool = True
+
+
+@dataclass
+class VideoSpec:
+    steps: List[ImageSpec]
+
+
+@dataclass
+class GenerationSpec:
+    videos: List[VideoSpec] = None
+
+
+class Acceleration:
+    x = 0.0005
+    y = 0.0005
+    z = 0.0005
+
+
+class Multiplier:
+    x = -0.01
+    y = 0.01
+    z = -0.01
+
+    @classmethod
+    def accelerate_x(cls, x, target):
+        target = cls.x * target
+        if isclose(x, target, abs_tol=Acceleration.x * 0.5):
+            return 0
+        return Acceleration.x if x < target else -Acceleration.x
+
+    @classmethod
+    def accelerate_y(cls, y, target):
+        target = cls.y * target
+        if isclose(y, target, abs_tol=Acceleration.y * 0.5):
+            return 0
+        return Acceleration.y if y < target else -Acceleration.y
+
+    @classmethod
+    def accelerate_z(cls, z, target):
+        target = cls.z * target
+        if isclose(z, target, abs_tol=Acceleration.z * 0.5):
+            return 0
+        return Acceleration.z if z < target else -Acceleration.z
+
+
+class Velocity:
+    def __init__(self):
+        self.x = 0.
+        self.y = 0.
+        self.z = 0.
+
+    def accelerate(self, x_target, y_target, z_target):
+        self.accelerate_x(x_target)
+        self.accelerate_y(y_target)
+        self.accelerate_z(z_target)
+
+    def accelerate_x(self, target):
+        self.x += Multiplier.accelerate_x(self.x, target)
+
+    def accelerate_y(self, target):
+        self.y += Multiplier.accelerate_y(self.y, target)
+
+    def accelerate_z(self, target):
+        self.z += Multiplier.accelerate_z(self.z, target)
+
+    def to_tuple(self):
+        return self.x, self.y, self.z
+
+    def moving(self, x_target, y_target, z_target):
+        x_result = self.x > 0 if x_target * Multiplier.x > 0 else self.x <= 0
+        y_result = self.y > 0 if y_target * Multiplier.y > 0 else self.y <= 0
+        z_result = self.z > 0 if z_target * Multiplier.z > 0 else self.z <= 0
+        return x_result or y_result or z_result
+
+
+class Translate:
+    velocity: Velocity
+    x_target: float
+    y_target: float
+    z_target: float
+    x = 0.
+    y = 0.
+    z = 0.
+
+    def __init__(
+        self,
+        x_target: float,
+        y_target: float,
+        z_target: float,
+        previous=None
+    ):
+        self.x_target = x_target
+        self.y_target = y_target
+        self.z_target = z_target
+
+        if previous is not None:
+            self.velocity = previous.velocity
+            self.x = previous.x
+            self.y = previous.y
+            self.z = previous.z
+        else:
+            self.velocity = Velocity()
+
+    def move(self):
+        self.velocity.accelerate(
+            self.x_target,
+            self.y_target,
+            self.z_target
+        )
+
+        self.x += self.velocity.x
+        self.y += self.velocity.y
+        self.z += self.velocity.z
+
+        return self.velocity.moving(
+            self.x_target,
+            self.y_target,
+            self.z_target
+        )
+
+    def to_tuple(self):
+        return self.x, self.y, self.z
+
+    def reset(self):
+        self.x = 0.
+        self.y = 0.
+        self.z = 0.
+
+
+class GenerationRunner:
+    @classmethod
+    def iterate_steps(cls, spec: GenerationSpec):
+        step = 0
+        if spec.videos:
+            for video in spec.videos:
+                video_step = 0
+                step += 1
+                if video.steps:
+                    for step_spec in video.steps:
+                        if step_spec.texts:
+                            for text in step_spec.texts:
+                                if step_spec.styles:
+                                    for style in step_spec.styles:
+                                        for i in range(step_spec.epochs):
+                                            video_step += 1
+                                            step += 1
+                                            yield step, video_step, step_spec
+                                else:
+                                    for i in range(step_spec.epochs):
+                                        video_step += 1
+                                        step += 1
+                                        yield step, video_step, step_spec
 
 
 class CanvasView:
@@ -229,168 +398,72 @@ def read_ply(mesh_fi):
     return verts, colors, faces, Height, Width, hFov, vFov
 
 
-mesh_fi = 'mesh/output.ply'
-verts, colors, faces, height, width, hfov, vfov = read_ply(mesh_fi)
+# mesh_fi = 'mesh/output.ply'
+# verts, colors, faces, height, width, hfov, vfov = read_ply(mesh_fi)
 
+spec = from_dict(data_class=GenerationSpec, data={
+    "images": None,
+    "videos": [
+        {
+            "steps": [
+                {
+                    "texts": [
+                        "A stunning professional photograph of a vast meadow of wildflowers and alpine grass with mountains in the distance",
+                    ],
+                    "iterations": 75,
+                    "init_iterations": 200,
+                    "epochs": 20,
+                    "x_velocity": 0.0,
+                    "y_velocity": 0.0,
+                    "z_velocity": 1.0,
+                    "upscale": False,
+                },
+                {
+                    "texts": [
+                        "A stunning professional photograph of the open ocean from above",
+                    ],
+                    "iterations": 75,
+                    "epochs": 20,
+                    "x_velocity": 0.0,
+                    "y_velocity": 1.0,
+                    "z_velocity": 0.0,
+                    "upscale": False,
+                },
+                {
+                    "texts": [
+                        "A stunning professional photograph of an enormous rocky canyon from above",
+                    ],
+                    "iterations": 75,
+                    "epochs": 20,
+                    "x_velocity": 1.0,
+                    "y_velocity": 0.0,
+                    "z_velocity": 0.0,
+                    "upscale": False,
+                },
+            ],
+        },
+    ],
+})
 
-class Acceleration:
-    x = -0.001
-    y = 0.001
-    z = -0.001
+image_spec = None
+translate = None
+for step in GenerationRunner.iterate_steps(spec):
+    step, video_step, step_spec = step
 
+    if image_spec != step_spec:
+        print('Got new image spec', step_spec)
+        image_spec = step_spec
+        translate = Translate(
+            image_spec.x_velocity,
+            image_spec.y_velocity,
+            image_spec.z_velocity,
+            previous=translate
+        )
 
-class Target:
-    x = -0.01
-    y = 0.01
-    z = -0.01
+    moving = translate.move()
+    x_shift, y_shift, z_shift = translate.velocity.to_tuple()
 
-    @classmethod
-    def accelerate_x(cls, x):
-        return x < cls.x if cls.x > 0 else x > cls.x
-
-    @classmethod
-    def accelerate_y(cls, y):
-        return y < cls.y if cls.y > 0 else y > cls.y
-
-    @classmethod
-    def accelerate_z(cls, z):
-        return z < cls.z if cls.z > 0 else z > cls.z
-
-
-class Zero:
-    @classmethod
-    def accelerate_x(cls, x):
-        return x > 0 if Target.x > 0 else x < 0
-
-    @classmethod
-    def accelerate_y(cls, y):
-        return y > 0 if Target.y > 0 else y < 0
-
-    @classmethod
-    def accelerate_z(cls, z):
-        return z > 0 if Target.z > 0 else z < 0
-
-
-class Velocity:
-    x = 0.
-    y = 0.
-    z = 0.
-
-    @classmethod
-    def accelerate_x(cls):
-        result = Target.accelerate_x(cls.x)
-        if result:
-            cls.x += Acceleration.x
-        return result
-
-    @classmethod
-    def accelerate_y(cls):
-        result = Target.accelerate_x(cls.y)
-        if result:
-            cls.y += Acceleration.y
-        return result
-
-    @classmethod
-    def accelerate_z(cls):
-        result = Target.accelerate_z(cls.z)
-        if result:
-            cls.z += Acceleration.z
-        return result
-
-    @classmethod
-    def decelerate_x(cls):
-        result = Zero.accelerate_x(cls.x)
-        if result:
-            cls.x -= Acceleration.x
-        return result
-
-    @classmethod
-    def decelerate_y(cls):
-        result = Zero.accelerate_x(cls.y)
-        if result:
-            cls.y -= Acceleration.y
-        return result
-
-    @classmethod
-    def decelerate_z(cls):
-        result = Zero.accelerate_z(cls.z)
-        if result:
-            cls.z -= Acceleration.z
-        return result
-
-
-class Translate:
-    x = 0.
-    y = 0.
-    z = 0.
-
-    @classmethod
-    def to_list(cls):
-        cls.x += Velocity.x
-        cls.y += Velocity.y
-        cls.z += Velocity.z
-        return [cls.x, cls.y, cls.z]
-
-    @classmethod
-    def reset(cls):
-        cls.x = 0.
-        cls.y = 0.
-        cls.z = 0.
-
-
-def get_translates():
-    translates = []
-
-    # z
-    while Velocity.accelerate_z():
-        translates.append(Translate.to_list())
-    while Velocity.decelerate_z():
-        translates.append(Translate.to_list())
-
-    translates += reversed(translates)
-    Translate.reset()
-
-    # y
-    while Velocity.accelerate_y():
-        translates.append(Translate.to_list())
-    while Velocity.decelerate_y():
-        translates.append(Translate.to_list())
-
-    translates += reversed(translates)
-    Translate.reset()
-
-    # x
-    while Velocity.accelerate_x():
-        translates.append(Translate.to_list())
-    while Velocity.decelerate_x():
-        translates.append(Translate.to_list())
-
-    translates += reversed(translates)
-    Translate.reset()
-
-    return translates
-
-
-translates = get_translates()
-print('Doing %s translates' % len(translates))
-
-for i, translate in enumerate(translates):
-    print('Doing', i, translate)
-    output_3d_photo(
-        verts,
-        colors,
-        faces,
-        i,
-        translate
-    )
-
-os.system(
-    ' '.join(
-        [
-            'ffmpeg -y -i "tmp/%04d.png"',
-            '-b:v 8M -c:v h264_nvenc -pix_fmt yuv420p -strict -2',
-            '-filter:v "minterpolate=\'mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=60\'"',
-            'tmp/result.mp4'
-        ]
-    )
-)
+    print('')
+    print(step, video_step, 'x_shift', round(x_shift, 5))
+    print(step, video_step, 'y_shift', round(y_shift, 5))
+    print(step, video_step, 'z_shift', round(z_shift, 5))

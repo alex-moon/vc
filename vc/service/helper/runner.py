@@ -54,6 +54,7 @@ class GenerationResult:
 
 
 class GenerationRunner:
+    INTERIM_STEPS = 20
     TRANSITION_SPEED = 0.01
 
     vqgan_clip: VqganClipService
@@ -256,3 +257,92 @@ class GenerationRunner:
                 os.remove(filepath)
 
         return None
+
+    @classmethod
+    def iterate_steps(cls, spec):
+        step = 0
+
+        if spec.images:
+            for step_spec in spec.images:
+                step += 1
+                yield CleanFilesStep(step)
+
+                if step_spec.texts:
+                    for text in step_spec.texts:
+                        if step_spec.styles:
+                            for style in step_spec.styles:
+                                for i in range(step_spec.epochs):
+                                    step += 1
+                                    yield ImageGenerationStep(
+                                        spec=step_spec,
+                                        step=step,
+                                        text=text,
+                                        style=style
+                                    )
+
+                                    if step % cls.INTERIM_STEPS == 0:
+                                        step += 1
+                                        yield HandleInterimStep(
+                                            step=step
+                                        )
+                        else:
+                            for i in range(step_spec.epochs):
+                                step += 1
+                                yield ImageGenerationStep(
+                                    spec=step_spec,
+                                    step=step,
+                                    text=text
+                                )
+
+                                if step % cls.INTERIM_STEPS == 0:
+                                    step += 1
+                                    yield HandleInterimStep(
+                                        step=step
+                                    )
+
+        if spec.videos:
+            for video in spec.videos:
+                video_step = 0
+                step += 1
+                yield CleanFilesStep(step=step)
+                if video.steps:
+                    for step_spec in video.steps:
+                        if step_spec.texts:
+                            for text in step_spec.texts:
+                                if step_spec.styles:
+                                    for style in step_spec.styles:
+                                        for i in range(step_spec.epochs):
+                                            video_step += 1
+                                            step += 1
+                                            yield ImageGenerationStep(
+                                                spec=step_spec,
+                                                step=step,
+                                                text=text,
+                                                style=style,
+                                                video_step=video_step
+                                            )
+
+                                            if step % cls.INTERIM_STEPS == 0:
+                                                step += 1
+                                                yield HandleInterimStep(
+                                                    step=step
+                                                )
+                                else:
+                                    for i in range(step_spec.epochs):
+                                        video_step += 1
+                                        step += 1
+                                        yield ImageGenerationStep(
+                                            spec=step_spec,
+                                            step=step,
+                                            text=text,
+                                            video_step=video_step
+                                        )
+
+                                        if step % cls.INTERIM_STEPS == 0:
+                                            step += 1
+                                            yield HandleInterimStep(
+                                                step=step
+                                            )
+
+                step += 1
+                yield VideoGenerationStep(step=step)
