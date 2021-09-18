@@ -10,6 +10,7 @@ sudo npm install -g npm@latest
 sudo npm install -g npx
 sudo npm install -g n
 sudo n latest
+npm install
 
 python3 -m venv venv
 source venv/bin/activate
