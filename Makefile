@@ -6,3 +6,6 @@ stop:
 
 serve:
 	npx webpack && npx webpack serve
+
+deploy:
+	rsync ./ vc:/opt/vc/
