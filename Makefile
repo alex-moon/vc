@@ -4,8 +4,11 @@ start:
 stop:
 	scripts/aws.stop.sh
 
-serve:
-	npx webpack && npx webpack serve
+build:
+	npx webpack
+
+serve: build
+	npx webpack serve
 
 deploy:
 	rsync ./ vc:/opt/vc/
