@@ -408,40 +408,49 @@ spec = from_dict(data_class=GenerationSpec, data={
             "steps": [
                 {
                     "texts": [
-                        "A stunning professional photograph of a vast meadow of wildflowers and alpine grass with mountains in the distance",
+                        "A stunning professional photograph taken roadside on an alpine highway looking out over crags and gullies, mountains and valleys"
+                    ],
+                    "styles": [
+                        "reuters",
+                        "ansel adams",
+                        "national geographic"
                     ],
                     "iterations": 75,
                     "init_iterations": 200,
-                    "epochs": 20,
-                    "x_velocity": 0.0,
-                    "y_velocity": 0.0,
-                    "z_velocity": 1.0,
-                    "upscale": False,
+                    "epochs": 42,
+                    "x_velocity": 1,
+                    "upscale": False
                 },
                 {
                     "texts": [
-                        "A stunning professional photograph of the open ocean from above",
+                        "A stunning professional photograph looking down from above on a wide river in a deep alpine valley"
+                    ],
+                    "styles": [
+                        "reuters",
+                        "ansel adams",
+                        "national geographic"
                     ],
                     "iterations": 75,
-                    "epochs": 20,
-                    "x_velocity": 0.0,
-                    "y_velocity": 1.0,
-                    "z_velocity": 0.0,
-                    "upscale": False,
+                    "epochs": 42,
+                    "y_velocity": 1,
+                    "upscale": False
                 },
                 {
                     "texts": [
-                        "A stunning professional photograph of an enormous rocky canyon from above",
+                        "A stunning professional underwater photograph looking down into the darkest depths of the ocean"
+                    ],
+                    "styles": [
+                        "reuters",
+                        "ansel adams",
+                        "national geographic"
                     ],
                     "iterations": 75,
-                    "epochs": 20,
-                    "x_velocity": 1.0,
-                    "y_velocity": 0.0,
-                    "z_velocity": 0.0,
-                    "upscale": False,
-                },
-            ],
-        },
+                    "epochs": 42,
+                    "z_velocity": 1,
+                    "upscale": False
+                }
+            ]
+        }
     ],
 })
 
