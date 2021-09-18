@@ -6,4 +6,4 @@ if [[ ! -z "$1" ]]; then
 else
   sudo service supervisor restart
 fi
-tail -f /var/log/supervisor/* /opt/vc/log/*
+npx webpack

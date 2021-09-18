@@ -11,4 +11,4 @@ serve: build
 	npx webpack serve
 
 deploy:
-	rsync ./ vc:/opt/vc/
+	scripts/deploy.sh
