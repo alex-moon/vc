@@ -131,10 +131,9 @@ npx webpoack
 npx webpack serve
 ```
 
-And visit http://localhost:8080/ in your browser.
+And visit http://localhost:8000/ in your browser.
 
 The typescript file that interacts with the API is `app/ts/manager.ts` - you'll
-notice a variable `useDummyData` defined at the top. If this is `false`, you'll need to set
-up a local proxy.
-
-`@todo how to do this with webpack`
+notice a variable `useDummyData` defined at the top. If this is `false`, you'll need use
+a local proxy. To do so, simply replace `vc.ajmoon.uk` with your own domain name (as above)
+in `webpack.config.js` in the project root.

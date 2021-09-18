@@ -18,7 +18,11 @@ module.exports = {
   devServer: {
     static: {
       directory: path.resolve(__dirname, 'public'),
-    }
+    },
+    port: 8000,
+    proxy: {
+      '/api': 'https://vc.ajmoon.uk',
+    },
   },
   resolve: {
     alias: {
