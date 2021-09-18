@@ -21,7 +21,12 @@ module.exports = {
     },
     port: 8000,
     proxy: {
-      '/api': 'https://vc.ajmoon.uk',
+      '/api': {
+        target: 'https://vc.ajmoon.uk',
+        secure: false,
+        changeOrigin: true,
+      },
+
     },
   },
   resolve: {
