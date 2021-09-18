@@ -2,12 +2,13 @@ import os
 
 from dotenv import load_dotenv
 from flask import Flask
-from flask_injector import FlaskInjector
 from flask_cors import CORS
+from flask_injector import FlaskInjector
 
 from .api import api
 from .controller import init_app
 from .db import db
+from .migrate import migrate
 from .injector import injector
 from .q import q
 from .services import modules
@@ -28,6 +29,7 @@ def create_app():
     # spin everything up
     api.init_app(app)
     db.init_app(app)
+    migrate.init_app(app, db)
     controller.init_app(app)
     q.init_app(app)
     app.app_context().push()
