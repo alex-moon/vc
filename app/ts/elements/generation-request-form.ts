@@ -2,7 +2,6 @@ import {CustomElement, Listen} from 'custom-elements-ts';
 import {Vc} from "../vc";
 import {ImageSpec} from "../models/image-spec";
 import {Chipset} from "./chipset";
-import {VcRemoveEvent} from "./chip";
 
 @CustomElement({
     tag: 'vc-generation-request-form',
@@ -133,14 +132,14 @@ export class GenerationRequestForm extends HTMLElement {
     }
 
     @Listen('chipset.remove', '.styles vc-chipset')
-    protected onStylesRemove(e: VcRemoveEvent) {
-        this.spec.styles.splice(this.spec.styles.indexOf(e.text), 1);
+    protected onStylesRemove(e: any) {
+        this.spec.styles.splice(this.spec.styles.indexOf(e.detail), 1);
         this.draw();
     }
 
     @Listen('chipset.remove', '.texts vc-chipset')
-    protected onTextsRemove(e: VcRemoveEvent) {
-        this.spec.texts.splice(this.spec.texts.indexOf(e.text), 1);
+    protected onTextsRemove(e: any) {
+        this.spec.texts.splice(this.spec.texts.indexOf(e.detail), 1);
         this.draw();
     }
 

@@ -1,19 +1,4 @@
-import {
-    CustomElement,
-    CustomEventOptions,
-    Dispatch,
-    DispatchEmitter,
-    Listen,
-    Prop,
-    Toggle,
-    Watch
-} from 'custom-elements-ts';
-
-export interface VcRemoveEvent extends CustomEventOptions, Event {
-    text ?: string;
-    bubbles: boolean;
-    composed: boolean;
-}
+import {CustomElement, Dispatch, DispatchEmitter, Listen, Prop, Toggle, Watch} from 'custom-elements-ts';
 
 @CustomElement({
     tag: 'vc-chip',
@@ -71,6 +56,6 @@ export class Chip extends HTMLElement {
     @Listen('click', '.remove')
     protected onRemoveClick(e: MouseEvent) {
         e.preventDefault();
-        this.onRemove.emit({text: this.text} as VcRemoveEvent)
+        this.onRemove.emit({detail: this.text})
     }
 }

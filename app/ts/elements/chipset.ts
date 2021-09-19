@@ -1,5 +1,4 @@
-import {CustomElement, Toggle, Listen, Dispatch, DispatchEmitter, addEventListeners} from 'custom-elements-ts';
-import {VcRemoveEvent} from "./chip";
+import {CustomElement, Dispatch, DispatchEmitter, Toggle} from 'custom-elements-ts';
 
 @CustomElement({
     tag: 'vc-chipset',
@@ -46,7 +45,7 @@ export class Chipset extends HTMLElement {
         }
     }
 
-    protected onChipRemove(e: VcRemoveEvent) {
+    protected onChipRemove(e: Event) {
         this.onRemove.emit(e);
     }
 }
