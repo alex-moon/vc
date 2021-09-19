@@ -54,7 +54,7 @@ class GenerationResult:
 
 
 class GenerationRunner:
-    INTERIM_STEPS = 20
+    INTERIM_STEPS = 10
     TRANSITION_SPEED = 0.01
 
     vqgan_clip: VqganClipService
