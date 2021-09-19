@@ -1,4 +1,4 @@
 export class BaseModel {
-    created: string;
-    updated: string;
+    created ?: string;
+    updated ?: string;
 }

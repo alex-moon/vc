@@ -18,11 +18,7 @@ export class Service {
             spec: {
                 videos: [
                     {
-                        steps: [
-                            {
-                                spec
-                            },
-                        ],
+                        steps: [spec],
                     },
                 ],
             },

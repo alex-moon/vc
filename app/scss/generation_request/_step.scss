@@ -1,0 +1,29 @@
+vc-generation-request-details-step {
+    .step {
+        display: flex;
+        background-color: #f0f5f0;
+        padding: 8px;
+        border-radius: $border-radius;
+        border: solid $border-width #5c6267;
+        margin: 8px;
+        box-sizing: border-box;
+
+        .number {
+            width: 64px;
+            font-size: 48px;
+            color: #5c6267;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spec {
+            padding: 8px 0;
+            flex-grow: 1;
+
+            h3 {
+                margin: 8px 0;
+            }
+        }
+    }
+}

@@ -32,7 +32,7 @@ export class Chipset extends HTMLElement {
     update(texts: string[]) {
         this.$root.innerHTML = '';
 
-        this.texts = texts;
+        this.texts = texts || [];
 
         for (const text of this.texts) {
             const chip = document.createElement('vc-chip');

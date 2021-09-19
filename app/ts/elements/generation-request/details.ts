@@ -1,6 +1,6 @@
 import {CustomElement, Toggle, Watch} from 'custom-elements-ts';
 import {GenerationRequest as Model} from "../../models/generation-request";
-import {Chipset} from "../chipset";
+import {GenerationRequestDetailsStep} from "./step";
 
 @CustomElement({
     tag: 'vc-generation-request-details',
@@ -8,21 +8,14 @@ import {Chipset} from "../chipset";
     style: ``,
     template: `
 <div class="details">
-    <div class="spec">
-        <h3>Texts</h3>
-        <vc-chipset class="texts"></vc-chipset>
-        <h3>Styles</h3>
-        <vc-chipset class="styles"></vc-chipset>    
-    </div>
     <div class="preview"></div>
+    <div class="steps"></div>
 </div>
 `
 })
 export class GenerationRequestDetails extends HTMLElement {
     $root: HTMLElement
-    $spec: HTMLElement
-    $texts: Chipset;
-    $styles: Chipset;
+    $steps: HTMLElement
     $preview: HTMLElement
 
     request: Model
@@ -34,16 +27,26 @@ export class GenerationRequestDetails extends HTMLElement {
 
     connectedCallback() {
         this.$root = this.querySelector('.details');
-        this.$spec = this.$root.querySelector('.spec');
-        this.$texts = this.$spec.querySelector('.texts');
-        this.$styles = this.$spec.querySelector('.styles');
+        this.$steps = this.$root.querySelector('.steps');
         this.$preview = this.$root.querySelector('.preview');
     }
 
     update(request: Model) {
         this.request = request;
-        this.$texts.update(this.request.spec.videos[0].steps[0].texts);
-        this.$styles.update(this.request.spec.videos[0].steps[0].styles);
+
+        if (!this.request.spec.videos.length) {
+            return;
+        }
+
+        const steps = this.request.spec.videos[0].steps;
+        for (let i = 0; i < steps.length; i++) {
+            const element = document.createElement(
+                'vc-generation-request-details-step'
+            ) as GenerationRequestDetailsStep;
+            this.$steps.appendChild(element);
+            element.update(i + 1, steps[i]);
+        }
+
         if (this.request.results && this.request.results.length) {
             const result = this.request.results[0];
             const panel = this.createVideoPanel(result.url);

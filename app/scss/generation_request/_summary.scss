@@ -1,152 +1,154 @@
 $bar-height: 48px;
 $bar-height-mobile: 32px;
 
-.summary {
-    padding: 16px;
-    background-color: #e6cfb9;
-    border-radius: $border-radius;
-    box-sizing: border-box;
-
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-
-    &.expanded {
-        border-radius: $border-radius $border-radius 0 0;
-    }
-
-    .preview {
-        width: 100px;
-        height: 100px;
+vc-generation-request-summary {
+    .summary {
+        padding: 16px;
+        background-color: #e6cfb9;
         border-radius: $border-radius;
-        border: solid 2px #535c69;
         box-sizing: border-box;
-        background-color: #535c69;
 
-        img {
-            width: 100%;
-            height: 100%;
-            border-radius: $border-radius;
-        }
-    }
-
-    .progress {
-        flex-grow: 1;
+        width: 100%;
         display: flex;
-        flex-direction: column;
-        margin-left: 16px;
-        height: 100px;
+        justify-content: space-between;
 
-        .labels {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 16px;
+        &.expanded {
+            border-radius: $border-radius $border-radius 0 0;
+        }
 
-            @include mobile {
-                flex-direction: column;
-                margin-bottom: 8px;
-                flex-grow: 1;
-            }
+        .preview {
+            width: 100px;
+            height: 100px;
+            border-radius: $border-radius;
+            border: solid 2px #535c69;
+            box-sizing: border-box;
+            background-color: #535c69;
 
-            .name {
-                font-size: x-large;
-                font-weight: bold;
-            }
-
-            .status {
-                display: flex;
-                font-size: large;
-                padding: 4px 8px;
+            img {
+                width: 100%;
+                height: 100%;
                 border-radius: $border-radius;
+            }
+        }
+
+        .progress {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            margin-left: 16px;
+            height: 100px;
+
+            .labels {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 16px;
 
                 @include mobile {
-                    font-size: small;
+                    flex-direction: column;
+                    margin-bottom: 8px;
+                    flex-grow: 1;
                 }
 
-                &.queued {
-                    background-color: #efedd4;
-                    color: #676666;
+                .name {
+                    font-size: x-large;
+                    font-weight: bold;
                 }
 
-                &.started {
-                    background-color: #c5d9dd;
-                    color: #535c69;
-                }
-
-                &.completed {
-                    background-color: #d7e6d6;
-                    color: #5c6267;
-                }
-
-                &.failed {
-                    background-color: #63575b;
-                    color: #e6cfb9;
-                }
-
-                .datetime {
-                    margin-left: 8px;
+                .status {
+                    display: flex;
+                    font-size: large;
+                    padding: 4px 8px;
+                    border-radius: $border-radius;
 
                     @include mobile {
-                        display: none;
+                        font-size: small;
+                    }
+
+                    &.queued {
+                        background-color: #efedd4;
+                        color: #676666;
+                    }
+
+                    &.started {
+                        background-color: #c5d9dd;
+                        color: #535c69;
+                    }
+
+                    &.completed {
+                        background-color: #d7e6d6;
+                        color: #5c6267;
+                    }
+
+                    &.failed {
+                        background-color: #63575b;
+                        color: #e6cfb9;
+                    }
+
+                    .datetime {
+                        margin-left: 8px;
+
+                        @include mobile {
+                            display: none;
+                        }
+                    }
+                }
+            }
+
+            .bar {
+                background-color: #535c69;
+                border-radius: $border-radius;
+                border: solid 2px #535c69;
+                box-sizing: border-box;
+                height: $bar-height;
+                position: relative;
+
+                @include mobile {
+                    height: $bar-height-mobile;
+                }
+
+                .completed {
+                    background-color: #d7e6d6;
+                    border-radius: $border-radius;
+                    height: 100%;
+                    width: 75%;
+                }
+
+                .steps {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    margin-left: 16px;
+                    opacity: 0.5;
+                    font-size: $bar-height / 2;
+                    line-height: $bar-height;
+
+                    @include mobile {
+                        margin-left: 8px;
+                        font-size: $bar-height-mobile / 2;
+                        line-height: $bar-height-mobile;
                     }
                 }
             }
         }
 
-        .bar {
-            background-color: #535c69;
-            border-radius: $border-radius;
-            border: solid 2px #535c69;
-            box-sizing: border-box;
-            height: $bar-height;
-            position: relative;
+        .actions {
+            width: 100px;
+            height: 100px;
+            margin-left: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
             @include mobile {
-                height: $bar-height-mobile;
+                width: 50px;
+                font-size: 50px;
+                line-height: 50px;
             }
 
-            .completed {
-                background-color: #d7e6d6;
-                border-radius: $border-radius;
-                height: 100%;
-                width: 75%;
+            button {
+                font-size: 64px;
+                line-height: 64px;
             }
-
-            .steps {
-                position: absolute;
-                top: 0;
-                left: 0;
-                margin-left: 16px;
-                opacity: 0.5;
-                font-size: $bar-height / 2;
-                line-height: $bar-height;
-
-                @include mobile {
-                    margin-left: 8px;
-                    font-size: $bar-height-mobile / 2;
-                    line-height: $bar-height-mobile;
-                }
-            }
-        }
-    }
-
-    .actions {
-        width: 100px;
-        height: 100px;
-        margin-left: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        @include mobile {
-            width: 50px;
-            font-size: 50px;
-            line-height: 50px;
-        }
-
-        button {
-            font-size: 64px;
-            line-height: 64px;
         }
     }
 }

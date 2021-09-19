@@ -4,7 +4,7 @@ import {BaseModel} from "./base-model";
 
 export class GenerationRequest extends BaseModel {
     spec: GenerationSpec;
-    name: string;
+    name ?: string;
     preview ?: string;
     interim ?: string;
     steps_completed ?: number;
