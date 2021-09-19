@@ -2,9 +2,18 @@ $bar-height: 48px;
 $bar-height-mobile: 32px;
 
 .summary {
+    padding: 16px;
+    background-color: #e6cfb9;
+    border-radius: $border-radius;
+    box-sizing: border-box;
+
     width: 100%;
     display: flex;
     justify-content: space-between;
+
+    &.expanded {
+        border-radius: $border-radius $border-radius 0 0;
+    }
 
     .preview {
         width: 100px;
@@ -73,7 +82,7 @@ $bar-height-mobile: 32px;
                 line-height: $bar-height;
 
                 @include mobile {
-                    margin: 0;
+                    margin-left: 8px;
                     font-size: $bar-height-mobile / 2;
                     line-height: $bar-height-mobile;
                 }

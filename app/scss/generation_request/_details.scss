@@ -1,0 +1,58 @@
+.details {
+    border-top: solid $border-width #63575b;
+    background-color: #d7e6d6;
+    border-radius: 0 0 $border-radius $border-radius;
+
+    display: flex;
+    overflow: hidden;
+    max-height: 0;
+    transition: $transition;
+
+    @include mobile {
+        flex-direction: column;
+    }
+
+    &.expanded {
+        max-height: 100vh;
+    }
+
+    .spec {
+        padding: 16px;
+        flex-grow: 1;
+
+        h3 {
+            margin: 8px 0;
+        }
+    }
+
+    .preview {
+        padding: 16px;
+        background-color: #f5ede6;
+        border-left: solid $border-width #63575b;
+
+        @include mobile {
+            border-left: none;
+            border-top: solid $border-width #63575b;
+        }
+
+        .panel {
+            width: 400px;
+            height: 400px;
+            border-radius: $border-radius;
+            border: solid $border-width #535c69;
+            box-sizing: border-box;
+            background-color: #535c69;
+
+            @include mobile {
+                width: 100%;
+                height: 100%;
+            }
+
+            img, video {
+                width: 100%;
+                height: 100%;
+                border-radius: $border-radius;
+            }
+        }
+    }
+}

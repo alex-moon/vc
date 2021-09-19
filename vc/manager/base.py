@@ -16,7 +16,9 @@ class Manager:
 
     def all(self):
         try:
-            return self.model_class.query.order_by(
+            return self.model_class.query.filter(
+                self.model_class.deleted.__eq__(None)
+            ).order_by(
                 self.model_class.created.desc()
             ).all()
         except Exception as e:
