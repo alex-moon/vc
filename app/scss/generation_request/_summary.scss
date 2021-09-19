@@ -39,7 +39,7 @@ $bar-height-mobile: 32px;
 
         .labels {
             display: flex;
-            font-size: x-large;
+            justify-content: space-between;
             margin-bottom: 16px;
 
             @include mobile {
@@ -49,7 +49,47 @@ $bar-height-mobile: 32px;
             }
 
             .name {
+                font-size: x-large;
                 font-weight: bold;
+            }
+
+            .status {
+                display: flex;
+                font-size: large;
+                padding: 4px 8px;
+                border-radius: $border-radius;
+
+                @include mobile {
+                    font-size: small;
+                }
+
+                &.queued {
+                    background-color: #efedd4;
+                    color: #676666;
+                }
+
+                &.started {
+                    background-color: #c5d9dd;
+                    color: #535c69;
+                }
+
+                &.completed {
+                    background-color: #d7e6d6;
+                    color: #5c6267;
+                }
+
+                &.failed {
+                    background-color: #63575b;
+                    color: #e6cfb9;
+                }
+
+                .datetime {
+                    margin-left: 8px;
+
+                    @include mobile {
+                        display: none;
+                    }
+                }
             }
         }
 

@@ -1,9 +1,5 @@
-export class GenerationResult {
-    url: string;
+import {BaseModel} from "./base-model";
 
-    constructor(raw: any = null) {
-        if (raw) {
-            Object.assign(this, raw);
-        }
-    }
+export class GenerationResult extends BaseModel {
+    url: string;
 }
