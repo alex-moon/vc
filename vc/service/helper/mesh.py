@@ -3548,7 +3548,7 @@ class CanvasViewFactory:
         )
 
 
-def output_3d_photo(
+def output_3d_photo_dynamic(
     verts,
     colors,
     faces,
@@ -3608,9 +3608,7 @@ def output_3d_photo(
         colors
     )
 
-    dh.diagnose('O3P', 'pre img render', short=True)
     img = normal_canvas.render()
-    dh.diagnose('O3P', 'post img render', short=True)
 
     if init_factor != 1:
         img = cv2.resize(
@@ -3717,6 +3715,129 @@ def output_3d_photo(
              int(img.shape[0] / init_factor)),
             interpolation=cv2.INTER_AREA
         )
+    img = img[
+      anchor[0]:anchor[1],
+      anchor[2]:anchor[3]
+    ]
+    img = img[
+      int(border[0]):int(border[1]),
+      int(border[2]):int(border[3])
+    ]
+
+    if any(np.array(args.crop_border) > 0.0):
+        H_c, W_c, _ = img.shape
+        o_t = int(H_c * args.crop_border[0])
+        o_l = int(W_c * args.crop_border[1])
+        o_b = int(H_c * args.crop_border[2])
+        o_r = int(W_c * args.crop_border[3])
+        img = img[o_t:H_c - o_b, o_l:W_c - o_r]
+        img = cv2.resize(img, (W_c, H_c), interpolation=cv2.INTER_CUBIC)
+
+    path = args.output_filename
+    if output_dir:
+        path = os.path.join(output_dir, path)
+    print("mesh.py:", "Writing Inpainting output frame:", os.path.abspath(path))
+
+    write_png(path, img)
+
+
+def output_3d_photo(
+    verts,
+    colors,
+    faces,
+    Height,
+    Width,
+    video_traj_type,
+    ref_pose,
+    output_dir,
+    int_mtx,
+    args,
+    tgts_pose,
+    original_H=None,
+    original_W=None,
+    border=None,
+    mean_loc_depth=None
+):
+    if args.dynamic_fov:
+        return output_3d_photo_dynamic(
+            verts,
+            colors,
+            faces,
+            Height,
+            Width,
+            video_traj_type,
+            ref_pose,
+            output_dir,
+            int_mtx,
+            args,
+            tgts_pose,
+            original_H,
+            original_W,
+            border,
+            mean_loc_depth
+        )
+
+    colors = colors[..., :3]
+    fov = 60
+    canvas_size = max(Width, Height)
+
+    init_factor = 1
+    if args.anti_flickering is True:
+        init_factor = 3
+
+    normal_canvas = CanvasViewFactory.new(
+        canvas_size,
+        init_factor,
+        fov,
+        verts,
+        faces,
+        colors
+    )
+
+    img = normal_canvas.render()
+
+    if init_factor != 1:
+        img = cv2.resize(
+            img,
+            (int(img.shape[1] / init_factor), int(img.shape[0] / init_factor)),
+            interpolation=cv2.INTER_AREA
+        )
+
+    if border is None:
+        border = [0, img.shape[0], 0, img.shape[1]]
+
+    anchor = [
+        int(max(0, int((img.shape[0]) // 2 - Width // 2))),
+        int(min(int((img.shape[0]) // 2 + Height // 2), (img.shape[0]) - 1)),
+        0,
+        img.shape[1]
+    ]
+    anchor = np.array(anchor)
+
+    rel_pose = np.linalg.inv(np.dot(tgts_pose, np.linalg.inv(ref_pose)))
+    axis, angle = transforms3d.axangles.mat2axangle(rel_pose[0:3, 0:3])
+    normal_canvas.rotate(axis=axis, angle=(angle * 180) / np.pi)
+    normal_canvas.translate(rel_pose[:3, 3])
+
+    normal_canvas.reinit_camera(fov)
+
+    normal_canvas.view_changed()
+    img = normal_canvas.render()
+
+    if init_factor != 1:
+        img = cv2.GaussianBlur(
+            img,
+            (int(init_factor // 2 * 2 + 1),
+             int(init_factor // 2 * 2 + 1)),
+            0
+        )
+        img = cv2.resize(
+            img,
+            (int(img.shape[1] / init_factor),
+             int(img.shape[0] / init_factor)),
+            interpolation=cv2.INTER_AREA
+        )
+
     img = img[
       anchor[0]:anchor[1],
       anchor[2]:anchor[3]
