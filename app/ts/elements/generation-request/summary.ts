@@ -62,9 +62,11 @@ export class GenerationRequestSummary extends HTMLElement {
             if (this.expanded) {
                 this.$expand.innerHTML = 'expand_more';
                 this.expanded = false;
+                this.$root.classList.remove('expanded');
             } else {
                 this.$expand.innerHTML = 'expand_less';
                 this.expanded = true;
+                this.$root.classList.add('expanded');
             }
             this.expand.emit({detail: this.expanded});
         });

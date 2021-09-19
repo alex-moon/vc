@@ -16,8 +16,8 @@ import {Chipset} from "./chipset";
     <form>
         <div class="texts">
             <div class="text-input">
-                <h3>Text</h3>
-                <textarea placeholder="Primary prompt"></textarea>
+                <h3>Add text</h3>
+                <textarea placeholder="e.g. A medieval cathedral interior"></textarea>
                 <button class="material-icons">
                     add_circle
                 </button>
@@ -26,8 +26,8 @@ import {Chipset} from "./chipset";
         </div>
         <div class="styles">
             <div class="text-input">
-                <h3>Styles</h3>
-                <input placeholder="Secondary prompt"/>
+                <h3>Add style</h3>
+                <input placeholder="e.g. Ansel Adams"/>
                 <button class="material-icons">
                     add_circle
                 </button>
