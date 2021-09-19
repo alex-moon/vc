@@ -30,4 +30,6 @@ sofar.mp4
 *.xcf
 node_modules
 public/*
+backup.sql
+backup.sql.bak
 
