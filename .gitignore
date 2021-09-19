@@ -32,4 +32,5 @@ node_modules
 public/*
 backup.sql
 backup.sql.bak
+log_file
 
