@@ -65,23 +65,23 @@ vc-generation-request-summary {
                     }
 
                     &.queued {
-                        background-color: #efedd4;
-                        color: #676666;
+                        color: #efedd4;
+                        background-color: #676666;
                     }
 
                     &.started {
-                        background-color: #c5d9dd;
-                        color: #535c69;
+                        color: #c5d9dd;
+                        background-color: #535c69;
                     }
 
                     &.completed {
-                        background-color: #d7e6d6;
-                        color: #5c6267;
+                        color: #d7e6d6;
+                        background-color: #5c6267;
                     }
 
                     &.failed {
-                        background-color: #63575b;
                         color: #e6cfb9;
+                        background-color: #63575b;
                     }
 
                     .datetime {
