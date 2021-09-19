@@ -3,10 +3,10 @@ from sqlalchemy.sql import func
 
 from vc.api import api
 from vc.db import db
+from vc.model.base import BaseModel
 
 
-class GenerationResult(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+class GenerationResult(db.Model, BaseModel):
     request_id = db.Column(
         db.Integer,
         db.ForeignKey('generation_request.id'),
@@ -15,15 +15,10 @@ class GenerationResult(db.Model):
 
     url = db.Column(db.String, nullable=False)
 
-    created = db.Column(db.DateTime, nullable=False, server_default=func.now())
-    updated = db.Column(db.DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
-
-    def __repr__(self):
-        return '<GenerationResult %r>' % self.id
-
     schema = api.model('Generation Result', {
         'id': fields.Integer,
         'url': fields.String,
         'created': fields.DateTime(),
         'updated': fields.DateTime(),
+        'deleted': fields.DateTime(),
     })

@@ -1,17 +1,14 @@
 from flask_restplus import fields
-from sqlalchemy.sql import func
 
 from vc.api import api
 from vc.db import db
+from vc.model.base import BaseModel
 from vc.model.generation_result import GenerationResult
 from vc.value_object.generation_spec import GenerationSpec
 
 
-class GenerationRequest(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+class GenerationRequest(db.Model, BaseModel):
     spec = db.Column(db.JSON, nullable=False)
-    created = db.Column(db.DateTime, nullable=False, server_default=func.now())
-    updated = db.Column(db.DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 
     started = db.Column(db.DateTime)
     completed = db.Column(db.DateTime)
@@ -26,14 +23,12 @@ class GenerationRequest(db.Model):
 
     results = db.relationship('GenerationResult', backref='request')
 
-    def __repr__(self):
-        return '<GenerationRequest %r>' % self.id
-
     schema = api.model('Generation Request', {
         'id': fields.Integer,
         'spec': fields.Nested(GenerationSpec.schema),
         'created': fields.DateTime(),
         'updated': fields.DateTime(),
+        'deleted': fields.DateTime(),
         'started': fields.DateTime(),
         'completed': fields.DateTime(),
         'failed': fields.DateTime(),
