@@ -1,5 +1,5 @@
 notes.txt
-output.png
+*.png
 venv
 taming-transformers
 CLIP
@@ -13,10 +13,9 @@ tests.txt
 styles.txt
 .idea
 images.js
-input*.png
 results.zip
 video
-video.mp4
+*.mp4
 tests
 __pycache__
 depth
@@ -24,13 +23,11 @@ mesh
 .env
 *.log
 log
-output-interim.mp4
-output-upscaled.png
-sofar.mp4
 *.xcf
 node_modules
 public/*
 backup.sql
 backup.sql.bak
 log_file
+weights
 
