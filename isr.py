@@ -1,16 +1,4 @@
 import os
-<<<<<<< HEAD
-from dataclasses import dataclass
-
-import numpy as np
-from ISR.models import RRDN
-from PIL import Image
-from injector import inject
-
-
-input_dir = 'steps'
-output_dir = 'steps-upscaled'
-=======
 from datetime import datetime
 
 import dotenv
@@ -47,7 +35,6 @@ class FileUploader:
 
 input_dir = 'usteps'
 output_dir = 'ustepsu'
->>>>>>> d98ff10b0ce70510ca84b8694f317a44c9840030
 
 for filename in os.listdir(input_dir):
     input_file = os.path.join(input_dir, filename)
@@ -63,8 +50,6 @@ for filename in os.listdir(input_dir):
 
     output.save(output_file)
 
-<<<<<<< HEAD
-=======
 local_file = os.path.abspath('output-upscaled.mp4')
 os.system(
     ' '.join(
@@ -79,4 +64,4 @@ os.system(
 
 uploader = FileUploader()
 uploader.put(local_file)
->>>>>>> d98ff10b0ce70510ca84b8694f317a44c9840030
+
