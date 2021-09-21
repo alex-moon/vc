@@ -126,10 +126,10 @@ brew update
 brew install node
 npm install
 ```
+
 And then run webpack:
 ```
-npx webpoack
-npx webpack serve
+make serve
 ```
 
 And visit http://localhost:8000/ in your browser.

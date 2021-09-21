@@ -11,8 +11,8 @@ from vc.service import FileService
 
 @dataclass
 class IsrOptions:
-    output_file: str = 'output.png'
-    input_file: str = 'output-upscaled.png'
+    input_file: str = 'output.png'
+    output_file: str = 'output-upscaled.png'
 
 
 class IsrService:
