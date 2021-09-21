@@ -1,0 +1,460 @@
+[
+    {
+        "id": 10,
+        "spec": {
+            "images": null,
+            "videos": [
+                {
+                    "steps": [
+                        {
+                            "texts": [
+                                "A forest of birch trees"
+                            ],
+                            "styles": [
+                                "ansel adams"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 11,
+                            "x_velocity": 0.0,
+                            "y_velocity": 0.0,
+                            "z_velocity": 2.0,
+                            "upscale": false
+                        },
+                        {
+                            "texts": [
+                                "A forest of birch trees"
+                            ],
+                            "styles": [
+                                "ansel adams"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 11,
+                            "x_velocity": 0.0,
+                            "y_velocity": 0.0,
+                            "z_velocity": 0.0,
+                            "upscale": false
+                        },
+                        {
+                            "texts": [
+                                "A forest of birch trees"
+                            ],
+                            "styles": [
+                                "ansel adams"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 11,
+                            "x_velocity": 2.0,
+                            "y_velocity": 0.0,
+                            "z_velocity": 0.0,
+                            "upscale": false
+                        },
+                        {
+                            "texts": [
+                                "A forest of birch trees"
+                            ],
+                            "styles": [
+                                "ansel adams"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 11,
+                            "x_velocity": 0.0,
+                            "y_velocity": 0.0,
+                            "z_velocity": 0.0,
+                            "upscale": false
+                        },
+                        {
+                            "texts": [
+                                "A forest of birch trees"
+                            ],
+                            "styles": [
+                                "ansel adams"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 11,
+                            "x_velocity": 0.0,
+                            "y_velocity": 0.0,
+                            "z_velocity": -2.0,
+                            "upscale": false
+                        },
+                        {
+                            "texts": [
+                                "A forest of birch trees"
+                            ],
+                            "styles": [
+                                "ansel adams"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 11,
+                            "x_velocity": 0.0,
+                            "y_velocity": 0.0,
+                            "z_velocity": 0.0,
+                            "upscale": false
+                        },
+                        {
+                            "texts": [
+                                "A forest of birch trees"
+                            ],
+                            "styles": [
+                                "ansel adams"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 11,
+                            "x_velocity": -2.0,
+                            "y_velocity": 0.0,
+                            "z_velocity": 0.0,
+                            "upscale": false
+                        },
+                        {
+                            "texts": [
+                                "A forest of birch trees"
+                            ],
+                            "styles": [
+                                "ansel adams"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 11,
+                            "x_velocity": 0.0,
+                            "y_velocity": 0.0,
+                            "z_velocity": 0.0,
+                            "upscale": false
+                        }
+                    ]
+                }
+            ]
+        },
+        "created": "2021-09-20T18:30:04.241744",
+        "updated": "2021-09-21T08:20:19.794533",
+        "deleted": null,
+        "started": "2021-09-21T04:12:25.436370",
+        "completed": "2021-09-21T08:20:19.793642",
+        "failed": null,
+        "steps_completed": 94,
+        "steps_total": 94,
+        "name": "glitter",
+        "preview": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-21-04-12-25-glitter-preview.png",
+        "interim": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-21-04-12-25-glitter-interim.mp4",
+        "results": [
+            {
+                "id": 4,
+                "url": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-21-08-20-19-glitter-result.mp4",
+                "created": "2021-09-21T08:20:19.782776",
+                "updated": "2021-09-21T08:20:19.782776",
+                "deleted": null
+            }
+        ]
+    },
+    {
+        "id": 9,
+        "spec": {
+            "images": null,
+            "videos": [
+                {
+                    "steps": [
+                        {
+                            "texts": [
+                                "A high resolution image of a colourful nebula"
+                            ],
+                            "styles": [
+                                "nasa esa hubble"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 42,
+                            "x_velocity": 0.0,
+                            "y_velocity": -0.1,
+                            "z_velocity": 1.0,
+                            "upscale": false
+                        },
+                        {
+                            "texts": [
+                                "The surface of the planet earth from outer space"
+                            ],
+                            "styles": [
+                                "international space station"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 42,
+                            "x_velocity": 0.0,
+                            "y_velocity": -1.0,
+                            "z_velocity": 0.0,
+                            "upscale": false
+                        },
+                        {
+                            "texts": [
+                                "A drone shot of a vast forest from above"
+                            ],
+                            "styles": [
+                                "national geographic"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 42,
+                            "x_velocity": -1.0,
+                            "y_velocity": -0.1,
+                            "z_velocity": 0.0,
+                            "upscale": false
+                        }
+                    ]
+                }
+            ]
+        },
+        "created": "2021-09-20T18:30:04.238396",
+        "updated": "2021-09-21T04:12:25.416026",
+        "deleted": null,
+        "started": "2021-09-20T22:05:57.194061",
+        "completed": "2021-09-21T04:12:25.415224",
+        "failed": null,
+        "steps_completed": 134,
+        "steps_total": 134,
+        "name": "meal",
+        "preview": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-20-22-05-57-meal-preview.png",
+        "interim": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-20-22-05-57-meal-interim.mp4",
+        "results": [
+            {
+                "id": 3,
+                "url": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-21-04-12-25-meal-result.mp4",
+                "created": "2021-09-21T04:12:25.401941",
+                "updated": "2021-09-21T04:12:25.401941",
+                "deleted": null
+            }
+        ]
+    },
+    {
+        "id": 7,
+        "spec": {
+            "images": null,
+            "videos": [
+                {
+                    "steps": [
+                        {
+                            "texts": [
+                                "A stunning professional photograph taken roadside on a European highway looking out over crags and gullies, mountains and valleys"
+                            ],
+                            "styles": [
+                                "reuters",
+                                "ansel adams",
+                                "national geographic"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 84,
+                            "x_velocity": 5.0,
+                            "y_velocity": 0.0,
+                            "z_velocity": 0.0,
+                            "upscale": false
+                        },
+                        {
+                            "texts": [
+                                "A stunning professional photograph looking down from above on a wide and sparkling water river in a deep valley"
+                            ],
+                            "styles": [
+                                "reuters",
+                                "ansel adams",
+                                "national geographic"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 84,
+                            "x_velocity": 0.0,
+                            "y_velocity": 5.0,
+                            "z_velocity": 0.0,
+                            "upscale": false
+                        },
+                        {
+                            "texts": [
+                                "A stunning professional underwater photograph looking down into the darkest depths of the ocean"
+                            ],
+                            "styles": [
+                                "reuters",
+                                "ansel adams",
+                                "national geographic"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 84,
+                            "x_velocity": 0.0,
+                            "y_velocity": 0.0,
+                            "z_velocity": 5.0,
+                            "upscale": false
+                        }
+                    ]
+                }
+            ]
+        },
+        "created": "2021-09-19T16:19:29.903270",
+        "updated": "2021-09-20T22:05:57.153604",
+        "deleted": null,
+        "started": "2021-09-19T16:19:29.975616",
+        "completed": "2021-09-20T22:05:57.150937",
+        "failed": null,
+        "steps_completed": 797,
+        "steps_total": 797,
+        "name": "presidency",
+        "preview": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-19-16-19-29-presidency-preview.png",
+        "interim": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-19-16-19-29-presidency-interim.mp4",
+        "results": [
+            {
+                "id": 2,
+                "url": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-20-22-05-56-presidency-result.mp4",
+                "created": "2021-09-20T22:05:57.128249",
+                "updated": "2021-09-20T22:05:57.128249",
+                "deleted": null
+            }
+        ]
+    },
+    {
+        "id": 4,
+        "spec": {
+            "images": null,
+            "videos": [
+                {
+                    "steps": [
+                        {
+                            "texts": [
+                                "A stunning professional photograph taken roadside on an alpine highway looking out over crags and gullies, mountains and valleys"
+                            ],
+                            "styles": [
+                                "reuters",
+                                "ansel adams",
+                                "national geographic"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 42,
+                            "x_velocity": 1.0,
+                            "y_velocity": 0.0,
+                            "z_velocity": 0.0,
+                            "upscale": false
+                        },
+                        {
+                            "texts": [
+                                "A stunning professional photograph looking down from above on a wide river in a deep alpine valley"
+                            ],
+                            "styles": [
+                                "reuters",
+                                "ansel adams",
+                                "national geographic"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 42,
+                            "x_velocity": 0.0,
+                            "y_velocity": 1.0,
+                            "z_velocity": 0.0,
+                            "upscale": false
+                        },
+                        {
+                            "texts": [
+                                "A stunning professional underwater photograph looking down into the darkest depths of the ocean"
+                            ],
+                            "styles": [
+                                "reuters",
+                                "ansel adams",
+                                "national geographic"
+                            ],
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 42,
+                            "x_velocity": 0.0,
+                            "y_velocity": 0.0,
+                            "z_velocity": 1.0,
+                            "upscale": false
+                        }
+                    ]
+                }
+            ]
+        },
+        "created": "2021-09-18T21:26:46.118639",
+        "updated": "2021-09-19T14:00:51.694562",
+        "deleted": null,
+        "started": "2021-09-18T21:26:46.209418",
+        "completed": "2021-09-19T14:00:51.693179",
+        "failed": null,
+        "steps_completed": 399,
+        "steps_total": 399,
+        "name": "hour",
+        "preview": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-18-21-26-46-hour-preview.png",
+        "interim": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-18-21-26-46-hour-interim.mp4",
+        "results": [
+            {
+                "id": 1,
+                "url": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-19-14-00-51-hour-result.mp4",
+                "created": "2021-09-19T14:00:51.674770",
+                "updated": "2021-09-19T14:00:51.674770",
+                "deleted": null
+            }
+        ]
+    },
+    {
+        "id": 1,
+        "spec": {
+            "images": null,
+            "videos": [
+                {
+                    "steps": [
+                        {
+                            "texts": [
+                                "A stunning professional photograph of a vast meadow of wildflowers and alpine grass with mountains in the distance"
+                            ],
+                            "styles": null,
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 250,
+                            "x_velocity": 0.0,
+                            "y_velocity": 0.0,
+                            "z_velocity": 1.0,
+                            "upscale": false
+                        },
+                        {
+                            "texts": [
+                                "A stunning professional photograph of the open ocean from above"
+                            ],
+                            "styles": null,
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 250,
+                            "x_velocity": 0.0,
+                            "y_velocity": 1.0,
+                            "z_velocity": 0.0,
+                            "upscale": false
+                        },
+                        {
+                            "texts": [
+                                "A stunning professional photograph of an enormous rocky canyon from above"
+                            ],
+                            "styles": null,
+                            "iterations": 75,
+                            "init_iterations": 200,
+                            "epochs": 250,
+                            "x_velocity": 1.0,
+                            "y_velocity": 0.0,
+                            "z_velocity": 0.0,
+                            "upscale": false
+                        }
+                    ]
+                }
+            ]
+        },
+        "created": "2021-09-12T22:31:59.955942",
+        "updated": "2021-09-13T20:53:27.756953",
+        "deleted": null,
+        "started": "2021-09-12T22:32:03.858918",
+        "completed": null,
+        "failed": "2021-09-13T20:53:27.756953",
+        "steps_completed": 590,
+        "steps_total": 752,
+        "name": "cunt",
+        "preview": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-12-22-32-03-vegetable-preview.png",
+        "interim": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-13-20-31-04-output-vegetable-interim.mp4",
+        "results": []
+    }
+]
