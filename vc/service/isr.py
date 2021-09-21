@@ -28,7 +28,7 @@ class IsrService:
         image_array = np.array(image)
 
         model = RRDN(
-            arch_params={'C': 4, 'D': 3, 'G': 32, 'G0': 32, 'x': 4}
+            arch_params={'C': 4, 'D': 3, 'G': 32, 'G0': 32, 'T': 10, 'x': 4}
         )
         model.model.load_weights(
             'weights/rrdn-C4-D3-G32-G032-T10-x4_epoch299.hdf5'
