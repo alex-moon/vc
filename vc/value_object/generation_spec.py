@@ -10,24 +10,24 @@ from vc.api import api
 class ImageSpec:
     texts: List[str] = None
     styles: List[str] = None
-    iterations: int = 500
-    init_iterations: int = None
-    epochs: int = 1
+    iterations: int = 75
+    init_iterations: int = 200
+    epochs: int = 25
     x_velocity: float = 0.
     y_velocity: float = 0.
     z_velocity: float = 0.
-    upscale: bool = True
+    upscale: bool = False
 
     schema = api.model('Image Spec', {
         'texts': fields.List(fields.String, default_factory=list),
         'styles': fields.List(fields.String, default_factory=list),
-        'iterations': fields.Integer(default=500),
-        'init_iterations': fields.Integer(default=None),
-        'epochs': fields.Integer(default=10),
+        'iterations': fields.Integer(default=75),
+        'init_iterations': fields.Integer(default=200),
+        'epochs': fields.Integer(default=25),
         'x_velocity': fields.Float(default=0.),
         'y_velocity': fields.Float(default=0.),
         'z_velocity': fields.Float(default=0.),
-        'upscale': fields.Boolean(default=True),
+        'upscale': fields.Boolean(default=False),
     })
 
 
