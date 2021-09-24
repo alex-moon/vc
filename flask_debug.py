@@ -26,4 +26,5 @@ inpainting.handle(InpaintingOptions(**{
     'input_file': 'output.png',
     'output_filename': 'debug.png',
     'crop_border': [0., 0., 0., 0.],
+    'dynamic_fov': True,
 }))
