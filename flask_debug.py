@@ -1,27 +1,18 @@
-from vc import create_app
+from vc.service.inpainting import InpaintingService, InpaintingOptions
+from vc import create_app, injector
 
 
 class ClassLoader:
-    def loads(self, s, *args, **kwargs):
-        [method, class_name, fnargs, fnkwargs] = json.loads(
-            s.decode('utf-8'),
-            *args,
-            **kwargs
+    @classmethod
+    def load(cls, class_name):
+        class_instance = injector.get(
+            cls.handle_import(class_name)
         )
 
-        class_instance = self.binder.injector.get(
-            self.handle_import(class_name)
-        )
+        return class_instance
 
-        return [
-            method,
-            class_instance,
-            fnargs,
-            fnkwargs
-        ]
-
-    # @see https://stackoverflow.com/questions/547829/how-to-dynamically-load-a-python-class
-    def handle_import(self, name):
+    @classmethod
+    def handle_import(cls, name):
         components = name.split('.')
         mod = __import__(components[0])
         for comp in components[1:]:
@@ -30,5 +21,8 @@ class ClassLoader:
 
 
 app = create_app()
-
-
+inpainting: InpaintingService = ClassLoader.load('vc.service.inpainting.InpaintingService')
+inpainting.handle(InpaintingOptions(**{
+    'input_file': 'output.png',
+    'output_filename': 'debug.png',
+}))
