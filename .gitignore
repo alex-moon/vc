@@ -1,5 +1,5 @@
 notes.txt
-*.png
+/*.png
 venv
 taming-transformers
 CLIP
@@ -30,4 +30,6 @@ backup.sql
 backup.sql.bak
 log_file
 weights
+/input
+/tmp
 
