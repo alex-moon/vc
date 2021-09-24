@@ -11,6 +11,8 @@ def bind_singleton(binder: Binder, obj):
 def managers(binder: Binder):
     # @todo bind_manager with ModelFactory and ModelEventDispatcher
     bind_singleton(binder, manager.GenerationRequestManager)
+    bind_singleton(binder, manager.GenerationResultManager)
+    bind_singleton(binder, manager.UserManager)
 
 
 def services(binder: Binder):

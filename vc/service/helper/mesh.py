@@ -7,10 +7,14 @@ import numpy as np
 import torch
 import transforms3d
 
-try:
-    import cynetworkx as netx
-except ImportError:
-    import networkx as netx
+import warnings
+
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore",category=DeprecationWarning)
+    try:
+        import cynetworkx as netx
+    except ImportError:
+        import networkx as netx
 
 from typing import List
 from vispy import scene
