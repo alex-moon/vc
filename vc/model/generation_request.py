@@ -20,6 +20,7 @@ class GenerationRequest(db.Model, BaseModel):
     name = db.Column(db.String, nullable=True)
     preview = db.Column(db.String, nullable=True)
     interim = db.Column(db.String, nullable=True)
+    interim_watermarked = db.Column(db.String, nullable=True)
 
     results = db.relationship('GenerationResult', backref='request')
 
@@ -37,5 +38,6 @@ class GenerationRequest(db.Model, BaseModel):
         'name': fields.String,
         'preview': fields.String,
         'interim': fields.String,
+        'interim_watermarked': fields.String,
         'results': fields.List(fields.Nested(GenerationResult.schema)),
     })

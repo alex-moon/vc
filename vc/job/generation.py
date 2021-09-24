@@ -74,12 +74,16 @@ class GenerationJob(Job):
             generation_request.preview = generation_progress.preview
 
         if generation_progress.interim:
-            generation_request.interim = generation_progress.interim
+            interim, interim_watermarked = generation_progress.interim
+            generation_request.interim = interim
+            generation_request.interim_watermarked = interim_watermarked
 
         if generation_progress.result:
+            url, url_watermarked = generation_progress.result
             self.result_manager.create({
                 'request_id': generation_request.id,
-                'url': generation_progress.result
+                'url': url,
+                'url_watermarked': url_watermarked,
             })
 
         self.request_manager.save(generation_request)

@@ -2,6 +2,7 @@ import os
 from dataclasses import dataclass
 from datetime import datetime
 from shutil import copy
+from typing import Tuple
 
 from vc.service import (
     VqganClipService,
@@ -15,7 +16,7 @@ from vc.service.inpainting import InpaintingOptions
 from vc.service.isr import IsrService, IsrOptions
 from vc.service.helper.random_word import RandomWord
 from vc.service.vqgan_clip import VqganClipOptions
-from vc.value_object import ImageSpec
+from vc.value_object import ImageSpec, GenerationSpec
 
 
 @dataclass
@@ -33,7 +34,7 @@ class ImageGenerationStep(GenerationStep):
 
 @dataclass
 class VideoGenerationStep(GenerationStep):
-    pass
+    upscaled: bool
 
 
 @dataclass
@@ -49,8 +50,8 @@ class CleanFilesStep(GenerationStep):
 @dataclass
 class GenerationResult:
     preview: str = None
-    interim: str = None
-    result: str = None
+    interim: Tuple[str, str] = None
+    result: Tuple[str, str] = None
 
 
 class GenerationRunner:
@@ -242,11 +243,18 @@ class GenerationRunner:
             self.generation_name,
             'interim' if is_interim else 'result'
         )
-        return self.video.make_video(
+        unwatermarked = self.video.make_unwatermarked_video(
             output_file=filename,
             steps_dir=self.steps_dir,
             now=self.now if is_interim else None
         )
+        watermarked = self.video.make_watermarked_video(
+            step.upscaled,
+            output_file=filename,
+            steps_dir=self.steps_dir,
+            now=self.now if is_interim else None
+        )
+        return unwatermarked, watermarked
 
     def clean_files(self, step: CleanFilesStep):
         if os.path.exists(self.output_filename):
@@ -259,7 +267,7 @@ class GenerationRunner:
         return None
 
     @classmethod
-    def iterate_steps(cls, spec):
+    def iterate_steps(cls, spec: GenerationSpec):
         step = 0
 
         if spec.images:
@@ -302,11 +310,15 @@ class GenerationRunner:
 
         if spec.videos:
             for video in spec.videos:
+                upscaled = False
                 video_step = 0
                 step += 1
                 yield CleanFilesStep(step=step)
                 if video.steps:
                     for step_spec in video.steps:
+                        if step_spec.upscale:
+                            upscaled = True
+
                         if step_spec.texts:
                             for text in step_spec.texts:
                                 if step_spec.styles:
@@ -341,8 +353,12 @@ class GenerationRunner:
                                         if step % cls.INTERIM_STEPS == 0:
                                             step += 1
                                             yield HandleInterimStep(
-                                                step=step
+                                                step=step,
+                                                upscaled=upscaled
                                             )
 
                 step += 1
-                yield VideoGenerationStep(step=step)
+                yield VideoGenerationStep(
+                    step=step,
+                    upscaled=upscaled
+                )
