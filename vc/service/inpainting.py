@@ -75,7 +75,7 @@ class InpaintingOptions:
     extrapolation_thickness: int = 60
     repeat_inpaint_edge: bool = True
     crop_border: List[float] = field(
-        default_factory=lambda: [0.03, 0.03, 0.05, 0.03]
+        default_factory=lambda: [0., 0., 0., 0.]
     )
     anti_flickering: bool = False
     dynamic_fov: bool = False
