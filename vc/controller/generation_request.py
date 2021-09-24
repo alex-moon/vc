@@ -50,8 +50,8 @@ class GenerationRequestsController(BaseController):
     @ns.expect(post_model, validate=True)
     def post(self):
         try:
-            auth.current_user()
-            return self.manager.create(request.json)
+            user = auth.current_user()
+            return self.manager.create(request.json, user)
         except NotAuthenticatedException as e:
             raise Forbidden(e.message)
         except VcException as e:

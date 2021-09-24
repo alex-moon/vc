@@ -4,6 +4,7 @@ from injector import inject
 from vc.db import db
 from vc.exception import NotFoundException
 from vc.event import VcEventDispatcher
+from vc.model.user import User
 
 
 class Manager:
@@ -35,11 +36,13 @@ class Manager:
             db.session.rollback()
             raise e
 
-    def create(self, raw):
+    def create(self, raw, user: User = None):
         try:
             # @todo ModelFactory.create here
 
             model = self.model_class(**raw)
+            if user:
+                model.user_id = user.id
             self.save(model)
 
             # @todo ModelEventDispatcher.dispatchCreated here
