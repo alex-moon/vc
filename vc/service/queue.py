@@ -1,9 +1,8 @@
 import json
+
 from flask_rq import get_queue, get_connection
 from injector import Binder, inject
 from rq import Queue, SimpleWorker, Worker
-
-from vc.service.helper import DiagnosisHelper as dh
 
 
 class JobSerializer:

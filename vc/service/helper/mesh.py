@@ -3573,10 +3573,10 @@ def output_3d_photo_dynamic(
     int_mtx_real_x = int_mtx[0] * Width
     int_mtx_real_y = int_mtx[1] * Height
     cam_mesh.graph['hFov'] = 2 * np.arctan(
-        (1. / 2.) * ((cam_mesh.graph['original_W']) / int_mtx_real_x[0])
+        0.5 * (cam_mesh.graph['original_W'] / int_mtx_real_x[0])
     )
     cam_mesh.graph['vFov'] = 2 * np.arctan(
-        (1. / 2.) * ((cam_mesh.graph['original_H']) / int_mtx_real_y[1])
+        0.5 * (cam_mesh.graph['original_H'] / int_mtx_real_y[1])
     )
 
     colors = colors[..., :3]
@@ -3807,8 +3807,8 @@ def output_3d_photo(
         border = [0, img.shape[0], 0, img.shape[1]]
 
     anchor = [
-        int(max(0, int((img.shape[0]) // 2 - Width // 2))),
-        int(min(int((img.shape[0]) // 2 + Height // 2), (img.shape[0]) - 1)),
+        int(max(0, int(img.shape[0] // 2 - Width // 2))),
+        int(min(int(img.shape[0] // 2 + Height // 2), (img.shape[0]) - 1)),
         0,
         img.shape[1]
     ]

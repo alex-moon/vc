@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Debug</title>
+<style>
+html, body { margin: 0; padding: 0; font-family: sans-serif; }
+.container { padding: 16px; display: flex; flex-direction: column; }
+.side-by-side { display: flex; justify-content: center; }
+.panel { display: flex; flex-direction: column; }
+img { width: 400px; height: 400px; }
+.caption { margin-top: 8px; }
+
+.overlaid { width: 400px; height: 400px; position: relative; margin: 16px auto; }
+.overlaid img { position: absolute; top: 0; left: 0; opacity: 0.5; }
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="side-by-side">
+        <div class="panel">
+            <img src="file:///opt/vc/output.png" />
+            <div class="caption">Before</div>
+        </div>
+        <div class="panel">
+            <img src="file:///opt/vc/tmp/0001.png" />
+            <div class="caption">After</div>
+        </div>
+    </div>
+    <div class="overlaid">
+        <img src="file:///opt/vc/output.png" />
+        <img src="file:///opt/vc/tmp/0001.png" />
+    </div>
+</div>
+</body>
+</html>

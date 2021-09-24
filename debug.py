@@ -282,7 +282,8 @@ def output_3d_photo(
 
     canvas_size = 400
     init_factor = 1
-    fov = 60
+    fov = 56.56
+    # fov = 54
 
     normal_canvas = CanvasViewFactory.new(
         canvas_size,
@@ -401,97 +402,21 @@ def read_ply(mesh_fi):
 mesh_fi = 'mesh/output.ply'
 verts, colors, faces, height, width, hfov, vfov = read_ply(mesh_fi)
 
-spec = from_dict(data_class=GenerationSpec, data={
-    "images": None,
-    "videos": [
-        {
-            "steps": [
-                {
-                    "texts": [
-                        "A stunning professional photograph taken roadside on an alpine highway looking out over crags and gullies, mountains and valleys"
-                    ],
-                    "styles": [
-                        "reuters",
-                        "ansel adams",
-                        "national geographic"
-                    ],
-                    "iterations": 75,
-                    "init_iterations": 200,
-                    "epochs": 42,
-                    "x_velocity": 1,
-                    "upscale": False
-                },
-                {
-                    "texts": [
-                        "A stunning professional photograph looking down from above on a wide river in a deep alpine valley"
-                    ],
-                    "styles": [
-                        "reuters",
-                        "ansel adams",
-                        "national geographic"
-                    ],
-                    "iterations": 75,
-                    "epochs": 42,
-                    "y_velocity": 1,
-                    "upscale": False
-                },
-                {
-                    "texts": [
-                        "A stunning professional underwater photograph looking down into the darkest depths of the ocean"
-                    ],
-                    "styles": [
-                        "reuters",
-                        "ansel adams",
-                        "national geographic"
-                    ],
-                    "iterations": 75,
-                    "epochs": 42,
-                    "z_velocity": 1,
-                    "upscale": False
-                }
-            ]
-        }
-    ],
-})
-
-image_spec = None
-translate = None
-for step in GenerationRunner.iterate_steps(spec):
-    step, video_step, step_spec = step
-
-    if image_spec != step_spec:
-        print('Got new image spec', step_spec)
-        image_spec = step_spec
-        translate = Translate(
-            image_spec.x_velocity,
-            image_spec.y_velocity,
-            image_spec.z_velocity,
-            previous=translate
-        )
-
-    moving = translate.move()
-    x_shift, y_shift, z_shift = translate.velocity.to_tuple()
-
-    print('')
-    print(step, video_step, 'x_shift', round(x_shift, 5))
-    print(step, video_step, 'y_shift', round(y_shift, 5))
-    print(step, video_step, 'z_shift', round(z_shift, 5))
-
-    output_3d_photo(
-        verts,
-        colors,
-        faces,
-        step,
-        translate.to_tuple()
-    )
-
-os.system(
-    ' '.join(
-        [
-            'ffmpeg -y -i "tmp/%04d.png"',
-            '-b:v 8M -c:v h264_nvenc -pix_fmt yuv420p -strict -2',
-            '-filter:v "minterpolate=\'mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=60\'"',
-            'tmp/result.mp4'
-        ]
-    )
+output_3d_photo(
+    verts,
+    colors,
+    faces,
+    1,
+    [0, 0, 0]
 )
+
+# os.system(
+#     ' '.join(
+#         [
+#             'ffmpeg -y -i "tmp/%04d.png"',
+#             '-b:v 8M -c:v h264_nvenc -pix_fmt yuv420p -strict -2',
+#             '-filter:v "minterpolate=\'mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=60\'"',
+#             'tmp/result.mp4'
+#         ]
+#     )
+# )
