@@ -251,6 +251,7 @@ class InpaintingService:
 
         print(f"Making inpainting frame at {time.time()}")
 
+        import ipdb;ipdb.set_trace()
         top = (
             args.original_h // 2
             - sample['int_mtx'][1, 2]

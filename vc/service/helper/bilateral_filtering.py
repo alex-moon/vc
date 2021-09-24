@@ -46,7 +46,7 @@ def sparse_bilateral_filtering(
             discontinuity_map=discontinuity_map,
             mask=mask,
             window_size=window_size
-            )
+        )
 
     return save_images, save_depths
 
