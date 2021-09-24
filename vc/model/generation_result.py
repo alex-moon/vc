@@ -15,9 +15,17 @@ class GenerationResult(db.Model, BaseModel):
     url = db.Column(db.String, nullable=False)
     url_watermarked = db.Column(db.String, nullable=False)
 
-    schema = api.model('Generation Result', {
+    public_schema = api.model('Generation Result', {
         'id': fields.Integer,
         'url': fields.String,
+        'url_watermarked': fields.String,
+        'created': fields.DateTime(),
+        'updated': fields.DateTime(),
+        'deleted': fields.DateTime(),
+    })
+
+    private_schema = api.model('Generation Result', {
+        'id': fields.Integer,
         'url_watermarked': fields.String,
         'created': fields.DateTime(),
         'updated': fields.DateTime(),

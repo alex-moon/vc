@@ -50,8 +50,10 @@ class CleanFilesStep(GenerationStep):
 @dataclass
 class GenerationResult:
     preview: str = None
-    interim: Tuple[str, str] = None
-    result: Tuple[str, str] = None
+    interim: str = None
+    interim_watermarked: str = None
+    result: str = None
+    result_watermarked: str = None
 
 
 class GenerationRunner:
@@ -106,13 +108,19 @@ class GenerationRunner:
 
         if isinstance(step, HandleInterimStep):
             dh.debug('GenerationRunner', 'handle_interim', step)
-            interim = self.handle_interim(step)
-            return GenerationResult(interim=interim)
+            interim, interim_watermarked = self.handle_interim(step)
+            return GenerationResult(
+                interim=interim,
+                interim_watermarked=interim_watermarked
+            )
 
         if isinstance(step, VideoGenerationStep):
             dh.debug('GenerationRunner', 'make_video', step)
-            result = self.make_video(step)
-            return GenerationResult(result=result)
+            result, result_watermarked = self.make_video(step)
+            return GenerationResult(
+                result=result,
+                result_watermarked=result_watermarked
+            )
 
         if isinstance(step, CleanFilesStep):
             dh.debug('GenerationRunner', 'clean_files', step)

@@ -1,3 +1,4 @@
 from .not_found_exception import NotFoundException
+from .not_authenticated_exception import NotAuthenticatedException
 from .vc_exception import VcException
 from .third_party_exception import ThirdPartyException

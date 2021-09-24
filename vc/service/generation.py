@@ -67,9 +67,11 @@ class GenerationService:
                 steps_completed=steps_completed,
                 steps_total=steps_total,
                 name=runner.generation_name,
-                result=result.result,
                 preview=result.preview,
-                interim=result.interim
+                result=result.result,
+                result_watermarked=result.result_watermarked,
+                interim=result.interim,
+                interim_watermarked=result.interim_watermarked
             ))
             dh.debug('Completed %s of %s steps (%s%%) for %s in %s' % (
                 steps_completed,

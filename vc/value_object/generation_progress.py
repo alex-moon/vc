@@ -1,4 +1,3 @@
-from typing import Tuple
 from dataclasses import dataclass
 
 
@@ -7,6 +6,9 @@ class GenerationProgress:
     steps_total: int
     steps_completed: int
     name: str
-    result: Tuple[str, str] = None
     preview: str = None
-    interim: Tuple[str, str] = None
+    result: str = None
+    result_watermarked: str = None
+    interim: str = None
+    interim_watermarked: str = None
+

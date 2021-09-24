@@ -16,7 +16,7 @@ class BaseModel:
         server_default=func.now(),
         onupdate=func.now()
     )
-    deleted = db.Column(db.DateTime, nullable=True)
+    deleted = db.Column(db.DateTime)
 
     def __repr__(self):
         return '<%s %r>' % (self.__class__.__name__, self.id)
