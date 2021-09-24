@@ -113,7 +113,7 @@ class InpaintingService:
             sample['tgt_name'] + '.ply'
         )
 
-        image = imageio.imread(sample['ref_img_fi'])
+        image = imageio.imread(sample['ref_img_fi'], pilmode="RGB")
 
         print(f"Running depth extraction at {time.time()}")
         if args.use_boostmonodepth is True:
@@ -156,7 +156,6 @@ class InpaintingService:
             (args.output_w, args.output_h),
             interpolation=cv2.INTER_AREA
         )
-        image = image.convert('RGB')
 
         depth = read_MiDaS_depth(
             sample['depth_fi'],
