@@ -955,6 +955,7 @@ def create_placeholder(
 
 
 def get_MiDaS_sample(args, aft_certain=None):
+    import ipdb;ipdb.set_trace()
     image_file = args.input_file
     depth_folder = args.depth_folder
     specific = args.specific
