@@ -85,7 +85,7 @@ class GenerationRequestController(BaseController):
             return ns.marshal(data, public_model)
 
     @auth.login_required()
-    def delete(self, id_)
+    def delete(self, id_):
         self.manager.delete(id_)
         return {
             "status": True,
