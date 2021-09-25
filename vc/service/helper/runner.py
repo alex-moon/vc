@@ -299,7 +299,8 @@ class GenerationRunner:
                                     if step % cls.INTERIM_STEPS == 0:
                                         step += 1
                                         yield HandleInterimStep(
-                                            step=step
+                                            step=step,
+                                            upscaled=step_spec.upscale
                                         )
                         else:
                             for i in range(step_spec.epochs):
@@ -313,7 +314,8 @@ class GenerationRunner:
                                 if step % cls.INTERIM_STEPS == 0:
                                     step += 1
                                     yield HandleInterimStep(
-                                        step=step
+                                        step=step,
+                                        upscaled=step_spec.upscale
                                     )
 
         if spec.videos:
@@ -345,7 +347,8 @@ class GenerationRunner:
                                             if step % cls.INTERIM_STEPS == 0:
                                                 step += 1
                                                 yield HandleInterimStep(
-                                                    step=step
+                                                    step=step,
+                                                    upscaled=upscaled
                                                 )
                                 else:
                                     for i in range(step_spec.epochs):
