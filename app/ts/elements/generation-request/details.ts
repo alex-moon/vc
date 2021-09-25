@@ -34,25 +34,32 @@ export class GenerationRequestDetails extends HTMLElement {
     update(request: Model) {
         this.request = request;
 
-        if (!this.request.spec.videos.length) {
-            return;
-        }
+        if (this.request.spec) {
 
-        const steps = this.request.spec.videos[0].steps;
-        for (let i = 0; i < steps.length; i++) {
-            const element = document.createElement(
-                'vc-generation-request-details-step'
-            ) as GenerationRequestDetailsStep;
-            this.$steps.appendChild(element);
-            element.update(i + 1, steps[i]);
+            if (this.request.spec.videos.length) {
+                const steps = this.request.spec.videos[0].steps;
+                for (let i = 0; i < steps.length; i++) {
+                    const element = document.createElement(
+                        'vc-generation-request-details-step'
+                    ) as GenerationRequestDetailsStep;
+                    this.$steps.appendChild(element);
+                    element.update(i + 1, steps[i]);
+                }
+            }
         }
 
         if (this.request.results && this.request.results.length) {
             const result = this.request.results[0];
-            const panel = this.createVideoPanel(result.url);
-            this.$preview.appendChild(panel);
+            const url = result.url || result.url_watermarked;
+            if (url) {
+                const panel = this.createVideoPanel(url);
+                this.$preview.appendChild(panel);
+            }
         } else if (this.request.interim) {
             const panel = this.createVideoPanel(this.request.interim);
+            this.$preview.appendChild(panel);
+        } else if (this.request.interim_watermarked) {
+            const panel = this.createVideoPanel(this.request.interim_watermarked);
             this.$preview.appendChild(panel);
         }
     }

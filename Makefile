@@ -12,3 +12,6 @@ serve: build
 
 deploy:
 	scripts/deploy.sh
+
+db:
+	ssh vc "/opt/vc/db.sh"

@@ -7,6 +7,7 @@ export class GenerationRequest extends BaseModel {
     name ?: string;
     preview ?: string;
     interim ?: string;
+    interim_watermarked ?: string;
     steps_completed ?: number;
     steps_total ?: number;
     results ?: GenerationResult[];
