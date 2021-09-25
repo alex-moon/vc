@@ -1,5 +1,5 @@
 export class AuthHelper {
-    static token: string = null;
+    static token: string = (new URLSearchParams(window.location.search)).get('token');
     static callbacks: CallableFunction[] = [];
 
     static setToken(token: string) {
