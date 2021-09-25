@@ -12,7 +12,7 @@ class ImageSpec:
     styles: List[str] = None
     iterations: int = 75
     init_iterations: int = 200
-    epochs: int = 25
+    epochs: int = 42
     x_velocity: float = 0.
     y_velocity: float = 0.
     z_velocity: float = 0.
@@ -23,7 +23,7 @@ class ImageSpec:
         'styles': fields.List(fields.String, default_factory=list),
         'iterations': fields.Integer(default=75),
         'init_iterations': fields.Integer(default=200),
-        'epochs': fields.Integer(default=25),
+        'epochs': fields.Integer(default=42),
         'x_velocity': fields.Float(default=0.),
         'y_velocity': fields.Float(default=0.),
         'z_velocity': fields.Float(default=0.),
