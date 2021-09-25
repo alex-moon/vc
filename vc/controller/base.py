@@ -12,5 +12,5 @@ class BaseController(Resource):
         self.user_manager = user_manager
 
     @auth.verify_token
-    def verify_token(self, token):
+    def verify_token(self, token=None):
         return self.user_manager.authenticate_or_throw(token)
