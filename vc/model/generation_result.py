@@ -12,8 +12,8 @@ class GenerationResult(db.Model, BaseModel):
         nullable=False
     )
 
-    url = db.Column(db.String, nullable=False)
-    url_watermarked = db.Column(db.String, nullable=False)
+    url = db.Column(db.String, nullable=True)
+    url_watermarked = db.Column(db.String, nullable=True)
 
     public_schema = api.model('Generation Result', {
         'id': fields.Integer,
