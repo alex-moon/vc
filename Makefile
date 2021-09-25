@@ -16,5 +16,7 @@ deploy.private:
 deploy.public:
 	scripts/deploy.public.sh
 
+deploy: deploy.private deploy.public
+
 db:
 	ssh -t vc "/opt/vc/db.sh"
