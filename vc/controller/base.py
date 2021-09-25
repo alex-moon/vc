@@ -10,7 +10,7 @@ class BaseController(Resource):
     def __init__(self, user_manager: UserManager, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_manager = user_manager
+        auth.verify_token(self.verify_token)
 
-    @auth.verify_token
-    def verify_token(self, token=None):
+    def verify_token(self, token):
         return self.user_manager.authenticate_or_throw(token)
