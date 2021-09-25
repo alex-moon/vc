@@ -1,4 +1,5 @@
 import {GenerationRequest} from "./models/generation-request";
+import {AuthHelper} from "./helpers/auth";
 
 export class Manager {
     requests: GenerationRequest[]
@@ -21,7 +22,12 @@ export class Manager {
         if (this.isLocal) {
             url = '/assets/latest.json';
         }
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': 'Bearer ' + AuthHelper.token,
+                'Content-Type': 'application/json',
+            },
+        });
         return response.json();
     }
 
@@ -32,6 +38,7 @@ export class Manager {
         const response = await fetch(this.base_url + url, {
             method: 'POST',
             headers: {
+                'Authorization': 'Bearer ' + AuthHelper.token,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(data),

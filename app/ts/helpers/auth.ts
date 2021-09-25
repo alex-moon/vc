@@ -1,11 +1,19 @@
 export class AuthHelper {
-    token: string = null;
+    static token: string = null;
+    static callbacks: CallableFunction[] = [];
 
-    public setToken(token: string) {
-        this.token = token;
+    static setToken(token: string) {
+        AuthHelper.token = token;
+        for (const callback of AuthHelper.callbacks) {
+            callback(token);
+        }
     }
 
-    public hasToken() {
-        return this.token !== null;
+    static hasToken() {
+        return AuthHelper.token !== null;
+    }
+
+    static listen(callback: CallableFunction) {
+        this.callbacks.push(callback);
     }
 }

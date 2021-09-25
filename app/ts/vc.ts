@@ -2,6 +2,7 @@ import {Service} from './service'
 import {GenerationRequests} from './elements/generation-requests'
 import {GenerationRequestForm} from "./elements/generation-request-form";
 import {ImageSpec} from "./models/image-spec";
+import {AuthHelper} from "./helpers/auth";
 
 export class Vc {
     $form: GenerationRequestForm;
@@ -14,10 +15,11 @@ export class Vc {
 
     constructor() {
         this.service = new Service();
-        this.$form = document.querySelector('vc-generation-request-form');
+        this.$form = document.querySelector('vc-login-form');
         this.$form.connect(this);
         this.$requests = document.querySelector('vc-generation-requests');
         this.refreshAndSetTimeout();
+        AuthHelper.listen(this.refresh.bind(this));
     }
 
     create(spec: ImageSpec) {

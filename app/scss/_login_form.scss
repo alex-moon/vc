@@ -1,0 +1,10 @@
+vc-login-form {
+    background-color: #d7e6d6;
+
+    vc-login {
+        display: block;
+        padding: 16px;
+    }
+
+    @import "generation_request_form";
+}
