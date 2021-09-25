@@ -14,4 +14,4 @@ deploy:
 	scripts/deploy.sh
 
 db:
-	ssh vc "/opt/vc/db.sh"
+	ssh -t vc "/opt/vc/db.sh"

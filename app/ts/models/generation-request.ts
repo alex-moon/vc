@@ -3,7 +3,7 @@ import {GenerationSpec} from "./generation-spec";
 import {BaseModel} from "./base-model";
 
 export class GenerationRequest extends BaseModel {
-    spec: GenerationSpec;
+    spec ?: GenerationSpec;
     name ?: string;
     preview ?: string;
     interim ?: string;

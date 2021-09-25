@@ -1,6 +1,7 @@
 import {CustomElement, Dispatch, DispatchEmitter} from 'custom-elements-ts';
 import {GenerationRequest as Model} from "../../models/generation-request";
 import {StatusHelper} from "../../helpers/status";
+import {DetailsHelper} from "../../helpers/details";
 
 @CustomElement({
     tag: 'vc-generation-request-summary',
@@ -24,11 +25,6 @@ import {StatusHelper} from "../../helpers/status";
                 <span class="steps-total"></span>
             </div>
         </div>
-    </div>
-    <div class="actions">
-        <button class="material-icons">
-            expand_more
-        </button>
     </div>
 </div>
 `
@@ -62,20 +58,6 @@ export class GenerationRequestSummary extends HTMLElement {
         this.$stepsTotal = this.$root.querySelector('.steps-total');
         this.$barCompleted = this.$root.querySelector('.bar .completed');
         this.$preview = this.$root.querySelector('.preview img');
-        this.$expand = this.$root.querySelector('.actions button');
-
-        this.$expand.addEventListener('click', (e) => {
-            if (this.expanded) {
-                this.$expand.innerHTML = 'expand_more';
-                this.expanded = false;
-                this.$root.classList.remove('expanded');
-            } else {
-                this.$expand.innerHTML = 'expand_less';
-                this.expanded = true;
-                this.$root.classList.add('expanded');
-            }
-            this.expand.emit({detail: this.expanded});
-        });
     }
 
     update(request: Model) {
@@ -94,6 +76,9 @@ export class GenerationRequestSummary extends HTMLElement {
             this.request.steps_completed,
             this.request.steps_total
         );
+        if (DetailsHelper.hasDetails(this.request)) {
+            this.addExpand();
+        }
 
         this.$preview.src = this.request.preview || '/assets/placeholder.png';
     }
@@ -120,6 +105,30 @@ export class GenerationRequestSummary extends HTMLElement {
         child.classList.add('datetime');
         child.innerHTML = datetime;
         this.$status.appendChild(child);
+    }
+
+    addExpand() {
+        const actions = document.createElement('div');
+        actions.classList.add('actions');
+        const button = document.createElement('button');
+        button.classList.add('material-icons');
+        button.innerText = 'expand_more';
+        actions.appendChild(button);
+
+        button.addEventListener('click', (e) => {
+            if (this.expanded) {
+                button.innerText = 'expand_more';
+                this.expanded = false;
+                this.$root.classList.remove('expanded');
+            } else {
+                button.innerText = 'expand_less';
+                this.expanded = true;
+                this.$root.classList.add('expanded');
+            }
+            this.expand.emit({detail: this.expanded});
+        });
+
+        this.$root.appendChild(actions);
     }
 
     updateBar(completed: number, total: number) {

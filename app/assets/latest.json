@@ -24,22 +24,6 @@
         ]
     },
     {
-        "id": 17,
-        "created": "2021-09-24T11:15:48.647853",
-        "updated": "2021-09-24T11:15:48.743186",
-        "deleted": null,
-        "started": "2021-09-24T12:15:48.736380",
-        "completed": null,
-        "failed": "2021-09-24T11:16:53.819524",
-        "cancelled": null,
-        "steps_completed": 1,
-        "steps_total": 188,
-        "name": "invention",
-        "preview": null,
-        "interim_watermarked": null,
-        "results": []
-    },
-    {
         "id": 16,
         "created": "2021-09-21T15:42:10.389742",
         "updated": "2021-09-24T09:28:45.565539",
@@ -78,70 +62,6 @@
                 "deleted": null
             }
         ]
-    },
-    {
-        "id": 14,
-        "created": "2021-09-21T15:07:32.525797",
-        "updated": "2021-09-21T15:39:15.348554",
-        "deleted": null,
-        "started": "2021-09-21T15:39:15.345403",
-        "completed": null,
-        "failed": null,
-        "cancelled": null,
-        "steps_completed": 1,
-        "steps_total": 979,
-        "name": "jam",
-        "preview": null,
-        "interim_watermarked": null,
-        "results": []
-    },
-    {
-        "id": 13,
-        "created": "2021-09-21T14:48:39.751321",
-        "updated": "2021-09-21T15:11:35.786385",
-        "deleted": null,
-        "started": "2021-09-21T15:07:32.532182",
-        "completed": null,
-        "failed": "2021-09-21T15:11:35.783339",
-        "cancelled": null,
-        "steps_completed": 1,
-        "steps_total": 748,
-        "name": "distance",
-        "preview": null,
-        "interim_watermarked": null,
-        "results": []
-    },
-    {
-        "id": 12,
-        "created": "2021-09-21T14:48:33.951284",
-        "updated": "2021-09-21T14:52:37.593471",
-        "deleted": null,
-        "started": "2021-09-21T14:48:39.836329",
-        "completed": null,
-        "failed": "2021-09-21T14:52:37.587926",
-        "cancelled": null,
-        "steps_completed": 1,
-        "steps_total": 748,
-        "name": "comparison",
-        "preview": null,
-        "interim_watermarked": null,
-        "results": []
-    },
-    {
-        "id": 11,
-        "created": "2021-09-21T14:19:10.514801",
-        "updated": "2021-09-21T14:44:55.288684",
-        "deleted": null,
-        "started": "2021-09-21T14:39:34.305718",
-        "completed": null,
-        "failed": null,
-        "cancelled": null,
-        "steps_completed": 2,
-        "steps_total": 562,
-        "name": "cactus",
-        "preview": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-21-14-39-34-cactus-preview.png",
-        "interim_watermarked": null,
-        "results": []
     },
     {
         "id": 10,
@@ -192,22 +112,6 @@
         ]
     },
     {
-        "id": 8,
-        "created": "2021-09-19T16:20:14.543273",
-        "updated": "2021-09-20T22:05:57.182022",
-        "deleted": null,
-        "started": "2021-09-20T22:05:57.178472",
-        "completed": "2021-09-20T22:05:57.183536",
-        "failed": null,
-        "cancelled": null,
-        "steps_completed": null,
-        "steps_total": null,
-        "name": null,
-        "preview": null,
-        "interim_watermarked": null,
-        "results": []
-    },
-    {
         "id": 7,
         "created": "2021-09-19T16:19:29.903270",
         "updated": "2021-09-20T22:05:57.153604",
@@ -232,38 +136,6 @@
         ]
     },
     {
-        "id": 6,
-        "created": "2021-09-19T15:20:20.492262",
-        "updated": "2021-09-19T16:14:15.352177",
-        "deleted": null,
-        "started": "2021-09-19T15:20:20.580114",
-        "completed": null,
-        "failed": "2021-09-19T16:15:24.543388",
-        "cancelled": null,
-        "steps_completed": 24,
-        "steps_total": 797,
-        "name": "net",
-        "preview": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-19-15-20-20-net-preview.png",
-        "interim_watermarked": null,
-        "results": []
-    },
-    {
-        "id": 5,
-        "created": "2021-09-19T14:20:27.819104",
-        "updated": "2021-09-19T15:18:37.341385",
-        "deleted": null,
-        "started": "2021-09-19T14:25:45.212352",
-        "completed": null,
-        "failed": "2021-09-19T15:35:44.925509",
-        "cancelled": null,
-        "steps_completed": 23,
-        "steps_total": 797,
-        "name": "process",
-        "preview": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-19-14-25-45-process-preview.png",
-        "interim_watermarked": null,
-        "results": []
-    },
-    {
         "id": 4,
         "created": "2021-09-18T21:26:46.118639",
         "updated": "2021-09-19T14:00:51.694562",
@@ -286,38 +158,6 @@
                 "deleted": null
             }
         ]
-    },
-    {
-        "id": 3,
-        "created": "2021-09-18T19:47:46.411354",
-        "updated": "2021-09-18T21:20:56.305157",
-        "deleted": null,
-        "started": "2021-09-18T19:47:46.503265",
-        "completed": null,
-        "failed": "2021-09-19T14:22:59.400155",
-        "cancelled": null,
-        "steps_completed": 37,
-        "steps_total": 399,
-        "name": "system",
-        "preview": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-18-19-47-46-system-preview.png",
-        "interim_watermarked": null,
-        "results": []
-    },
-    {
-        "id": 2,
-        "created": "2021-09-18T18:14:10.477875",
-        "updated": "2021-09-18T19:40:42.292508",
-        "deleted": null,
-        "started": "2021-09-18T18:14:10.577499",
-        "completed": null,
-        "failed": "2021-09-19T14:22:59.400155",
-        "cancelled": null,
-        "steps_completed": 34,
-        "steps_total": 399,
-        "name": "ground",
-        "preview": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-18-18-14-10-ground-preview.png",
-        "interim_watermarked": null,
-        "results": []
     },
     {
         "id": 1,

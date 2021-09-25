@@ -1,3 +1,5 @@
+$panel-width: 400px;
+
 vc-generation-request-details {
     .details {
         border-top: solid $border-width #63575b;
@@ -35,8 +37,8 @@ vc-generation-request-details {
             }
 
             .panel {
-                width: 400px;
-                height: 400px;
+                width: $panel-width;
+                height: $panel-width;
                 border-radius: $border-radius;
                 border: solid $border-width #535c69;
                 box-sizing: border-box;

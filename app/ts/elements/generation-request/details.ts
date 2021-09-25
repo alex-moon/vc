@@ -1,6 +1,7 @@
 import {CustomElement, Toggle, Watch} from 'custom-elements-ts';
 import {GenerationRequest as Model} from "../../models/generation-request";
 import {GenerationRequestDetailsStep} from "./step";
+import {DetailsHelper} from "../../helpers/details";
 
 @CustomElement({
     tag: 'vc-generation-request-details',
@@ -35,7 +36,6 @@ export class GenerationRequestDetails extends HTMLElement {
         this.request = request;
 
         if (this.request.spec) {
-
             if (this.request.spec.videos.length) {
                 const steps = this.request.spec.videos[0].steps;
                 for (let i = 0; i < steps.length; i++) {
@@ -48,36 +48,35 @@ export class GenerationRequestDetails extends HTMLElement {
             }
         }
 
-        if (this.request.results && this.request.results.length) {
-            const result = this.request.results[0];
-            const url = result.url || result.url_watermarked;
-            if (url) {
-                const panel = this.createVideoPanel(url);
-                this.$preview.appendChild(panel);
-            }
-        } else if (this.request.interim) {
-            const panel = this.createVideoPanel(this.request.interim);
+        let url = DetailsHelper.getResultUrl(this.request);
+        if (url) {
+            const panel = this.createVideoPanel(url);
             this.$preview.appendChild(panel);
-        } else if (this.request.interim_watermarked) {
-            const panel = this.createVideoPanel(this.request.interim_watermarked);
+        } else {
+            const placeholder = document.createElement('img');
+            placeholder.src = '/assets/placeholder.png';
+            const panel = this.createPanel(placeholder);
             this.$preview.appendChild(panel);
         }
     }
 
     createVideoPanel(url: string) {
-        const panel = document.createElement('div');
-        panel.setAttribute('class', 'panel');
-
         const video = document.createElement('video');
         video.setAttribute('controls', 'controls');
-        video.setAttribute('width', '400');
-        video.setAttribute('height', '400');
+        video.setAttribute('width', '800');
+        video.setAttribute('height', '800');
 
         const source = document.createElement('source');
         source.src = url;
 
         video.appendChild(source);
-        panel.appendChild(video);
+        return this.createPanel(video);
+    }
+
+    createPanel(element: HTMLElement) {
+        const panel = document.createElement('div');
+        panel.setAttribute('class', 'panel');
+        panel.appendChild(element);
         return panel;
     }
 
