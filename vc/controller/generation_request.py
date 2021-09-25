@@ -38,6 +38,7 @@ class GenerationRequestsController(BaseController):
         super().__init__(user_manager, *args, **kwargs)
         self.manager = manager
 
+    @auth.login_required(optional=True)
     def get(self):
         data = self.manager.all()
         try:
@@ -48,12 +49,10 @@ class GenerationRequestsController(BaseController):
 
     @ns.marshal_with(private_model)
     @ns.expect(post_model, validate=True)
+    @auth.login_required()
     def post(self):
         try:
-            user = auth.current_user()
             return self.manager.create(request.json, user)
-        except NotAuthenticatedException as e:
-            raise Forbidden(e.message)
         except VcException as e:
             raise InternalServerError(e.message)
 
@@ -73,6 +72,7 @@ class GenerationRequestController(BaseController):
         super().__init__(user_manager, *args, **kwargs)
         self.manager = manager
 
+    @auth.login_required(optional=True)
     def get(self, id_):
         try:
             data = self.manager.find_or_throw(id_)
@@ -84,17 +84,15 @@ class GenerationRequestController(BaseController):
         except NotAuthenticatedException:
             return ns.marshal(data, public_model)
 
-    def delete(self, id_):
-        try:
-            auth.current_user()
-            self.manager.delete(id_)
-        except NotAuthenticatedException as e:
-            raise Forbidden(e.message)
+    @auth.login_required()
+    def delete(self, id_)
+        self.manager.delete(id_)
         return {
             "status": True,
         }
 
     @ns.marshal_with(private_model)
+    @auth.login_required()
     def put(self, id_):
         try:
             auth.current_user()
