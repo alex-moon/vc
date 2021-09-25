@@ -20,6 +20,17 @@
             padding: 0;
             color: rgba(0, 0, 0, 0);
         }
+
+        .help {
+            cursor: pointer;
+            background: url('../assets/help.png');
+            background-size: contain;
+            width: 64px;
+            height: 64px;
+            margin: 0;
+            padding: 0;
+            color: rgba(0, 0, 0, 0);
+        }
     }
 
     .header-second {
