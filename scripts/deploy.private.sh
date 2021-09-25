@@ -14,5 +14,5 @@ sudo service supervisor start
 sudo supervisorctl reload all
 
 npm install
-npx webpack --node-env=private
+npx webpack build --node-env=private
 "

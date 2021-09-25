@@ -10,8 +10,11 @@ build:
 serve: build
 	npx webpack serve --node-env=local
 
-deploy:
-	scripts/deploy.sh
+deploy.private:
+	scripts/deploy.private.sh
+
+deploy.public:
+	scripts/deploy.public.sh
 
 db:
 	ssh -t vc "/opt/vc/db.sh"
