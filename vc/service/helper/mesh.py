@@ -3782,7 +3782,7 @@ def output_3d_photo(
         )
 
     colors = colors[..., :3]
-    fov = 56.56  # @todo magic numbers lmao
+    fov = 53.13  # @todo magic numbers lmao
     canvas_size = max(Width, Height)
 
     init_factor = 1
