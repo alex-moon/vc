@@ -52,11 +52,11 @@
         "steps_total": 748,
         "name": "feather",
         "preview": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-21-15-41-52-feather-preview.png",
-        "interim_watermarked": null,
+        "interim_watermarked": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-25-18-43-00-feather-watermarked.mp4",
         "results": [
             {
                 "id": 5,
-                "url_watermarked": null,
+                "url_watermarked": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-25-18-43-00-feather-watermarked.mp4",
                 "created": "2021-09-23T00:27:44.055376",
                 "updated": "2021-09-23T00:27:44.055376",
                 "deleted": null
@@ -124,11 +124,11 @@
         "steps_total": 797,
         "name": "presidency",
         "preview": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-19-16-19-29-presidency-preview.png",
-        "interim_watermarked": null,
+        "interim_watermarked": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-25-18-43-00-presidency-watermarked.mp4",
         "results": [
             {
                 "id": 2,
-                "url_watermarked": null,
+                "url_watermarked": "https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/2021-09-25-18-43-00-presidency-watermarked.mp4",
                 "created": "2021-09-20T22:05:57.128249",
                 "updated": "2021-09-20T22:05:57.128249",
                 "deleted": null

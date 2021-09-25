@@ -5,10 +5,10 @@ stop:
 	scripts/aws.stop.sh
 
 build:
-	npx webpack
+	npx webpack --node-env=local
 
 serve: build
-	npx webpack serve
+	npx webpack serve --node-env=local
 
 deploy:
 	scripts/deploy.sh

@@ -1,6 +1,29 @@
 const path = require('path');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+
+function getEnv() {
+  const env = process.env.NODE_ENV || 'public';
+  switch (env) {
+    case 'private':
+      return {
+        useLocal: false,
+        host: '"https://vc-api.ajmoon.uk"',
+      }
+    case 'local':
+      return {
+        useLocal: true,
+        host: '"https://vc-api.ajmoon.uk"',
+      }
+    case 'public':
+    default:
+      return {
+        useLocal: true,
+        host: '""',
+      }
+  }
+}
 
 module.exports = {
   entry: {
@@ -70,6 +93,9 @@ module.exports = {
             to: "./assets"
           }
       ]
-    })
+    }),
+    new webpack.DefinePlugin({
+        'window.env': getEnv(),
+    }),
   ]
 };

@@ -3,22 +3,16 @@ import {AuthHelper} from "./helpers/auth";
 
 export class Manager {
     requests: GenerationRequest[]
-    isLocal: boolean
+    isLocal = (window as any).env.useLocal
+    host = (window as any).env.host
     base_url = '/api/generation-request/'
 
     constructor() {
         this.requests = [];
-
-        const useDummyData = false;
-        this.isLocal = useDummyData && [
-            'vc.local',
-            'localhost',
-            '127.0.0.1',
-        ].includes(window.location.hostname);
     }
 
     async fetch(url = '') {
-        url = this.base_url + url;
+        url = this.host + this.base_url + url;
         if (this.isLocal) {
             url = '/assets/latest.json';
         }
@@ -35,7 +29,8 @@ export class Manager {
         if (this.isLocal) {
             return data;
         }
-        const response = await fetch(this.base_url + url, {
+        url = this.host + this.base_url + url;
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + AuthHelper.token,
