@@ -34,6 +34,9 @@ export class LoginForm extends HTMLElement {
 
     draw() {
         this.$root.innerHTML = '';
+        if ((window as any).env.useLocal) {
+            return;
+        }
 
         if (AuthHelper.hasToken()) {
             this.$form = document.createElement('vc-generation-request-form') as GenerationRequestForm;
