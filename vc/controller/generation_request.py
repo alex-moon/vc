@@ -45,9 +45,9 @@ class GenerationRequestsController(BaseController):
             return ns.marshal(data, private_model)
         return ns.marshal(data, public_model)
 
+    @auth.login_required()
     @ns.marshal_with(private_model)
     @ns.expect(post_model, validate=True)
-    @auth.login_required()
     def post(self):
         try:
             user = auth.current_user()
@@ -89,7 +89,7 @@ class GenerationRequestController(BaseController):
             "status": True,
         }
 
-    @ns.marshal_with(private_model)
     @auth.login_required()
+    @ns.marshal_with(private_model)
     def put(self, id_):
         return self.manager.update(id_, request.json)
