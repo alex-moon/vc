@@ -1,11 +1,11 @@
 from flask import request
 from flask_restplus import fields
 from injector import inject
-from werkzeug.exceptions import NotFound, InternalServerError, Forbidden
+from werkzeug.exceptions import NotFound, InternalServerError
 
-from vc.auth import auth
 from vc.api import api
-from vc.exception import NotFoundException, NotAuthenticatedException, VcException
+from vc.auth import auth
+from vc.exception import NotFoundException, VcException
 from vc.manager import GenerationRequestManager, UserManager
 from vc.model.generation_request import GenerationRequest
 from vc.value_object.generation_spec import GenerationSpec
@@ -41,17 +41,16 @@ class GenerationRequestsController(BaseController):
     @auth.login_required(optional=True)
     def get(self):
         data = self.manager.all()
-        try:
-            auth.current_user()
+        if auth.current_user():
             return ns.marshal(data, private_model)
-        except NotAuthenticatedException:
-            return ns.marshal(data, public_model)
+        return ns.marshal(data, public_model)
 
     @ns.marshal_with(private_model)
     @ns.expect(post_model, validate=True)
     @auth.login_required()
     def post(self):
         try:
+            user = auth.current_user()
             return self.manager.create(request.json, user)
         except VcException as e:
             raise InternalServerError(e.message)
@@ -78,11 +77,10 @@ class GenerationRequestController(BaseController):
             data = self.manager.find_or_throw(id_)
         except NotFoundException as e:
             raise NotFound(e.message)
-        try:
-            auth.current_user()
+
+        if auth.current_user():
             return ns.marshal(data, private_model)
-        except NotAuthenticatedException:
-            return ns.marshal(data, public_model)
+        return ns.marshal(data, public_model)
 
     @auth.login_required()
     def delete(self, id_):
@@ -94,8 +92,4 @@ class GenerationRequestController(BaseController):
     @ns.marshal_with(private_model)
     @auth.login_required()
     def put(self, id_):
-        try:
-            auth.current_user()
-            return self.manager.update(id_, request.json)
-        except NotAuthenticatedException as e:
-            raise Forbidden(e.message)
+        return self.manager.update(id_, request.json)
