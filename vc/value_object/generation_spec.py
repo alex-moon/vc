@@ -13,12 +13,13 @@ class ImageSpec:
     iterations: int = 75
     upscale: bool = False
 
-    schema = api.model('Image Spec', {
+    schema_dict = {
         'texts': fields.List(fields.String, default_factory=list),
         'styles': fields.List(fields.String, default_factory=list),
         'iterations': fields.Integer(default=75),
         'upscale': fields.Boolean(default=False),
-    })
+    }
+    schema = api.model('Image Spec', schema_dict)
 
 
 @dataclass
@@ -29,13 +30,14 @@ class VideoStepSpec(ImageSpec):
     y_velocity: float = 0.
     z_velocity: float = 0.
 
-    schema = api.model('Video Step Spec', ImageSpec.schema | {
+    schema_dict = ImageSpec.schema_dict | {
         'init_iterations': fields.Integer(default=200),
         'epochs': fields.Integer(default=42),
         'x_velocity': fields.Float(default=0.),
         'y_velocity': fields.Float(default=0.),
         'z_velocity': fields.Float(default=0.),
-    })
+    }
+    schema = api.model('Video Step Spec', schema_dict)
 
 
 @dataclass
