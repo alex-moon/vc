@@ -199,14 +199,14 @@ class GenerationRunner:
             dh.debug('GenerationRunner', 'y_shift', y_shift)
             dh.debug('GenerationRunner', 'z_shift', z_shift)
 
-        if self.spec.init_iterations and not os.path.isfile(self.output_filename):
-            dh.debug('GenerationRunner', 'init', self.spec.init_iterations)
-            self.vqgan_clip.handle(VqganClipOptions(**{
-                'prompts': prompt,
-                'max_iterations': self.spec.init_iterations,
-                'output_filename': self.output_filename,
-                'init_image': None
-            }))
+            if self.spec.init_iterations and not os.path.isfile(self.output_filename):
+                dh.debug('GenerationRunner', 'init', self.spec.init_iterations)
+                self.vqgan_clip.handle(VqganClipOptions(**{
+                    'prompts': prompt,
+                    'max_iterations': self.spec.init_iterations,
+                    'output_filename': self.output_filename,
+                    'init_image': None
+                }))
 
         dh.debug('GenerationRunner', 'vqgan_clip', 'handle')
         self.vqgan_clip.handle(VqganClipOptions(**{
