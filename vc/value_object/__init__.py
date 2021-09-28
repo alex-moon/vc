@@ -1,1 +1,1 @@
-from .generation_spec import GenerationSpec, ImageSpec, VideoSpec
+from .generation_spec import GenerationSpec, ImageSpec, VideoSpec, VideoStepSpec

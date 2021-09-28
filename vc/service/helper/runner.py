@@ -2,7 +2,6 @@ import os
 from dataclasses import dataclass
 from datetime import datetime
 from shutil import copy
-from typing import Tuple
 
 from vc.service import (
     VqganClipService,
@@ -16,7 +15,7 @@ from vc.service.inpainting import InpaintingOptions
 from vc.service.isr import IsrService, IsrOptions
 from vc.service.helper.random_word import RandomWord
 from vc.service.vqgan_clip import VqganClipOptions
-from vc.value_object import ImageSpec, GenerationSpec
+from vc.value_object import ImageSpec, VideoStepSpec, GenerationSpec
 
 
 @dataclass
@@ -103,8 +102,16 @@ class GenerationRunner:
     def handle(self, step: GenerationStep) -> GenerationResult:
         if isinstance(step, ImageGenerationStep):
             dh.debug('GenerationRunner', 'generate_image', step)
-            preview = self.generate_image(step)
-            return GenerationResult(preview=preview)
+            result = self.generate_image(step)
+
+            if isinstance(step.spec, VideoStepSpec):
+                return GenerationResult(
+                    preview=result
+                )
+
+            return GenerationResult(
+                result=result
+            )
 
         if isinstance(step, HandleInterimStep):
             dh.debug('GenerationRunner', 'handle_interim', step)
@@ -130,61 +137,67 @@ class GenerationRunner:
     def generate_image(self, step: ImageGenerationStep):
         if step.spec != self.spec:
             self.spec = step.spec
-            self.translate = Translate(
-                self.spec.x_velocity,
-                self.spec.y_velocity,
-                self.spec.z_velocity,
-                previous=self.translate
-            )
+            if isinstance(self.spec, VideoStepSpec):
+                self.translate = Translate(
+                    self.spec.x_velocity,
+                    self.spec.y_velocity,
+                    self.spec.z_velocity,
+                    previous=self.translate
+                )
 
         text = step.text
         style = step.style
 
-        if self.last_text is None:
-            self.last_text = text
+        moving = False
+        x_shift, y_shift, z_shift = 0., 0., 0.
+        prompt = text if style is None else '%s | %s' % (text, style)
 
-        if self.last_style is None:
-            self.last_style = style
-
-        prompt = text
-        if text != self.last_text:
-            if self.text_transition < 1.:
-                prompt = '%s : %s | %s : %s' % (
-                    self.last_text,
-                    1. - self.text_transition,
-                    text,
-                    self.text_transition
-                )
-                self.text_transition += self.TRANSITION_SPEED
-            else:
+        if isinstance(self.spec, VideoStepSpec):
+            if self.last_text is None:
                 self.last_text = text
-                self.text_transition = 0.
 
-        if style is not None:
-            styles = style
+            if self.last_style is None:
+                self.last_style = style
 
-            if style != self.last_style:
-                if self.style_transition < 1.:
-                    styles = '%s : %s | %s : %s' % (
-                        self.last_style,
-                        1. - self.style_transition,
-                        style,
-                        self.style_transition
+            prompt = text
+            if text != self.last_text:
+                if self.text_transition < 1.:
+                    prompt = '%s : %s | %s : %s' % (
+                        self.last_text,
+                        1. - self.text_transition,
+                        text,
+                        self.text_transition
                     )
-                    self.style_transition += self.TRANSITION_SPEED
+                    self.text_transition += self.TRANSITION_SPEED
                 else:
-                    self.last_style = style
-                    self.style_transition = 0.
+                    self.last_text = text
+                    self.text_transition = 0.
 
-            prompt = '%s | %s' % (prompt, styles)
+                if style is not None:
+                    styles = style
 
-        moving = self.translate.move()
-        x_shift, y_shift, z_shift = self.translate.velocity.to_tuple()
+                    if style != self.last_style:
+                        if self.style_transition < 1.:
+                            styles = '%s : %s | %s : %s' % (
+                                self.last_style,
+                                1. - self.style_transition,
+                                style,
+                                self.style_transition
+                            )
+                            self.style_transition += self.TRANSITION_SPEED
+                        else:
+                            self.last_style = style
+                            self.style_transition = 0.
 
-        dh.debug('GenerationRunner', 'prompt', prompt)
-        dh.debug('GenerationRunner', 'x_shift', x_shift)
-        dh.debug('GenerationRunner', 'y_shift', y_shift)
-        dh.debug('GenerationRunner', 'z_shift', z_shift)
+                    prompt = '%s | %s' % (prompt, styles)
+
+            moving = self.translate.move()
+            x_shift, y_shift, z_shift = self.translate.velocity.to_tuple()
+
+            dh.debug('GenerationRunner', 'prompt', prompt)
+            dh.debug('GenerationRunner', 'x_shift', x_shift)
+            dh.debug('GenerationRunner', 'y_shift', y_shift)
+            dh.debug('GenerationRunner', 'z_shift', z_shift)
 
         if self.spec.init_iterations and not os.path.isfile(self.output_filename):
             dh.debug('GenerationRunner', 'init', self.spec.init_iterations)
@@ -236,10 +249,15 @@ class GenerationRunner:
                 os.path.join(self.steps_dir, step_filename)
             )
 
+            return self.file.put(
+                self.output_filename,
+                '%s-preview.png' % self.generation_name,
+                self.now
+            )
+
         return self.file.put(
             self.output_filename,
-            '%s-preview.png' % self.generation_name,
-            self.now
+            '%s-%s.png' % (self.generation_name, step.step)
         )
 
     def handle_interim(self, step: HandleInterimStep):
@@ -287,36 +305,20 @@ class GenerationRunner:
                     for text in step_spec.texts:
                         if step_spec.styles:
                             for style in step_spec.styles:
-                                for i in range(step_spec.epochs):
-                                    step += 1
-                                    yield ImageGenerationStep(
-                                        spec=step_spec,
-                                        step=step,
-                                        text=text,
-                                        style=style
-                                    )
-
-                                    if step % cls.INTERIM_STEPS == 0:
-                                        step += 1
-                                        yield HandleInterimStep(
-                                            step=step,
-                                            upscaled=step_spec.upscale
-                                        )
-                        else:
-                            for i in range(step_spec.epochs):
                                 step += 1
                                 yield ImageGenerationStep(
                                     spec=step_spec,
                                     step=step,
-                                    text=text
+                                    text=text,
+                                    style=style
                                 )
-
-                                if step % cls.INTERIM_STEPS == 0:
-                                    step += 1
-                                    yield HandleInterimStep(
-                                        step=step,
-                                        upscaled=step_spec.upscale
-                                    )
+                        else:
+                            step += 1
+                            yield ImageGenerationStep(
+                                spec=step_spec,
+                                step=step,
+                                text=text
+                            )
 
         if spec.videos:
             for video in spec.videos:
