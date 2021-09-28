@@ -306,6 +306,8 @@ class GenerationRunner:
                         if step_spec.styles:
                             for style in step_spec.styles:
                                 step += 1
+                                yield CleanFilesStep(step)
+                                step += 1
                                 yield ImageGenerationStep(
                                     spec=step_spec,
                                     step=step,
@@ -313,6 +315,8 @@ class GenerationRunner:
                                     style=style
                                 )
                         else:
+                            step += 1
+                            yield CleanFilesStep(step)
                             step += 1
                             yield ImageGenerationStep(
                                 spec=step_spec,
