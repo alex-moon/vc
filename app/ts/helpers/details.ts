@@ -2,19 +2,26 @@ import {GenerationSpec} from "../models/generation-spec";
 import {GenerationRequest} from "../models/generation-request";
 
 export class DetailsHelper {
-    static getResultUrl(request: GenerationRequest) {
+    static getResultUrls(request: GenerationRequest) {
+        const urls = [];
         for (const result of request.results) {
             if (result.url) {
-                return result.url;
-            }
-            if (result.url_watermarked) {
-                return result.url_watermarked;
+                urls.push(result.url);
+            } else if (result.url_watermarked) {
+                urls.push(result.url_watermarked);
             }
         }
-        return request.interim || request.interim_watermarked;
+        if (!urls.length) {
+            if (request.interim) {
+                urls.push(request.interim);
+            } else if (request.interim_watermarked) {
+                urls.push(request.interim_watermarked);
+            }
+        }
+        return urls;
     }
 
     static hasDetails(request: GenerationRequest) {
-        return this.getResultUrl(request) !== null || request.spec instanceof GenerationSpec;
+        return this.getResultUrls(request).length || request.spec instanceof GenerationSpec;
     }
 }

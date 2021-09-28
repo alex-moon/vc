@@ -18,7 +18,10 @@ vc-generation-request-details {
         }
 
         &.expanded {
-            max-height: 300vh;
+            // @todo this isn't great - rethink the layout here
+            // maybe it needs to be scrollable or?
+            // another view maybe?
+            max-height: 1000000px;
         }
 
         .steps {
@@ -27,7 +30,7 @@ vc-generation-request-details {
         }
 
         .preview {
-            padding: 16px;
+            padding: 0 16px 16px;
             background-color: #f5ede6;
             border-left: solid $border-width #63575b;
 
@@ -37,6 +40,7 @@ vc-generation-request-details {
             }
 
             .panel {
+                margin-top: 16px;
                 width: $panel-width;
                 height: $panel-width;
                 border-radius: $border-radius;

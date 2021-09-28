@@ -36,26 +36,45 @@ export class GenerationRequestDetails extends HTMLElement {
         this.request = request;
 
         if (this.request.spec) {
-            if (this.request.spec.videos.length) {
-                const steps = this.request.spec.videos[0].steps;
-                for (let i = 0; i < steps.length; i++) {
+            const images = this.request.spec.images;
+            if (images && images.length) {
+                for (let i = 0; i < images.length; i++) {
                     const element = document.createElement(
                         'vc-generation-request-details-step'
                     ) as GenerationRequestDetailsStep;
                     this.$steps.appendChild(element);
-                    element.update(i + 1, steps[i]);
+                    element.update(i + 1, images[i]);
+                }
+            }
+
+            const videos = this.request.spec.videos;
+            if (videos && videos.length) {
+                for (const video of videos) {
+                    const steps = video.steps;
+                    for (let i = 0; i < steps.length; i++) {
+                        const element = document.createElement(
+                            'vc-generation-request-details-step'
+                        ) as GenerationRequestDetailsStep;
+                        this.$steps.appendChild(element);
+                        element.update(i + 1, steps[i]);
+                    }
                 }
             }
         }
 
-        let url = DetailsHelper.getResultUrl(this.request);
-        if (url) {
-            const panel = this.createVideoPanel(url);
-            this.$preview.appendChild(panel);
+        let urls = DetailsHelper.getResultUrls(this.request);
+        if (urls.length) {
+            let panel;
+            for (const url of urls) {
+                if (url.substr(-4) === '.png') {
+                    panel = this.createImagePanel(url);
+                } else {
+                    panel = this.createVideoPanel(url);
+                }
+                this.$preview.appendChild(panel);
+            }
         } else {
-            const placeholder = document.createElement('img');
-            placeholder.src = '/assets/placeholder.png';
-            const panel = this.createPanel(placeholder);
+            const panel = this.createImagePanel('/assets/placeholder.png');
             this.$preview.appendChild(panel);
         }
     }
@@ -71,6 +90,12 @@ export class GenerationRequestDetails extends HTMLElement {
 
         video.appendChild(source);
         return this.createPanel(video);
+    }
+
+    createImagePanel(url: string) {
+        const img = document.createElement('img');
+        img.src = url;
+        return this.createPanel(img);
     }
 
     createPanel(element: HTMLElement) {
