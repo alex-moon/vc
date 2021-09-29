@@ -3,24 +3,7 @@ import {CustomElement, Dispatch, DispatchEmitter, Listen, Prop, Toggle, Watch} f
 @CustomElement({
     tag: 'vc-chip',
     shadow: false,
-    style: `
-    .chip {
-        font-family: sans-serif;  
-        background-color: #535c69;
-        color: #f9f8ef;
-        border-radius: 8px;
-        padding: 8px;
-        opacity: 0.8;
-        width: auto;
-        margin-right: 8px;
-        display: flex;
-        align-items: center;
-    }
-    .remove {
-    margin-left: 4px;
-        color: #f9f8ef !important;
-    }
-`,
+    style: ``,
     template: `
 <div class="chip"></div>
 `

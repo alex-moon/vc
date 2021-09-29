@@ -1,7 +1,8 @@
 import {CustomElement, Toggle, Watch} from 'custom-elements-ts';
 import {GenerationRequest as Model} from "../../models/generation-request";
 import {GenerationRequestDetailsStep} from "./step";
-import {DetailsHelper} from "../../helpers/details";
+import {DetailsHelper, ImageCounter} from "../../helpers/details";
+import {Chipset} from "../chipset";
 
 @CustomElement({
     tag: 'vc-generation-request-details',
@@ -64,10 +65,11 @@ export class GenerationRequestDetails extends HTMLElement {
 
         let urls = DetailsHelper.getResultUrls(this.request);
         if (urls.length) {
+            const counter = new ImageCounter(this.request.spec.images);
             let panel;
             for (const url of urls) {
                 if (url.substr(-4) === '.png') {
-                    panel = this.createImagePanel(url);
+                    panel = this.createImagePanel(url, counter.next());
                 } else {
                     panel = this.createVideoPanel(url);
                 }
@@ -92,10 +94,14 @@ export class GenerationRequestDetails extends HTMLElement {
         return this.createPanel(video);
     }
 
-    createImagePanel(url: string) {
+    createImagePanel(url: string, chips: string[] = []) {
         const img = document.createElement('img');
         img.src = url;
-        return this.createPanel(img);
+        const panel = this.createPanel(img);
+        const chipset = document.createElement('vc-chipset') as Chipset;
+        panel.appendChild(chipset);
+        chipset.update(chips.filter(text => text));
+        return panel;
     }
 
     createPanel(element: HTMLElement) {

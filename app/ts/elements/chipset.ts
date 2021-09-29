@@ -3,12 +3,7 @@ import {CustomElement, Dispatch, DispatchEmitter, Toggle} from 'custom-elements-
 @CustomElement({
     tag: 'vc-chipset',
     shadow: false,
-    style: `
-    .chipset {
-        display: flex;
-        justify-content: flex-start;
-    }
-`,
+    style: ``,
     template: `
 <div class="chipset"></div>
 `
@@ -27,12 +22,22 @@ export class Chipset extends HTMLElement {
 
     connectedCallback() {
         this.$root = this.querySelector('.chipset');
+
+        if (this.texts) {
+            this.populateChips();
+        }
     }
 
     update(texts: string[]) {
-        this.$root.innerHTML = '';
-
         this.texts = texts || [];
+
+        if (this.$root) {
+            this.populateChips();
+        }
+    }
+
+    populateChips() {
+        this.$root.innerHTML = '';
 
         for (const text of this.texts) {
             const chip = document.createElement('vc-chip');

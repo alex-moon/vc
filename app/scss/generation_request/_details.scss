@@ -7,15 +7,11 @@ vc-generation-request-details {
         border-radius: 0 0 $border-radius $border-radius;
 
         display: flex;
-        flex-direction: row-reverse;
+        flex-direction: column;
         justify-content: space-between;
         overflow: hidden;
         max-height: 0;
         transition: $transition;
-
-        @include mobile {
-            flex-direction: column;
-        }
 
         &.expanded {
             // @todo this isn't great - rethink the layout here
@@ -30,33 +26,38 @@ vc-generation-request-details {
         }
 
         .preview {
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: center;
             padding: 0 16px 16px;
             background-color: #f5ede6;
-            border-left: solid $border-width #63575b;
-
-            @include mobile {
-                border-left: none;
-                border-bottom: solid $border-width #63575b;
-            }
+            border-bottom: solid $border-width #63575b;
 
             .panel {
-                margin-top: 16px;
-                width: $panel-width;
-                height: $panel-width;
+                margin: 16px 16px 0 0;
                 border-radius: $border-radius;
                 border: solid $border-width #535c69;
-                box-sizing: border-box;
                 background-color: #535c69;
+                width: $panel-width;
 
                 @include mobile {
                     width: 100%;
                     height: 100%;
                 }
 
+                vc-chip {
+                    text-overflow: ellipsis;
+                }
+
                 img, video {
-                    width: 100%;
-                    height: 100%;
+                    width: $panel-width;
+                    height: $panel-width;
                     border-radius: $border-radius;
+
+                    @include mobile {
+                        width: 100%;
+                        height: 100%;
+                    }
                 }
             }
         }
