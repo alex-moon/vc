@@ -1,6 +1,9 @@
 vc-chipset {
     .chipset {
         display: flex;
+        flex-wrap: wrap;
         justify-content: flex-start;
+
+        @import "chip";
     }
 }
