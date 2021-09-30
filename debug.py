@@ -1,12 +1,11 @@
 import gc
 import os
 from dataclasses import dataclass
+from math import isclose, pi
 from typing import List
-from math import isclose
 
 import numpy as np
 import transforms3d
-from dacite import from_dict
 from vispy import scene
 from vispy.color import Color
 from vispy.io import write_png
@@ -276,7 +275,7 @@ def output_3d_photo(
     colors,
     faces,
     i,
-    translate,
+    translate_rotate,
 ):
     colors = colors[..., :3]
 
@@ -318,8 +317,9 @@ def output_3d_photo(
 
     anchor = np.array(anchor)
     ref_pose = np.eye(4)
-    tgts_pose = ref_pose * 1.
-    tgts_pose[:3, -1] = np.array(translate)
+    # tgts_pose = ref_pose * 1.
+    # tgts_pose[:3, -1] = np.array(translate_rotate)
+    tgts_pose = np.array(translate_rotate)
 
     rel_pose = np.linalg.inv(np.dot(tgts_pose, np.linalg.inv(ref_pose)))
     axis, angle = transforms3d.axangles.mat2axangle(rel_pose[0:3, 0:3])
@@ -340,7 +340,8 @@ def output_3d_photo(
       int(border[2]):int(border[3])
     ]
 
-    path = f'tmp/{i:04}.png'
+    # path = f'tmp/{i:04}.png'
+    path = 'debug.png'
     print("mesh.py:", "Writing Inpainting output frame:", os.path.abspath(path))
 
     write_png(path, img)
@@ -402,12 +403,25 @@ def read_ply(mesh_fi):
 mesh_fi = 'mesh/output.ply'
 verts, colors, faces, height, width, hfov, vfov = read_ply(mesh_fi)
 
+tx = 0
+ty = 0
+tz = 0
+
+rm = 2 * pi / 360
+ax = 0.
+ay = 5.
+az = 0.
+
+pose = np.eye(4)
+pose[0:3, 0:3] = transforms3d.euler.euler2mat(ax * rm, ay * rm, az * rm)
+pose[:3, -1] = [tx * Multiplier.x, ty * Multiplier.y, tz * Multiplier.z]
+
 output_3d_photo(
     verts,
     colors,
     faces,
     1,
-    [0, 0, 0]
+    pose
 )
 
 # os.system(
