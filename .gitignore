@@ -32,4 +32,5 @@ log_file
 weights
 /input
 /tmp
+/app/assets/latest.json
 
