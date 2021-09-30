@@ -28,6 +28,9 @@ class VideoStepSpec(ImageSpec):
     x_velocity: float = 0.
     y_velocity: float = 0.
     z_velocity: float = 0.
+    pan_velocity: float = 0.
+    tilt_velocity: float = 0.
+    roll_velocity: float = 0.
 
     schema = api.model('Video Step Spec', {
         'texts': fields.List(fields.String, default_factory=list),
@@ -39,6 +42,9 @@ class VideoStepSpec(ImageSpec):
         'x_velocity': fields.Float(default=0.),
         'y_velocity': fields.Float(default=0.),
         'z_velocity': fields.Float(default=0.),
+        'pan_velocity': fields.Float(default=0.),
+        'tilt_velocity': fields.Float(default=0.),
+        'roll_velocity': fields.Float(default=0.),
     })
 
 

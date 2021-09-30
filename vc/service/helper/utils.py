@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import torch
 from skimage.transform import resize
+from transforms3d import euler
 
 try:
     import cynetworkx as netx
@@ -965,8 +966,11 @@ def get_MiDaS_sample(args, aft_certain=None):
     generic_pose = np.eye(4)
 
     tgts_pose = generic_pose * 1.
-    # @todo NB: this doesn't do any rotation, only translation
-    # @see mesh.output_3d_photo
+    tgts_pose[0:3, 0:3] = euler.euler2mat(
+        args.tilt,
+        args.pan,
+        args.roll
+    )
     tgts_pose[:3, -1] = np.array([
         args.x_shift,
         args.y_shift,

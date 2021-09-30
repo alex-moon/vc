@@ -11,6 +11,7 @@ from vc.service import (
 )
 from vc.service.helper import DiagnosisHelper as dh
 from vc.service.helper.acceleration import Translate
+from vc.service.helper.rotation import Rotate
 from vc.service.inpainting import InpaintingOptions
 from vc.service.isr import IsrService, IsrOptions
 from vc.service.helper.random_word import RandomWord
@@ -73,6 +74,7 @@ class GenerationRunner:
 
     spec: ImageSpec = None
     translate: Translate = None
+    rotate: Rotate = None
 
     last_text = None
     text_transition = 0.
@@ -144,12 +146,20 @@ class GenerationRunner:
                     self.spec.z_velocity,
                     previous=self.translate
                 )
+                self.rotate = Rotate(
+                    self.spec.tilt_velocity,
+                    self.spec.pan_velocity,
+                    self.spec.roll_velocity,
+                    previous=self.rotate
+                )
 
         text = step.text
         style = step.style
 
         moving = False
+        rotating = False
         x_shift, y_shift, z_shift = 0., 0., 0.
+        pan, tilt, roll = 0., 0., 0.
         prompt = text if style is None else '%s | %s' % (text, style)
 
         if isinstance(self.spec, VideoStepSpec):
@@ -192,7 +202,9 @@ class GenerationRunner:
                     prompt = '%s | %s' % (prompt, styles)
 
             moving = self.translate.move()
+            rotating = self.rotate.rotate()
             x_shift, y_shift, z_shift = self.translate.velocity.to_tuple()
+            tilt, pan, roll = self.rotate.velocity.to_tuple()
 
             dh.debug('GenerationRunner', 'prompt', prompt)
             dh.debug('GenerationRunner', 'x_shift', x_shift)
@@ -220,13 +232,16 @@ class GenerationRunner:
             'output_filename': self.output_filename,
         }))
 
-        if moving:
+        if moving or rotating:
             dh.debug('GenerationRunner', 'inpainting', 'handle')
             self.inpainting.handle(InpaintingOptions(**{
                 'input_file': self.output_filename,
                 'x_shift': x_shift,
                 'y_shift': y_shift,
                 'z_shift': z_shift,
+                'tilt': tilt,
+                'pan': pan,
+                'roll': roll,
                 'output_filename': self.output_filename,
             }))
         else:

@@ -409,8 +409,8 @@ tz = 0
 
 rm = 2 * pi / 360
 ax = 0.
-ay = 5.
-az = 0.
+ay = 0.
+az = 5.
 
 pose = np.eye(4)
 pose[0:3, 0:3] = transforms3d.euler.euler2mat(ax * rm, ay * rm, az * rm)

@@ -38,6 +38,9 @@ class InpaintingOptions:
     x_shift: float = 0.00
     y_shift: float = 0.00
     z_shift: float = 0.00
+    pan: float = 0.00
+    tilt: float = 0.00
+    roll: float = 0.00
     traj_type: str = 'double-straight-line'
     video_postfix: str = 'zoom-in'
     specific: str = ''
