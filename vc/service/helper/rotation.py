@@ -1,7 +1,5 @@
 from math import isclose, pi
 
-from transforms3d import euler
-
 
 class RotateAcceleration:
     tilt = 0.0009
