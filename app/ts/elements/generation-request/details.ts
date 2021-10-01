@@ -65,7 +65,10 @@ export class GenerationRequestDetails extends HTMLElement {
 
         let urls = DetailsHelper.getResultUrls(this.request);
         if (urls.length) {
-            const counter = new ImageCounter(this.request.spec.images);
+            let counter = {next() { return []; }};
+            if (this.request.spec) {
+                counter = new ImageCounter(this.request.spec.images);
+            }
             let panel;
             for (const url of urls) {
                 if (url.substr(-4) === '.png') {
