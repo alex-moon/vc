@@ -16,6 +16,8 @@ deploy.backend:
 deploy.frontend:
 	scripts/deploy.frontend.sh
 
+deploy.private: deploy.backend deploy.frontend
+
 deploy.public:
 	scripts/deploy.public.sh
 
