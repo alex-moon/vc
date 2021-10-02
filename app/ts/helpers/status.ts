@@ -1,3 +1,5 @@
+import {GenerationRequest} from "../models/generation-request";
+
 const dayjs = require('dayjs');
 
 export enum StatusSlug {
@@ -5,6 +7,7 @@ export enum StatusSlug {
     STARTED = 'started',
     COMPLETED = 'completed',
     FAILED = 'failed',
+    CANCELLED = 'cancelled',
 }
 
 export interface Status {
@@ -16,22 +19,26 @@ export interface Status {
 export class StatusHelper {
     static DATETIME_FORMAT = 'ddd D MMM [at] h:mma';
 
-    static get(created: string, started: string, completed: string, failed: string) {
+    static get(request: GenerationRequest) {
         let slug = StatusSlug.QUEUED;
         let readable = 'Queued';
-        let datetime = dayjs(created);
-        if (started) {
+        let datetime = dayjs(request.created);
+        if (request.started) {
             slug = StatusSlug.STARTED;
             readable = 'Started';
-            datetime = dayjs(started);
-            if (completed) {
+            datetime = dayjs(request.started);
+            if (request.completed) {
                 slug = StatusSlug.COMPLETED;
                 readable = 'Completed';
-                datetime = dayjs(completed);
-            } else if (failed) {
+                datetime = dayjs(request.completed);
+            } else if (request.failed) {
                 slug = StatusSlug.FAILED;
                 readable = 'Failed';
-                datetime = dayjs(failed);
+                datetime = dayjs(request.failed);
+            } else if (request.cancelled) {
+                slug = StatusSlug.CANCELLED;
+                readable = 'Cancelled';
+                datetime = dayjs(request.cancelled);
             }
         }
         datetime = datetime.format(StatusHelper.DATETIME_FORMAT);

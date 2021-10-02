@@ -30,4 +30,12 @@ export class Service {
         } as GenerationRequest;
         this.manager.create(request, callback);
     }
+
+    cancel(request: GenerationRequest, callback: CallableFunction) {
+        this.manager.cancel(request.id, callback)
+    }
+
+    delete(request: GenerationRequest, callback: CallableFunction) {
+        this.manager.delete(request.id, callback)
+    }
 }

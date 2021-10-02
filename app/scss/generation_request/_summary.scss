@@ -79,7 +79,7 @@ vc-generation-request-summary {
                         background-color: #5c6267;
                     }
 
-                    &.failed {
+                    &.failed, &.cancelled {
                         color: #e6cfb9;
                         background-color: #63575b;
                     }
