@@ -35,6 +35,14 @@ export class GenerationRequestDetails extends HTMLElement {
 
     update(request: Model) {
         this.request = request;
+    }
+
+    draw() {
+        if (!this.expanded) {
+            this.$preview.innerHTML = '';
+            this.$steps.innerHTML = '';
+            return;
+        }
 
         if (this.request.spec) {
             const images = this.request.spec.images;
@@ -121,5 +129,6 @@ export class GenerationRequestDetails extends HTMLElement {
         } else {
             this.$root.classList.remove('expanded');
         }
+        this.draw();
     }
 }
