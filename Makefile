@@ -10,8 +10,11 @@ build:
 serve: build
 	npx webpack serve --node-env=local
 
-deploy.private:
-	scripts/deploy.private.sh
+deploy.backend:
+	scripts/deploy.backend.sh
+
+deploy.frontend:
+	scripts/deploy.frontend.sh
 
 deploy.public:
 	scripts/deploy.public.sh

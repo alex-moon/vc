@@ -35,11 +35,11 @@ export class GenerationRequest extends HTMLElement {
     update(request: Model) {
         this.request = request;
         this.$summary.update(this.request);
-        this.$details.update(this.request);
     }
 
     @Listen('summary.expand', 'vc-generation-request-summary')
     protected onExpand(e: any) {
+        this.$details.update(this.request);
         this.$details.setAttribute('expanded', e.detail);
     }
 }

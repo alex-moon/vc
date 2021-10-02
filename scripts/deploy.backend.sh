@@ -12,7 +12,4 @@ flask db migrate
 flask db upgrade
 sudo service supervisor start
 sudo supervisorctl reload all
-
-npm install
-npx webpack build --node-env=private
 "
