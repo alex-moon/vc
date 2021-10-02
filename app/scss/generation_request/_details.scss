@@ -6,18 +6,13 @@ vc-generation-request-details {
         background-color: #d7e6d6;
         border-radius: 0 0 $border-radius $border-radius;
 
-        display: flex;
         flex-direction: column;
         justify-content: space-between;
         overflow: hidden;
-        max-height: 0;
-        transition: $transition;
+        display: none;
 
         &.expanded {
-            // @todo this isn't great - rethink the layout here
-            // maybe it needs to be scrollable or?
-            // another view maybe?
-            max-height: 1000000px;
+            display: flex;
         }
 
         .steps {
