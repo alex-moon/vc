@@ -77,16 +77,8 @@ export class GenerationRequestSummary extends HTMLElement {
         this.$stepsCompleted.textContent = '' + (this.request.steps_completed || '?');
         this.$stepsTotal.textContent = '' + (this.request.steps_total || '?');
 
-        this.updateStatus(
-            this.request.created,
-            this.request.started,
-            this.request.completed,
-            this.request.failed
-        );
-        this.updateBar(
-            this.request.steps_completed,
-            this.request.steps_total
-        );
+        this.updateStatus();
+        this.updateBar();
         if (DetailsHelper.hasDetails(this.request)) {
             this.addExpand();
         }
@@ -94,12 +86,7 @@ export class GenerationRequestSummary extends HTMLElement {
         this.$preview.src = this.request.preview || '/assets/placeholder.png';
     }
 
-    updateStatus(
-        created: string,
-        started: string,
-        completed: string,
-        failed: string
-    ) {
+    updateStatus() {
         this.$status.classList.remove('queued', 'started', 'completed', 'failed');
         this.$status.innerHTML = '';
 
@@ -129,7 +116,9 @@ export class GenerationRequestSummary extends HTMLElement {
                 cancel.innerText = 'cancel';
                 actions.appendChild(cancel);
                 cancel.addEventListener('click', (e: MouseEvent) => {
-                    this.service.cancel(this.request, this.update.bind(this));
+                    if (window.confirm('Are you sure you would like to cancel this request?')) {
+                        this.service.cancel(this.request, this.update.bind(this));
+                    }
                 });
             } else {
                 const button = document.createElement('button')
@@ -137,7 +126,9 @@ export class GenerationRequestSummary extends HTMLElement {
                 button.innerText = 'delete';
                 actions.appendChild(button);
                 button.addEventListener('click', (e: MouseEvent) => {
-                    this.service.delete(this.request, this.update.bind(this));
+                    if (window.confirm('Are you sure you would like to delete this request?')) {
+                        this.service.delete(this.request, this.update.bind(this));
+                    }
                 });
             }
         }
@@ -163,7 +154,10 @@ export class GenerationRequestSummary extends HTMLElement {
         this.$root.appendChild(actions);
     }
 
-    updateBar(completed: number, total: number) {
+    updateBar() {
+        const completed = this.request.steps_completed;
+        const total = this.request.steps_total;
+
         let percentage = 0;
         if (total > 0) {
             percentage = 100 * completed / total

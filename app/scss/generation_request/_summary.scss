@@ -141,13 +141,17 @@ vc-generation-request-summary {
 
             @include mobile {
                 width: 50px;
-                font-size: 50px;
-                line-height: 50px;
+                flex-direction: column;
             }
 
             button {
                 font-size: 64px;
                 line-height: 64px;
+
+                @include mobile {
+                    font-size: 50px;
+                    line-height: 50px;
+                }
             }
         }
     }
