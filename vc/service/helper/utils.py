@@ -443,19 +443,21 @@ def clean_far_edge(
                         )
                     break_flag = False
                     for new_loc in new_locs:
-                        new_loc_nes = [xx for xx in
-                                       [(new_loc[0] + 1, new_loc[1]),
-                                        (new_loc[0] - 1, new_loc[1]),
-                                        (new_loc[0], new_loc[1] + 1),
-                                        (new_loc[0], new_loc[1] - 1)] \
-                                       if
-                                       xx[0] >= 0 and xx[0] < fpath_map.shape[
-                                           0] and xx[1] >= 0 and xx[1] <
-                                       fpath_map.shape[1]]
-                        if np.all(
-                            [(fpath_map[nlne[0], nlne[1]] == -1) for nlne in
-                             new_loc_nes]
-                        ) != True:
+                        new_loc_nes = [
+                            xx
+                            for xx in [
+                                (new_loc[0] + 1, new_loc[1]),
+                                (new_loc[0] - 1, new_loc[1]),
+                                (new_loc[0], new_loc[1] + 1),
+                                (new_loc[0], new_loc[1] - 1)
+                            ] if 0 <= xx[0] < fpath_map.shape[0]
+                            and 0 <= xx[1] < fpath_map.shape[1]
+                        ]
+                        if not np.all([
+                            (fpath_map[nlne[0], nlne[1]] == -1)
+                            for nlne
+                            in new_loc_nes
+                        ]):
                             break
                         if npath_map[new_loc[0], new_loc[1]] != -1:
                             if npath_map[new_loc[0], new_loc[1]] != edge_id:
