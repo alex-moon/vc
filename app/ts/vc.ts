@@ -3,6 +3,7 @@ import {GenerationRequests} from './elements/generation-requests'
 import {GenerationRequestForm} from "./elements/generation-request-form";
 import {ImageSpec} from "./models/image-spec";
 import {AuthHelper} from "./helpers/auth";
+import {GenerationRequest} from "./models/generation-request";
 
 export class Vc {
     $form: GenerationRequestForm;
@@ -55,6 +56,14 @@ export class Vc {
 
     refresh() {
         this.service.refresh(this.draw.bind(this));
+    }
+
+    cancel(request: GenerationRequest) {
+        this.service.cancel(request, this.refresh.bind(this));
+    }
+
+    delete(request: GenerationRequest) {
+        this.service.delete(request, this.refresh.bind(this));
     }
 
     draw(requests: any) {

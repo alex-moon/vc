@@ -3,7 +3,7 @@ import {GenerationRequest as Model} from "../../models/generation-request";
 import {StatusHelper} from "../../helpers/status";
 import {DetailsHelper} from "../../helpers/details";
 import {AuthHelper} from "../../helpers/auth";
-import {Service} from "../../service";
+import {Vc} from "../../vc";
 
 @CustomElement({
     tag: 'vc-generation-request-summary',
@@ -42,7 +42,7 @@ export class GenerationRequestSummary extends HTMLElement {
     $preview: HTMLImageElement
     $expand: HTMLElement
 
-    service: Service
+    vc: Vc
     request: Model
     expanded = false
 
@@ -56,7 +56,7 @@ export class GenerationRequestSummary extends HTMLElement {
         // @todo injector of some kind?
         // https://nehalist.io/dependency-injection-in-typescript/
         // or https://www.npmjs.com/package/bottlejs
-        this.service = (window as any).vc.service;
+        this.vc = (window as any).vc;
     }
 
     connectedCallback() {
@@ -117,7 +117,7 @@ export class GenerationRequestSummary extends HTMLElement {
                 actions.appendChild(cancel);
                 cancel.addEventListener('click', (e: MouseEvent) => {
                     if (window.confirm('Are you sure you would like to cancel this request?')) {
-                        this.service.cancel(this.request, this.update.bind(this));
+                        this.vc.cancel(this.request);
                     }
                 });
             } else {
@@ -127,7 +127,7 @@ export class GenerationRequestSummary extends HTMLElement {
                 actions.appendChild(button);
                 button.addEventListener('click', (e: MouseEvent) => {
                     if (window.confirm('Are you sure you would like to delete this request?')) {
-                        this.service.delete(this.request, this.update.bind(this));
+                        this.vc.delete(this.request);
                     }
                 });
             }
