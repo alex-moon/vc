@@ -11,5 +11,6 @@ export FLASK_APP=vc.app:app
 flask db migrate
 flask db upgrade
 sudo service supervisor start
+sleep 2
 sudo supervisorctl reload all
 "
