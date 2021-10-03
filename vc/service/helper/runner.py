@@ -210,6 +210,9 @@ class GenerationRunner:
             dh.debug('GenerationRunner', 'x_shift', x_shift)
             dh.debug('GenerationRunner', 'y_shift', y_shift)
             dh.debug('GenerationRunner', 'z_shift', z_shift)
+            dh.debug('GenerationRunner', 'tilt', tilt)
+            dh.debug('GenerationRunner', 'pan', pan)
+            dh.debug('GenerationRunner', 'roll', roll)
 
             if self.spec.init_iterations and not os.path.isfile(self.output_filename):
                 dh.debug('GenerationRunner', 'init', self.spec.init_iterations)
