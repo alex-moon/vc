@@ -1,0 +1,25 @@
+@import "config";
+
+vc-info {
+    .info {
+        background-color: #d7e6d6;
+        height: 0;
+        transition: $transition;
+        overflow: auto;
+
+        color: black;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+
+        &.expanded {
+            height: calc(100vh - 118px);
+        }
+
+        h2, h3, p {
+            font-weight: normal;
+            margin: 8px 16px;
+        }
+    }
+}
