@@ -58,7 +58,7 @@ class GenerationResult:
 
 class GenerationRunner:
     INTERIM_STEPS = 10
-    TRANSITION_SPEED = 0.01
+    TRANSITION_SPEED = 0.05
 
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
@@ -183,23 +183,23 @@ class GenerationRunner:
                     self.last_text = text
                     self.text_transition = 0.
 
-                if style is not None:
-                    styles = style
+            if style is not None:
+                styles = style
 
-                    if style != self.last_style:
-                        if self.style_transition < 1.:
-                            styles = '%s : %s | %s : %s' % (
-                                self.last_style,
-                                1. - self.style_transition,
-                                style,
-                                self.style_transition
-                            )
-                            self.style_transition += self.TRANSITION_SPEED
-                        else:
-                            self.last_style = style
-                            self.style_transition = 0.
+                if style != self.last_style:
+                    if self.style_transition < 1.:
+                        styles = '%s : %s | %s : %s' % (
+                            self.last_style,
+                            1. - self.style_transition,
+                            style,
+                            self.style_transition
+                        )
+                        self.style_transition += self.TRANSITION_SPEED
+                    else:
+                        self.last_style = style
+                        self.style_transition = 0.
 
-                    prompt = '%s | %s' % (prompt, styles)
+                prompt = '%s | %s' % (prompt, styles)
 
             moving = self.translate.move()
             rotating = self.rotate.rotate()
