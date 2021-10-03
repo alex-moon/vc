@@ -21,9 +21,11 @@ class VideoService:
         self,
         output_file=OUTPUT_FILENAME,
         steps_dir=STEPS_DIR,
-        now: datetime = None
+        now: datetime = None,
+        suffix: str = None
     ):
-        suffix = self.generate_suffix()
+        if suffix is None:
+            suffix = self.generate_suffix()
         output_file = output_file.replace('.mp4', '-%s.mp4' % suffix)
         os.system(' '.join([
             'ffmpeg -y -i "%s/%%04d.png"' % steps_dir,

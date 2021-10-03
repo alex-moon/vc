@@ -71,6 +71,7 @@ class GenerationRunner:
 
     generation_name: str
     now: datetime
+    suffix: str
 
     spec: ImageSpec = None
     translate: Translate = None
@@ -100,6 +101,7 @@ class GenerationRunner:
         self.steps_dir = steps_dir
         self.generation_name = RandomWord.get()
         self.now = datetime.now()
+        self.suffix = self.video.generate_suffix()
 
     def handle(self, step: GenerationStep) -> GenerationResult:
         if isinstance(step, ImageGenerationStep):
@@ -290,7 +292,8 @@ class GenerationRunner:
         unwatermarked = self.video.make_unwatermarked_video(
             output_file=filename,
             steps_dir=self.steps_dir,
-            now=self.now if is_interim else None
+            now=self.now if is_interim else None,
+            suffix=self.suffix if is_interim else None
         )
         watermarked = self.video.make_watermarked_video(
             step.upscaled,
