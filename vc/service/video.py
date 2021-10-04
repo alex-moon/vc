@@ -11,6 +11,13 @@ from vc.service import FileService
 class VideoService:
     STEPS_DIR = 'steps'
     OUTPUT_FILENAME = 'output.mp4'
+    MINTERPOLATE_CONFIG = {
+        'mi_mode': 'mci',
+        'mc_mode': 'aobmc',
+        'me_mode': 'bidir',
+        'vsbmc': 1,
+        'fps': 60,
+    }
     file_service: FileService
 
     @inject
@@ -27,10 +34,15 @@ class VideoService:
         if suffix is None:
             suffix = self.generate_suffix()
         output_file = output_file.replace('.mp4', '-%s.mp4' % suffix)
+        minterpolate_string = ':'.join([
+            '='.join([key, value])
+            for key, value
+            in self.MINTERPOLATE_CONFIG.items()
+        ])
         os.system(' '.join([
             'ffmpeg -y -i "%s/%%04d.png"' % steps_dir,
             '-b:v 8M -c:v h264_nvenc -pix_fmt yuv420p -strict -2',
-            '-filter:v "minterpolate=\'mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=60\'"',
+            '-filter:v "minterpolate=\'%s\'"' % minterpolate_string,
             output_file
         ]))
 
