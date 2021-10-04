@@ -31,9 +31,10 @@ import {CustomElement} from 'custom-elements-ts';
         and engineering expertise have gone into making these works a reality.
     </p>
     <p>
-        The works are built using VQGAN/CLIP, 3D Photo Inpainting and Image Super Resolution.
-        These works are unique. No-one else is doing this... yet. Be among the first to own
-        a piece of history.
+        Many AI artists are already using VQGAN/CLIP. These works go a step further, using
+        3D Photo Inpainting and Image Super Resolution to move a camera iteratively inside
+        the generated space. No-one else is doing this... yet. Be among the first to own a
+        piece of history.
     </p>
     <h3>Acknowledgements</h3>
     <p>
