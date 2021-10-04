@@ -46,6 +46,7 @@ import {CustomElement} from 'custom-elements-ts';
             <li><a target="_blank" href="https://idealo.github.io/image-super-resolution">Francesco Cardinale et al.</a></li>
         </ul>    
     </p>
+    <p><!-- extra space for mobile browsers @todo more elegant solution --></p>
 </div>
 `
 })
