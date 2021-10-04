@@ -13,6 +13,9 @@ button {
   height: $button-height;
   width: $button-width;
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   &:hover {
     background: #f0f5f0;
@@ -57,5 +60,9 @@ button {
     &:active {
       color: black;
     }
+  }
+
+  span.material-icons {
+    margin-right: 8px;
   }
 }

@@ -3,6 +3,8 @@ import {GenerationRequest as Model} from "../../models/generation-request";
 import {GenerationRequestDetailsStep} from "./step";
 import {DetailsHelper, ImageCounter} from "../../helpers/details";
 import {Chipset} from "../chipset";
+import {AuthHelper} from "../../helpers/auth";
+import {Vc} from "../../vc";
 
 @CustomElement({
     tag: 'vc-generation-request-details',
@@ -17,17 +19,28 @@ import {Chipset} from "../chipset";
 })
 export class GenerationRequestDetails extends HTMLElement {
     $root: HTMLElement
+    $actions: HTMLElement
     $steps: HTMLElement
     $preview: HTMLElement
 
-    request: Model
+    private vc: Vc
+    private request: Model
+
     @Toggle() expanded = false
 
     constructor() {
         super();
     }
 
+    inject() {
+        // @todo injector of some kind?
+        // https://nehalist.io/dependency-injection-in-typescript/
+        // or https://www.npmjs.com/package/bottlejs
+        this.vc = (window as any).vc;
+    }
+
     connectedCallback() {
+        this.inject();
         this.$root = this.querySelector('.details');
         this.$steps = this.$root.querySelector('.steps');
         this.$preview = this.$root.querySelector('.preview');
@@ -39,6 +52,9 @@ export class GenerationRequestDetails extends HTMLElement {
 
     draw() {
         if (!this.expanded) {
+            if (this.$actions) {
+                this.$actions.remove();
+            }
             this.$preview.innerHTML = '';
             this.$steps.innerHTML = '';
             return;
@@ -90,6 +106,8 @@ export class GenerationRequestDetails extends HTMLElement {
             const panel = this.createImagePanel('/assets/placeholder.png');
             this.$preview.appendChild(panel);
         }
+
+        this.addActions();
     }
 
     createVideoPanel(url: string) {
@@ -120,6 +138,41 @@ export class GenerationRequestDetails extends HTMLElement {
         panel.setAttribute('class', 'panel');
         panel.appendChild(element);
         return panel;
+    }
+
+    addActions() {
+        if (AuthHelper.hasToken()) {
+            this.$actions = document.createElement('div');
+            this.$actions.classList.add('actions');
+            this.$root.insertBefore(this.$actions, this.$root.firstChild);
+            if (!this.request.cancelled && !this.request.failed && !this.request.completed) {
+                const cancel = document.createElement('button')
+                cancel.innerText = 'Cancel job';
+                const icon = document.createElement('span');
+                icon.classList.add('material-icons');
+                icon.innerText = 'cancel';
+                cancel.insertBefore(icon, cancel.firstChild);
+                this.$actions.appendChild(cancel);
+                cancel.addEventListener('click', (e: MouseEvent) => {
+                    if (window.confirm('Are you sure you would like to cancel this request?')) {
+                        this.vc.cancel(this.request);
+                    }
+                });
+            } else {
+                const button = document.createElement('button')
+                button.innerText = 'Delete job';
+                const icon = document.createElement('span');
+                icon.classList.add('material-icons');
+                icon.innerText = 'delete';
+                button.insertBefore(icon, button.firstChild);
+                this.$actions.appendChild(button);
+                button.addEventListener('click', (e: MouseEvent) => {
+                    if (window.confirm('Are you sure you would like to delete this request?')) {
+                        this.vc.delete(this.request);
+                    }
+                });
+            }
+        }
     }
 
     @Watch('expanded')

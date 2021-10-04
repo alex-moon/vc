@@ -20,6 +20,19 @@ vc-generation-request-details {
             @import "step";
         }
 
+        .actions {
+            background-color: #f0f5f0;
+            border-bottom: solid $border-width #63575b;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            button {
+                font-size: x-large;
+            }
+        }
+
         .preview {
             display: flex;
             flex-flow: row wrap;

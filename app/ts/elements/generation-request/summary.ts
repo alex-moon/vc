@@ -2,8 +2,6 @@ import {CustomElement, Dispatch, DispatchEmitter} from 'custom-elements-ts';
 import {GenerationRequest as Model} from "../../models/generation-request";
 import {StatusHelper} from "../../helpers/status";
 import {DetailsHelper} from "../../helpers/details";
-import {AuthHelper} from "../../helpers/auth";
-import {Vc} from "../../vc";
 
 @CustomElement({
     tag: 'vc-generation-request-summary',
@@ -42,7 +40,6 @@ export class GenerationRequestSummary extends HTMLElement {
     $preview: HTMLImageElement
     $expand: HTMLElement
 
-    vc: Vc
     request: Model
     expanded = false
 
@@ -52,15 +49,7 @@ export class GenerationRequestSummary extends HTMLElement {
         super();
     }
 
-    inject() {
-        // @todo injector of some kind?
-        // https://nehalist.io/dependency-injection-in-typescript/
-        // or https://www.npmjs.com/package/bottlejs
-        this.vc = (window as any).vc;
-    }
-
     connectedCallback() {
-        this.inject();
         this.$root = this.querySelector('.summary');
         this.$name = this.$root.querySelector('.name');
         this.$status = this.$root.querySelector('.status');
@@ -108,30 +97,6 @@ export class GenerationRequestSummary extends HTMLElement {
     addExpand() {
         const actions = document.createElement('div');
         actions.classList.add('actions');
-
-        if (AuthHelper.hasToken()) {
-            if (!this.request.cancelled && !this.request.failed && !this.request.completed) {
-                const cancel = document.createElement('button')
-                cancel.classList.add('material-icons');
-                cancel.innerText = 'cancel';
-                actions.appendChild(cancel);
-                cancel.addEventListener('click', (e: MouseEvent) => {
-                    if (window.confirm('Are you sure you would like to cancel this request?')) {
-                        this.vc.cancel(this.request);
-                    }
-                });
-            } else {
-                const button = document.createElement('button')
-                button.classList.add('material-icons');
-                button.innerText = 'delete';
-                actions.appendChild(button);
-                button.addEventListener('click', (e: MouseEvent) => {
-                    if (window.confirm('Are you sure you would like to delete this request?')) {
-                        this.vc.delete(this.request);
-                    }
-                });
-            }
-        }
 
         const expand = document.createElement('button');
         expand.classList.add('material-icons');
