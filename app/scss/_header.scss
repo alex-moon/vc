@@ -28,15 +28,22 @@
         align-items: center;
         justify-content: flex-end;
 
-        .info-button {
+        .info-button, .opensea-button {
             cursor: pointer;
-            background: url('../assets/help.png');
             background-size: contain;
             width: 64px;
             height: 64px;
             margin: 0;
             padding: 0;
             color: rgba(0, 0, 0, 0);
+        }
+
+        .info-button {
+            background: url('../assets/help.png');
+        }
+
+        .opensea-button {
+            background: url('../assets/opensea.png');
         }
     }
 }
