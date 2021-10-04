@@ -293,7 +293,8 @@ class GenerationRunner:
             output_file=filename,
             steps_dir=self.steps_dir,
             now=self.now if is_interim else None,
-            suffix=self.suffix if is_interim else None
+            suffix=self.suffix if is_interim else None,
+            interpolate=not is_interim
         )
         watermarked = self.video.make_watermarked_video(
             step.upscaled,

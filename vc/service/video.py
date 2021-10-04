@@ -29,20 +29,24 @@ class VideoService:
         output_file=OUTPUT_FILENAME,
         steps_dir=STEPS_DIR,
         now: datetime = None,
-        suffix: str = None
+        suffix: str = None,
+        interpolate: bool = False
     ):
         if suffix is None:
             suffix = self.generate_suffix()
         output_file = output_file.replace('.mp4', '-%s.mp4' % suffix)
-        minterpolate_string = ':'.join([
+
+        # @todo might be worth breaking this into a couple of steps for clarity
+        minterpolate_string = '-filter:v "minterpolate=\'%s\'"' % ':'.join([
             '='.join([key, value])
             for key, value
             in self.MINTERPOLATE_CONFIG.items()
-        ])
+        ]) if interpolate else ''
+
         os.system(' '.join([
             'ffmpeg -y -i "%s/%%04d.png"' % steps_dir,
             '-b:v 8M -c:v h264_nvenc -pix_fmt yuv420p -strict -2',
-            '-filter:v "minterpolate=\'%s\'"' % minterpolate_string,
+            minterpolate_string,
             output_file
         ]))
 
