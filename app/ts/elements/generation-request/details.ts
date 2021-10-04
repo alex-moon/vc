@@ -107,6 +107,10 @@ export class GenerationRequestDetails extends HTMLElement {
             this.$preview.appendChild(panel);
         }
 
+        if ((window as any).env.useLocal) {
+            return;
+        }
+
         this.addActions();
     }
 
