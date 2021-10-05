@@ -44,7 +44,12 @@ class GenerationService:
         self.video = video
         self.file = file
 
-    def handle(self, spec: GenerationSpec, callback: Callable):
+    def handle(
+        self,
+        spec: GenerationSpec,
+        callback: Callable,
+        steps_completed=0
+    ):
         print('starting')
         start = time()
 
@@ -61,6 +66,9 @@ class GenerationService:
         )
 
         for step in GenerationRunner.iterate_steps(spec):
+            if step <= steps_completed:
+                continue
+
             steps_completed = step.step
             result = runner.handle(step)
             callback(GenerationProgress(
