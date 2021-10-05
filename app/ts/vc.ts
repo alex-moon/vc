@@ -75,6 +75,10 @@ export class Vc {
         this.service.cancel(request, this.refresh.bind(this));
     }
 
+    retry(request: GenerationRequest) {
+        this.service.retry(request, this.refresh.bind(this));
+    }
+
     delete(request: GenerationRequest) {
         this.service.delete(request, this.refresh.bind(this));
     }

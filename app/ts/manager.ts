@@ -71,14 +71,18 @@ export class Manager {
 
     cancel(id: number, callback: CallableFunction) {
         this.put(id, 'cancel').then((request: GenerationRequest) => {
-            console.log('response', request);
+            callback(request);
+        });
+    }
+
+    retry(id: number, callback: CallableFunction) {
+        this.put(id, 'retry').then((request: GenerationRequest) => {
             callback(request);
         });
     }
 
     delete(id: number, callback: CallableFunction) {
         this.put(id, 'delete').then((request: GenerationRequest) => {
-            console.log('response', request);
             callback(request);
         });
     }

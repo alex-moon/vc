@@ -15,8 +15,8 @@ class GenerationRequest(db.Model, BaseModel):
     started = db.Column(db.DateTime)
     completed = db.Column(db.DateTime)
     failed = db.Column(db.DateTime)
-    # @todo paused - needs a think, how do we get the steps?
     cancelled = db.Column(db.DateTime)
+    retried = db.Column(db.DateTime)
 
     steps_completed = db.Column(db.Integer)
     steps_total = db.Column(db.Integer)
@@ -38,6 +38,7 @@ class GenerationRequest(db.Model, BaseModel):
         'completed': fields.DateTime(),
         'failed': fields.DateTime(),
         'cancelled': fields.DateTime(),
+        'retried': fields.DateTime(),
         'steps_completed': fields.Integer,
         'steps_total': fields.Integer,
         'name': fields.String,
@@ -56,6 +57,7 @@ class GenerationRequest(db.Model, BaseModel):
         'completed': fields.DateTime(),
         'failed': fields.DateTime(),
         'cancelled': fields.DateTime(),
+        'retried': fields.DateTime(),
         'steps_completed': fields.Integer,
         'steps_total': fields.Integer,
         'name': fields.String,

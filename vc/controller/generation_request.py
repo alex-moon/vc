@@ -124,3 +124,6 @@ class GenerationRequestActionController(BaseController):
 
     def soft_delete(self, id_):
         return self.manager.soft_delete(id_)
+
+    def retry(self, id_):
+        return self.manager.retry(id_)

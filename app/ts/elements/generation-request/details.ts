@@ -150,33 +150,35 @@ export class GenerationRequestDetails extends HTMLElement {
             this.$actions.classList.add('actions');
             this.$root.insertBefore(this.$actions, this.$root.firstChild);
             if (!this.request.cancelled && !this.request.failed && !this.request.completed) {
-                const cancel = document.createElement('button')
-                cancel.innerText = 'Cancel job';
-                const icon = document.createElement('span');
-                icon.classList.add('material-icons');
-                icon.innerText = 'cancel';
-                cancel.insertBefore(icon, cancel.firstChild);
-                this.$actions.appendChild(cancel);
-                cancel.addEventListener('click', (e: MouseEvent) => {
+                this.addAction('Cancel job', 'cancel', (e: MouseEvent) => {
                     if (window.confirm('Are you sure you would like to cancel this request?')) {
                         this.vc.cancel(this.request);
                     }
                 });
             } else {
-                const button = document.createElement('button')
-                button.innerText = 'Delete job';
-                const icon = document.createElement('span');
-                icon.classList.add('material-icons');
-                icon.innerText = 'delete';
-                button.insertBefore(icon, button.firstChild);
-                this.$actions.appendChild(button);
-                button.addEventListener('click', (e: MouseEvent) => {
+                this.addAction('Retry job', 'restart_alt', (e: MouseEvent) => {
+                    if (window.confirm('Are you sure you would like to retry this request?')) {
+                        this.vc.retry(this.request);
+                    }
+                });
+                this.addAction('Delete job', 'delete', (e: MouseEvent) => {
                     if (window.confirm('Are you sure you would like to delete this request?')) {
                         this.vc.delete(this.request);
                     }
                 });
             }
         }
+    }
+
+    addAction(label: string, icon_string: string, callback: (e: MouseEvent) => void) {
+        const button = document.createElement('button')
+        button.innerText = label;
+        const icon = document.createElement('span');
+        icon.classList.add('material-icons');
+        icon.innerText = icon_string;
+        button.insertBefore(icon, button.firstChild);
+        this.$actions.appendChild(button);
+        button.addEventListener('click', callback);
     }
 
     @Watch('expanded')

@@ -35,6 +35,10 @@ export class Service {
         this.manager.cancel(request.id, callback)
     }
 
+    retry(request: GenerationRequest, callback: CallableFunction) {
+        this.manager.retry(request.id, callback)
+    }
+
     delete(request: GenerationRequest, callback: CallableFunction) {
         this.manager.delete(request.id, callback)
     }
