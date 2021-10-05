@@ -115,6 +115,8 @@ class GenerationRequestActionController(BaseController):
     def put(self, id_, action: str):
         if action == 'cancel':
             return self.cancel(id_)
+        if action == 'retry':
+            return self.retry(id_)
         if action == 'delete':
             return self.soft_delete(id_)
         raise BadRequest('Unrecognised action: %s' % action)

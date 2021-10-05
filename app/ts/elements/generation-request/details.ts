@@ -157,7 +157,7 @@ export class GenerationRequestDetails extends HTMLElement {
                 });
             } else {
                 this.addAction('Retry job', 'restart_alt', (e: MouseEvent) => {
-                    if (window.confirm('Are you sure you would like to retry this request?')) {
+                    if (window.confirm('Are you sure you would like to restart this request?')) {
                         this.vc.retry(this.request);
                     }
                 });
