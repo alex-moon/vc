@@ -16,6 +16,9 @@ class IsrOptions:
 
 
 class IsrService:
+    TARGET_SIZE = 800
+    BORDER = 2
+
     file_service: FileService
 
     @inject
@@ -33,10 +36,21 @@ class IsrService:
         model.model.load_weights(
             'weights/rrdn-C4-D3-G32-G032-T10-x4_epoch299.hdf5'
         )
-        result = model.predict(image_array)
-        output = Image.fromarray(result)
-        output.thumbnail((800, 800), Image.ANTIALIAS)
 
+        result = model.predict(image_array)
+
+        output = Image.fromarray(result)
+
+        # Resize
+        size = self.TARGET_SIZE + 2 * self.BORDER
+        output.thumbnail((size, size), Image.ANTIALIAS)
+
+        # Crop
+        start = self.BORDER
+        end = self.TARGET_SIZE - self.BORDER
+        output.crop(start, start, end, end)
+
+        # Save
         output.save(args.output_file)
 
         if os.getenv('DEBUG_FILES'):
