@@ -28,25 +28,25 @@
         align-items: center;
         justify-content: flex-end;
 
-        .info-button, .opensea-button {
+        .header-button {
             cursor: pointer;
             background-size: contain;
-            width: 64px;
-            height: 64px;
-            margin: 0;
+            width: 28px;
+            height: 28px;
+            margin: 18px 8px;
             padding: 0;
             color: rgba(0, 0, 0, 0);
         }
 
-        .info-button {
+        .info.header-button {
             background: url('../assets/help.png');
         }
 
-        .opensea-button {
+        .opensea.header-button {
             background: url('../assets/opensea.png');
         }
 
-        .twitter-button {
+        .twitter.header-button {
             background: url('../assets/twitter.png');
         }
     }
