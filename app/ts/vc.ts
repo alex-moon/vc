@@ -28,7 +28,7 @@ export class Vc {
     }
 
     bindEvents() {
-        const info = document.querySelector('.info-button');
+        const info = document.querySelector('.info.header-button');
         info.addEventListener('click', this.toggleInfo.bind(this));
     }
     

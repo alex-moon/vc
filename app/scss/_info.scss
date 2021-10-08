@@ -12,18 +12,16 @@ vc-info {
         flex-direction: column;
         justify-content: flex-start;
         align-items: flex-start;
+        box-sizing: border-box;
 
         &.expanded {
             height: calc(100vh - 118px);
+            padding-bottom: 128px;
         }
 
         h2, h3, p {
             font-weight: normal;
             margin: 8px 16px;
-        }
-
-        .spacer {
-            height: 128px;
         }
     }
 }

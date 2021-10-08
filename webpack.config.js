@@ -13,7 +13,7 @@ function getEnv() {
       }
     case 'local':
       return {
-        useLocal: false,
+        useLocal: true,
         host: '"https://vc-api.ajmoon.uk"',
       }
     case 'public':
@@ -26,6 +26,9 @@ function getEnv() {
 }
 
 module.exports = {
+  // experiments: {
+  //  asset: true
+  // },
   entry: {
     'vc': [
       './app/scss/vc.scss',
@@ -63,19 +66,23 @@ module.exports = {
         test: /\.m?js/,
         resolve: {
           fullySpecified: false
-        }
+        },
       },
       {
         test: /\.scss$/,
         use: [
             "style-loader",
             "css-loader",
-            "sass-loader"
+            "sass-loader",
         ]
       },
       {
         test: /\.ts$/,
-        use: 'ts-loader'
+        use: 'ts-loader',
+      },
+      {
+        test: /\.inc$/,
+        type: 'asset/source',
       },
     ],
   },

@@ -9,10 +9,7 @@ import {AuthHelper} from "../helpers/auth";
     shadow: false,
     style: ``,
     template: `
-<div class="login-form">
-    <!-- vc-login></vc-login>
-    <vc-generation-request-form></vc-generation-request-form -->
-</div>
+<div class="login-form"></div>
 `
 })
 export class LoginForm extends HTMLElement {
