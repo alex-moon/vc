@@ -6,3 +6,5 @@ node_modules
 samples
 .git
 BoostingMonocularDepth
+CLIP
+MiDaS

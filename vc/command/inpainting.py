@@ -5,6 +5,22 @@ from vc.service.inpainting import InpaintingService, InpaintingOptions
 
 
 class InpaintingCommand(BaseCommand):
+    description = 'Runs inpainting on an input file'
+    args = [
+        {
+            'dest': 'input_file',
+            'type': str,
+            'help': 'Input file',
+            'default': 'output.png',
+        },
+        {
+            'dest': 'output_file',
+            'type': str,
+            'help': 'Output file',
+            'default': 'debug.png',
+        },
+    ]
+
     inpainting: InpaintingService
 
     @inject
@@ -13,8 +29,6 @@ class InpaintingCommand(BaseCommand):
 
     def handle(self, args):
         self.inpainting.handle(InpaintingOptions(
-            input_file='output.png',
-            output_filename='debug.png',
-            crop_border=[0., 0., 0., 0.],
-            dynamic_fov=True
+            input_file=args.input_file,
+            output_filename=args.output_file
         ))

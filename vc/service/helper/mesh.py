@@ -3793,7 +3793,7 @@ def output_3d_photo(
         )
 
     colors = colors[..., :3]
-    fov = 53.13  # @todo magic numbers lmao
+    fov = 53.13  # tl;dr the dynamic method always results in this number
     canvas_size = max(Width, Height)
 
     init_factor = 1

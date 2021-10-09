@@ -45,5 +45,4 @@ green "Starting docker container"
 # docker-compose up -d
 # docker-compose exec $service bash -i
 
-docker-compose run --no-deps $service ./build.local.sh
-
+docker-compose run --no-deps $service bash

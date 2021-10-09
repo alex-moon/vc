@@ -26,6 +26,7 @@ dacite==1.6.0
 decorator
 einops==0.3.0
 flask-cors
+flask_httpauth
 flask-restplus
 flask-rq
 freetype-py==2.2.0

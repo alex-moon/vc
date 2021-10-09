@@ -29,7 +29,8 @@ sudo echo "Done"
 # let's do it!
 if [[ -z "$(docker-machine ls -q | grep $machine)" ]]; then
     green "Creating docker machine"
-    docker-machine create --driver virtualbox --virtualbox-memory 2048 $machine
+    docker-machine create --driver virtualbox \
+        --virtualbox-memory 8192 $machine
 fi
 
 if [[ "$(docker-machine status $machine)" = "Error" ]]; then
