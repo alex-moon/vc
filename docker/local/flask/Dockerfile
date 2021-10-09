@@ -1,4 +1,5 @@
-FROM pytorch/pytorch:1.9.0-cuda11.1-cudnn8-runtime
+# FROM pytorch/pytorch:1.9.0-cuda11.1-cudnn8-runtime
+FROM ubuntu:focal
 
 WORKDIR /opt/vc
 

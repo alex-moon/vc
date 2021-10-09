@@ -23,7 +23,6 @@ charset-normalizer==2.0.3
 cryptography
 cynetworkx==2.2rc1.dev20180527181709
 dacite==1.6.0
-dataclasses==0.8
 decorator==5.0.9
 einops==0.3.0
 flask-cors
@@ -64,7 +63,6 @@ packaging==21.0
 parso==0.8.2
 pexpect==4.8.0
 pickleshare==0.7.5
-pkg_resources==0.0.0
 prompt-toolkit==3.0.19
 protobuf==3.17.3
 psycopg2-binary
