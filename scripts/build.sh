@@ -60,6 +60,6 @@ green "Done - your IP is $ip - auto-adding to /etc/hosts..."
 sudo sed -i '' '/vc.local/d' /etc/hosts
 echo "$ip vc.local" | sudo tee -a /etc/hosts
 
-docker-compose build vc
+docker-compose build
 
 green Done

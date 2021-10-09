@@ -27,7 +27,7 @@ eval $(docker-machine env $machine)
 
 service=$1
 if [[ -z "$service" ]]; then
-    service=vc
+    service=worker
 fi
 
 docker-compose exec $service bash -i

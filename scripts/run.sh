@@ -35,9 +35,14 @@ if [[ ! -z "$laravel_ip" ]]; then
     sed -i '' "s/laravel.local:[0-9.]*/laravel.local:$laravel_ip/g" docker-compose.yml
 fi
 
+service=$1
+if [[ -z "$service" ]]; then
+    service=worker
+fi
+
 green "Starting docker container"
-docker-compose up -d
 
-docker-compose exec vc bash
+# docker-compose up -d
+# docker-compose exec $service bash -i
 
-green "Your containers are still running - do make sh to obtain another shell"
+docker-compose run --no-deps $service bash -i
