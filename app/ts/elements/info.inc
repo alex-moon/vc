@@ -7,8 +7,10 @@
                 software engineer <a target="_blank" href="https://twitter.com/alexmoonpro">Alex Moon</a>.
             </p>
             <p>
-                It combines existing machine vision technologies to give expression to the latent content
-                of an unprecedented technological age.
+                Combining existing AI/machine learning technologies to create explorable dream worlds,
+                <strong>vc</strong> is a series of short videos which employs a poetic approach to the
+                emerging form. Each piece is delicately crafted with care and attention, and the results
+                are like nothing you've ever seen.
             </p>
             <h3>Acknowledgements</h3>
             <p>
