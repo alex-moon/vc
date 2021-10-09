@@ -7,7 +7,9 @@ import {CustomElement} from 'custom-elements-ts';
     template: require('./info.inc')
 })
 export class Info extends HTMLElement {
-    $root: HTMLElement
+    $root: HTMLElement;
+    $info: HTMLElement;
+    $close: HTMLButtonElement;
     expanded = false;
 
     constructor() {
@@ -15,7 +17,12 @@ export class Info extends HTMLElement {
     }
 
     connectedCallback() {
-        this.$root = this.querySelector('.info');
+        this.$root = this.querySelector('.info-container');
+        this.$info = this.$root.querySelector('.info');
+        this.$close = this.$info.querySelector('button.close');
+        this.$close.addEventListener('click', () => {
+            this.expand();
+        });
     }
 
     expand() {
