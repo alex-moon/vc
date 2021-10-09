@@ -1,0 +1,8 @@
+venv
+results
+checkpoints
+taming-transformers
+node_modules
+samples
+.git
+

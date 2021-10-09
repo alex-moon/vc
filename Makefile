@@ -4,10 +4,19 @@ start:
 stop:
 	scripts/aws.stop.sh
 
+sh:
+	scripts/sh.sh
+
 build:
+	-scripts/build.sh
+
+run:
+	scripts/run.sh
+
+webpack:
 	npx webpack --node-env=local
 
-serve: build
+serve: webpack
 	npx webpack serve --node-env=local
 
 deploy.backend:
