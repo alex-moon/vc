@@ -23,7 +23,14 @@ RUN apt install -y \
     libxext6 \
     libxrender-dev \
     vim \
-    less
+    less \
+    nvidia-cuda-toolkit \
+    python3-pyqt5 \
+    libxcb-randr0-dev \
+    libxcb-xtest0-dev \
+    libxcb-xinerama0-dev \
+    libxcb-shape0-dev \
+    libxcb-xkb-dev
 
 EXPOSE 5000
 EXPOSE 5001

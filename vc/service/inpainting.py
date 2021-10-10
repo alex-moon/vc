@@ -32,7 +32,7 @@ class InpaintingOptions:
     depth_feat_model_ckpt: str = 'checkpoints/depth-model.pth'
     rgb_feat_model_ckpt: str = 'checkpoints/color-model.pth'
     MiDaS_model_ckpt: str = 'MiDaS/model.pt'
-    use_boostmonodepth: bool = True
+    use_boostmonodepth: bool = False
     fps: int = 40
     num_frames: int = 200
     x_shift: float = 0.00
@@ -180,7 +180,7 @@ class InpaintingService:
             depth = vis_depths[-1]
             torch.cuda.empty_cache()
 
-            print("Start Running 3D_Photo ...")
+            print("Start Running 3D_Photo ... device", device)
             print(f"Loading edge model at {time.time()}")
             depth_edge_model = Inpaint_Edge_Net(init_weights=True)
             depth_edge_weight = torch.load(

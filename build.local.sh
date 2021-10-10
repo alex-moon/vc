@@ -56,24 +56,6 @@ if [[ ! -f "$file" ]]; then
   mv model.pt $file
 fi
 
-# @todo replace all this with CAR or ESRGAN or equivalent
-if [[ ! -d "BoostingMonocularDepth" ]]; then
-  git clone https://github.com/compphoto/BoostingMonocularDepth.git
-fi
-
-mkdir -p BoostingMonocularDepth/pix2pix/checkpoints/mergemodel/
-mkdir -p BoostingMonocularDepth/midas/
-
-file=BoostingMonocularDepth/pix2pix/checkpoints/mergemodel/latest_net_G.pth
-if [[ ! -f "$file" ]]; then
-  wget https://filebox.ece.vt.edu/~jbhuang/project/3DPhoto/model/latest_net_G.pth
-  mv latest_net_G.pth $file
-fi
-
-file=BoostingMonocularDepth/midas/model.pt
-if [[ ! -f "$file" ]]; then
-  wget https://github.com/intel-isl/MiDaS/releases/download/v2/model-f46da743.pt
-  mv model-f46da743.pt $file
-fi
+# @todo load ESRGAN or CAR
 
 echo "Done"

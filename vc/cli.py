@@ -5,24 +5,6 @@ from vc import create_app, injector
 from vc import command
 
 
-class ClassLoader:
-    @classmethod
-    def load(cls, class_name):
-        class_instance = injector.get(
-            cls.handle_import(class_name)
-        )
-
-        return class_instance
-
-    @classmethod
-    def handle_import(cls, name):
-        components = name.split('.')
-        mod = __import__(components[0])
-        for comp in components[1:]:
-            mod = getattr(mod, comp)
-        return mod
-
-
 class CommandLoader:
     commands = {
         'inpainting': command.InpaintingCommand
@@ -30,7 +12,7 @@ class CommandLoader:
 
     @classmethod
     def load(cls, key) -> command.BaseCommand:
-        return ClassLoader.load(cls.commands[key])
+        return injector.get(cls.commands[key])
 
 
 if __name__ == '__main__':
@@ -42,8 +24,10 @@ if __name__ == '__main__':
             print('%s: %s' % (key, command.description))
         exit()
 
-    command = CommandLoader.load(sys.argv[1])
+    key = sys.argv[1]
+    command = CommandLoader.load(key)
     parser = argparse.ArgumentParser(description=command.description)
+    parser.add_argument(dest='key', type=str, default=key, nargs='?')
     for arg in command.args:
         parser.add_argument(**arg)
     args = parser.parse_args()
