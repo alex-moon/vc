@@ -18,7 +18,12 @@ RUN apt install -y \
     ffmpeg \
     zip \
     redis-tools \
-    supervisor
+    supervisor \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    vim \
+    less
 
 EXPOSE 5000
 EXPOSE 5001

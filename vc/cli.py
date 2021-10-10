@@ -37,6 +37,9 @@ if __name__ == '__main__':
     app = create_app()
     if len(sys.argv) < 2:
         print('Usage: %s <command> [args]' % sys.argv[0])
+        print('Available commands:')
+        for key, command in CommandLoader.commands.items():
+            print('%s: %s' % (key, command.description))
         exit()
 
     command = CommandLoader.load(sys.argv[1])

@@ -40,9 +40,15 @@ if [[ -z "$service" ]]; then
     service=worker
 fi
 
-green "Starting docker container"
+green "Stopping docker containers"
+docker-compose down
 
-# docker-compose up -d
-# docker-compose exec $service bash -i
+green "Starting docker containers"
+docker-compose up -d
 
-docker-compose run --no-deps $service bash
+green "Obtaining shell for $service"
+docker-compose exec $service bash -i
+
+green "Your containers are still running"
+echo "Do make sh to obtain another shell"
+echo "Do make run to restart containers"
