@@ -2,7 +2,7 @@ import os
 from dataclasses import dataclass
 
 import numpy as np
-from ISR.models import RRDN
+# from ISR.models import RRDN
 from PIL import Image
 from injector import inject
 
@@ -30,14 +30,15 @@ class IsrService:
         image = image.convert('RGB')
         image_array = np.array(image)
 
-        model = RRDN(
-            arch_params={'C': 4, 'D': 3, 'G': 32, 'G0': 32, 'T': 10, 'x': 4}
-        )
-        model.model.load_weights(
-            'weights/rrdn-C4-D3-G32-G032-T10-x4_epoch299.hdf5'
-        )
-
-        result = model.predict(image_array)
+        # model = RRDN(
+        #     arch_params={'C': 4, 'D': 3, 'G': 32, 'G0': 32, 'T': 10, 'x': 4}
+        # )
+        # model.model.load_weights(
+        #     'weights/rrdn-C4-D3-G32-G032-T10-x4_epoch299.hdf5'
+        # )
+        #
+        # result = model.predict(image_array)
+        result = image_array
 
         output = Image.fromarray(result)
 

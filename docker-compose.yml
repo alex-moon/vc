@@ -1,0 +1,86 @@
+version: '3.7'
+services:
+  flask:
+    build:
+      context: ./
+      dockerfile: docker/local/flask/Dockerfile
+    container_name: flask
+    image: vc.ajmoon.uk/flask:local
+    expose:
+      - 5000
+      - 5001
+    ports:
+      - mode: host
+        protocol: tcp
+        published: 5000
+        target: 5000
+      - mode: host
+        protocol: tcp
+        published: 5001
+        target: 5001
+    volumes:
+      - .:/opt/vc
+      - .bashrc:/root/.bashrc
+    environment:
+      SERVICE: flask
+    links:
+      - pgsql
+    extra_hosts:
+      - "laravel.local:192.168.99.186"
+    # command: sleep 999999999
+    command: ./docker.flask.sh
+
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/local/nginx/Dockerfile
+    container_name: nginx
+    links:
+      - flask
+    volumes:
+      - .:/opt/vc
+      - ./log/nginx/:/var/log/nginx
+      - ./docker/local/nginx/conf/flask.conf:/etc/nginx/nginx.conf
+    ports:
+      - mode: host
+        protocol: tcp
+        published: 80
+        target: 80
+      - mode: host
+        protocol: tcp
+        published: 443
+        target: 443
+
+  pgsql:
+    image: postgis/postgis:9.5-2.5-alpine
+    container_name: pgsql
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: gonano
+      POSTGRES_USER: gonano
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ~/pgsql:/var/lib/postgresql/data
+
+  worker:
+    container_name: worker
+    image: vc.ajmoon.uk/flask:local
+    volumes:
+      - .:/opt/vc
+      - .bashrc:/root/.bashrc
+    links:
+      - pgsql
+      - redis
+    depends_on:
+      - pgsql
+    environment:
+      SERVICE: worker
+    command: sleep 999999999
+    # command: ./docker.worker.sh
+
+  redis:
+    image: redis:6.2.4
+    container_name: redis
+    ports:
+      - "6379:6379"

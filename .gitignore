@@ -3,6 +3,7 @@ notes.txt
 venv
 taming-transformers
 CLIP
+MiDaS
 checkpoints
 taming
 steps
@@ -34,4 +35,5 @@ weights
 /tmp
 /app/assets/latest.json
 /planning
+venv.mac
 

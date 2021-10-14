@@ -25,6 +25,9 @@ export class Vc {
         this.refreshAndSetTimeout();
         AuthHelper.listen(this.refresh.bind(this));
         this.bindEvents();
+        if ((window as any).env.useLocal) {
+            this.toggleInfo();
+        }
     }
 
     bindEvents() {

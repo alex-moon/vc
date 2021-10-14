@@ -10,17 +10,20 @@ function getEnv() {
       return {
         useLocal: false,
         host: '"https://vc-api.ajmoon.uk"',
+        env: 'private',
       }
     case 'local':
       return {
         useLocal: true,
         host: '"https://vc-api.ajmoon.uk"',
+        env: 'local',
       }
     case 'public':
     default:
       return {
         useLocal: true,
         host: '""',
+        env: 'public',
       }
   }
 }

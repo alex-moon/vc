@@ -1,11 +1,15 @@
 @import "config";
 
+$info-width: 400px;
+$info-height: calc(100vh - 118px);
+
 vc-info {
-    .info {
+    .info-container {
         background-color: #d7e6d6;
-        height: 0;
         transition: $transition;
-        overflow: auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+        width: 0;
 
         color: black;
         display: flex;
@@ -14,14 +18,49 @@ vc-info {
         align-items: flex-start;
         box-sizing: border-box;
 
+        height: 100%;
+
         &.expanded {
-            height: calc(100vh - 118px);
-            padding-bottom: 128px;
+            width: $info-width;
         }
 
-        h2, h3, p {
-            font-weight: normal;
-            margin: 8px 16px;
+        @include mobile {
+            width: 100% !important;
+            height: 0;
+
+            &.expanded {
+                height: $info-height;
+            }
+        }
+
+        .info {
+            display: flex;
+            flex-direction: column;
+
+            width: $info-width - 64px;
+            padding: 16px;
+
+            @include mobile {
+                width: calc(100% - 64px);
+                padding-bottom: 64px;
+            }
+
+            .text {
+                flex-grow: 1;
+                h2, h3, p {
+                    font-weight: normal;
+                    margin: 16px 0;
+                }
+
+                h2 {
+                    margin: 0;
+                }
+            }
+
+            .actions {
+                display: flex;
+                justify-content: flex-end;
+            }
         }
     }
 }
