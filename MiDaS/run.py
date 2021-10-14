@@ -1,17 +1,18 @@
 """Compute depth maps for images in the input folder.
 """
-import os
-import glob
-import torch
-import utils
-import cv2
 import argparse
+import glob
+import os
 
+import cv2
+import torch
 from torchvision.transforms import Compose
-from midas.dpt_depth import DPTDepthModel
-from midas.midas_net import MidasNet
-from midas.midas_net_custom import MidasNet_small
-from midas.transforms import Resize, NormalizeImage, PrepareForNet
+
+from .utils import read_image, write_depth
+from .midas.dpt_depth import DPTDepthModel
+from .midas.midas_net import MidasNet
+from .midas.midas_net_custom import MidasNet_small
+from .midas.transforms import Resize, NormalizeImage, PrepareForNet
 
 
 def run(input_path, output_path, model_path, model_type="large", optimize=True):
@@ -110,7 +111,7 @@ def run(input_path, output_path, model_path, model_type="large", optimize=True):
 
         # input
 
-        img = utils.read_image(img_name)
+        img = read_image(img_name)
         img_input = transform({"image": img})["image"]
 
         # compute
@@ -136,7 +137,7 @@ def run(input_path, output_path, model_path, model_type="large", optimize=True):
         filename = os.path.join(
             output_path, os.path.splitext(os.path.basename(img_name))[0]
         )
-        utils.write_depth(filename, prediction, bits=2)
+        write_depth(filename, prediction, bits=2)
 
     print("finished")
 
