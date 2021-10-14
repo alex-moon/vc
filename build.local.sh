@@ -52,8 +52,9 @@ fi
 
 file=MiDaS/model.pt
 if [[ ! -f "$file" ]]; then
-  wget https://filebox.ece.vt.edu/~jbhuang/project/3DPhoto/model/model.pt
-  mv model.pt $file
+  # wget https://filebox.ece.vt.edu/~jbhuang/project/3DPhoto/model/model.pt
+  wget https://github.com/intel-isl/DPT/releases/download/1_0/dpt_hybrid-midas-501f0c75.pt
+  mv dpt_hybrid-midas-501f0c75.pt $file
 fi
 
 # @todo load ESRGAN or CAR

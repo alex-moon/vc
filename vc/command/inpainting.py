@@ -1,3 +1,4 @@
+from math import pi
 from injector import inject
 
 from vc.command.base import BaseCommand
@@ -42,5 +43,11 @@ class InpaintingCommand(BaseCommand):
             input_file=args.input_file,
             output_filename=args.output_file,
             gpu_ids=args.gpu_ids,
-            offscreen_rendering=True
+            offscreen_rendering=True,
+            x_shift=-0.01,
+            y_shift=0.01,
+            z_shift=-0.01,
+            pan=-(2 * pi / 360),
+            tilt=-(2 * pi / 360),
+            roll=-(2 * pi / 360)
         ))

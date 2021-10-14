@@ -11,19 +11,16 @@ import torch
 import vispy
 from injector import inject
 
-import MiDaS.MiDaS_utils as MiDaS_utils
-from MiDaS.monodepth_net import MonoDepthNet
-from MiDaS.run import run_depth
+from midas.run import run as run_depth
 from vc.service.file import FileService
 from .helper.bilateral_filtering import sparse_bilateral_filtering
-from .helper.boostmonodepth_utils import run_boostmonodepth
 from .helper.mesh import write_ply, read_ply, output_3d_photo
 from .helper.networks import (
     Inpaint_Color_Net,
     Inpaint_Depth_Net,
     Inpaint_Edge_Net,
 )
-from .helper.utils import get_MiDaS_sample, read_MiDaS_depth
+from .helper.utils import get_midas_sample, read_midas_depth
 
 
 @dataclass
@@ -31,8 +28,8 @@ class InpaintingOptions:
     depth_edge_model_ckpt: str = 'checkpoints/edge-model.pth'
     depth_feat_model_ckpt: str = 'checkpoints/depth-model.pth'
     rgb_feat_model_ckpt: str = 'checkpoints/color-model.pth'
-    MiDaS_model_ckpt: str = 'MiDaS/model.pt'
-    use_boostmonodepth: bool = False
+    midas_model_ckpt: str = 'midas/model.pt'
+    midas_model_type: str = 'dpt_hybrid'  # one of "dpt_large" "dpt_hybrid" "midas_v21" "midas_v21_small"
     fps: int = 40
     num_frames: int = 200
     x_shift: float = 0.00
@@ -101,7 +98,7 @@ class InpaintingService:
         if args.video_folder:
             os.makedirs(args.video_folder, exist_ok=True)
 
-        sample = get_MiDaS_sample(args)
+        sample = get_midas_sample(args)
 
         if isinstance(args.gpu_ids, int) and (args.gpu_ids >= 0):
             device = args.gpu_ids
@@ -119,19 +116,12 @@ class InpaintingService:
         image = imageio.imread(sample['ref_img_fi'], pilmode="RGB")
 
         print(f"Running depth extraction at {time.time()}")
-        if args.use_boostmonodepth is True:
-            run_boostmonodepth(
-                sample['ref_img_fi'],
-                args.depth_folder
-            )
-        elif args.require_midas is True:
-            run_depth(
-                sample['ref_img_fi'],
-                args.depth_folder,
-                args.MiDaS_model_ckpt,
-                MonoDepthNet,
-                MiDaS_utils
-            )
+        run_depth(
+            sample['ref_img_fi'],
+            args.depth_folder,
+            args.midas_model_ckpt,
+            args.midas_model_type
+        )
 
         depth_file = (
             np.load(sample['depth_fi'])
@@ -160,7 +150,7 @@ class InpaintingService:
             interpolation=cv2.INTER_AREA
         )
 
-        depth = read_MiDaS_depth(
+        depth = read_midas_depth(
             sample['depth_fi'],
             3.0,
             args.output_h,

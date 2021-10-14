@@ -21,15 +21,6 @@ RUN apt install -y \
     zip \
     redis-tools \
     supervisor \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    nvidia-cuda-toolkit \
-    libxcb-randr0-dev \
-    libxcb-xtest0-dev \
-    libxcb-xinerama0-dev \
-    libxcb-shape0-dev \
-    libxcb-xkb-dev \
     mesa-utils-extra \
     libegl1-mesa-dev \
     libgles2-mesa-dev \

@@ -957,7 +957,7 @@ def create_placeholder(
     return mesh, add_node_time, add_edge_time, add_far_near_time
 
 
-def get_MiDaS_sample(args, aft_certain=None):
+def get_midas_sample(args, aft_certain=None):
     image_file = args.input_file
     depth_folder = args.depth_folder
     specific = args.specific
@@ -1094,7 +1094,7 @@ def smooth_cntsyn_gap(
     return depth_map
 
 
-def read_MiDaS_depth(disp_fi, disp_rescale=10., h=None, w=None):
+def read_midas_depth(disp_fi, disp_rescale=10., h=None, w=None):
     if 'npy' in os.path.splitext(disp_fi)[-1]:
         disp = np.load(disp_fi)
     else:
