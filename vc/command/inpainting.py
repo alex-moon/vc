@@ -41,5 +41,6 @@ class InpaintingCommand(BaseCommand):
         self.inpainting.handle(InpaintingOptions(
             input_file=args.input_file,
             output_filename=args.output_file,
-            gpu_ids=args.gpu_ids
+            gpu_ids=args.gpu_ids,
+            offscreen_rendering=True
         ))
