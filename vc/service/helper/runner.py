@@ -13,7 +13,7 @@ from vc.service.helper import DiagnosisHelper as dh
 from vc.service.helper.acceleration import Translate
 from vc.service.helper.rotation import Rotate
 from vc.service.inpainting import InpaintingOptions
-from vc.service.isr import IsrService, IsrOptions
+from vc.service.esrgan import EsrganService, EsrganOptions
 from vc.service.helper.random_word import RandomWord
 from vc.service.vqgan_clip import VqganClipOptions
 from vc.value_object import ImageSpec, VideoStepSpec, GenerationSpec
@@ -62,7 +62,7 @@ class GenerationRunner:
 
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
-    isr: IsrService
+    esrgan: EsrganService
     video: VideoService
     file: FileService
 
@@ -86,7 +86,7 @@ class GenerationRunner:
         self,
         vqgan_clip: VqganClipService,
         inpainting: InpaintingService,
-        isr: IsrService,
+        esrgan: EsrganService,
         video: VideoService,
         file: FileService,
         output_filename: str,
@@ -94,7 +94,7 @@ class GenerationRunner:
     ):
         self.vqgan_clip = vqgan_clip
         self.inpainting = inpainting
-        self.isr = isr
+        self.esrgan = esrgan
         self.video = video
         self.file = file
         self.output_filename = output_filename
@@ -255,8 +255,8 @@ class GenerationRunner:
         filename_to_use = self.output_filename
         if self.spec.upscale:
             filename_to_use = filename_to_use.replace('.png', '-upscaled.png')
-            dh.debug('GenerationRunner', 'isr', 'handle')
-            self.isr.handle(IsrOptions(**{
+            dh.debug('GenerationRunner', 'esrgan', 'handle')
+            self.esrgan.handle(EsrganOptions(**{
                 'input_file': self.output_filename,
                 'output_file': filename_to_use,
             }))

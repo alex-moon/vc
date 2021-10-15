@@ -52,11 +52,14 @@ fi
 
 file=MiDaS/model.pt
 if [[ ! -f "$file" ]]; then
-  # wget https://filebox.ece.vt.edu/~jbhuang/project/3DPhoto/model/model.pt
   wget https://github.com/intel-isl/DPT/releases/download/1_0/dpt_hybrid-midas-501f0c75.pt
   mv dpt_hybrid-midas-501f0c75.pt $file
 fi
 
-# @todo load ESRGAN or CAR
+file=checkpoints/RealESRGAN_x4plus.pth
+if [[ ! -f "$file" ]]; then
+  wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth
+  mv RealESRGAN_x4plus.pth $file
+fi
 
 echo "Done"

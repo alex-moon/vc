@@ -5,19 +5,12 @@ try:
 except ImportError:
     import networkx as netx
 
-# import OpenEXR
-import matplotlib.pyplot as plt
 from functools import reduce
-# from moviepy.editor import ImageSequenceClip
 import cv2
 import copy
 import torch
-from .utils import refine_depth_around_edge, smooth_cntsyn_gap
-from .utils import (
-    require_depth_edge,
-    filter_irrelevant_edge,
-    open_small_mask,
-)
+from vc.service.helper.utils import refine_depth_around_edge, smooth_cntsyn_gap
+from vc.service.helper.utils import open_small_mask
 
 
 # @todo put all in class and clean up
@@ -59,13 +52,11 @@ def filter_edge(mesh, edge_ccs, args, invalid=False):
     valid_edge_ccs = []
     for xidx, yy in enumerate(edge_ccs):
         if invalid is not True and len(context_ccs[xidx]) > 0:
-            # if len(context_ccs[xidx]) > 0:
             valid_edge_ccs.append(yy)
         elif invalid is True and len(context_ccs[xidx]) == 0:
             valid_edge_ccs.append(yy)
         else:
             valid_edge_ccs.append(set())
-    # valid_edge_ccs = [yy for xidx, yy in enumerate(edge_ccs) if len(context_ccs[xidx]) > 0]
 
     return valid_edge_ccs
 

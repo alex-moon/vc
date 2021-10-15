@@ -13,9 +13,9 @@ from injector import inject
 
 from midas.run import run as run_depth
 from vc.service.file import FileService
-from .helper.bilateral_filtering import sparse_bilateral_filtering
-from .helper.mesh import write_ply, read_ply, output_3d_photo
-from .helper.networks import (
+from vc.service.helper.inpainting.bilateral_filtering import sparse_bilateral_filtering
+from vc.service.helper.inpainting.mesh import write_ply, read_ply, output_3d_photo
+from vc.service.helper.inpainting.networks import (
     Inpaint_Color_Net,
     Inpaint_Depth_Net,
     Inpaint_Edge_Net,

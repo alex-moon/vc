@@ -32,7 +32,7 @@ from vc.service.helper.utils import (
     clean_far_edge,
 )
 from vc.service.helper.utils import create_placeholder, refresh_node
-from vc.service.helper.mesh_tools import (
+from vc.service.helper.inpainting.mesh_tools import (
     get_depth_from_maps,
     get_map_from_ccs,
     get_edge_from_nodes,
@@ -44,7 +44,7 @@ from vc.service.helper.mesh_tools import (
     filter_edge,
     depth_inpainting,
 )
-from vc.service.helper.mesh_tools import (
+from vc.service.helper.inpainting.mesh_tools import (
     refresh_bord_depth,
     enlarge_border,
     fill_dummy_bord,
@@ -54,7 +54,6 @@ from vc.service.helper.mesh_tools import (
     dilate_valid_size,
     size_operation,
 )
-from vc.service.helper.diagnosis import DiagnosisHelper as dh
 
 
 # @todo put all in class and clean up

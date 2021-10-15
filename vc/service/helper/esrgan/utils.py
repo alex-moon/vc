@@ -11,8 +11,7 @@ from urllib.parse import urlparse
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-class RealESRGANer():
-
+class RealESRGANer:
     def __init__(self, scale, model_path, model=None, tile=0, tile_pad=10, pre_pad=10, half=False):
         self.scale = scale
         self.tile_size = tile
