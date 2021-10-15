@@ -66,7 +66,7 @@ class GenerationService:
         )
 
         for step in GenerationRunner.iterate_steps(spec):
-            if step <= steps_completed:
+            if step.step <= steps_completed:
                 continue
 
             steps_completed = step.step
