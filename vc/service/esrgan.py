@@ -13,7 +13,7 @@ from .helper.esrgan import RealESRGANer
 @dataclass
 class EsrganOptions:
     input_file: str = 'output.png'
-    model_path: str = 'models/RealESRGAN_x4plus.pth'
+    model_path: str = 'checkpoints/RealESRGAN_x4plus.pth'
     output_file: str = 'output.png'
     netscale: int = 4
     outscale: float = 4
@@ -72,21 +72,17 @@ class EsrganService:
             print('If you encounter CUDA out of memory, try to set --tile with a smaller number.')
             raise error
 
-        # cv2.imwrite(args.output_file, output)
-
-        output = Image.fromarray(output)
-
         # Resize
         size = self.TARGET_SIZE + 2 * self.BORDER
-        output.thumbnail((size, size), Image.ANTIALIAS)
+        output = cv2.resize(output, (size, size), interpolation=cv2.INTER_AREA)
 
         # Crop
         start = self.BORDER
-        end = self.TARGET_SIZE - self.BORDER
-        output.crop(start, start, end, end)
+        end = -self.BORDER
+        output = output[start:end, start:end]
 
         # Save
-        output.save(args.output_file)
+        cv2.imwrite(args.output_file, output)
 
         if os.getenv('DEBUG_FILES'):
             self.file_service.put(

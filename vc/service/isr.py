@@ -48,7 +48,7 @@ class IsrService:
 
         # Crop
         start = self.BORDER
-        end = self.TARGET_SIZE - self.BORDER
+        end = self.TARGET_SIZE
         output.crop(start, start, end, end)
 
         # Save

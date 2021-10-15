@@ -50,7 +50,7 @@ if [[ ! -f "$file" ]]; then
   mv edge-model.pth $file
 fi
 
-file=MiDaS/model.pt
+file=checkpoints/midas.pt
 if [[ ! -f "$file" ]]; then
   wget https://github.com/intel-isl/DPT/releases/download/1_0/dpt_hybrid-midas-501f0c75.pt
   mv dpt_hybrid-midas-501f0c75.pt $file

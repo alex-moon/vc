@@ -117,7 +117,7 @@ def run(input_path, output_path, model_path, model_type="large", optimize=True):
         # compute
         with torch.no_grad():
             sample = torch.from_numpy(img_input).to(device).unsqueeze(0)
-            if optimize==True and device == torch.device("cuda"):
+            if optimize and device == torch.device("cuda"):
                 sample = sample.to(memory_format=torch.channels_last)  
                 sample = sample.half()
             prediction = model.forward(sample)
@@ -172,10 +172,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     default_models = {
-        "midas_v21_small": "weights/midas_v21_small-70d6b9c8.pt",
-        "midas_v21": "weights/midas_v21-f6b98070.pt",
-        "dpt_large": "weights/dpt_large-midas-2f21e586.pt",
-        "dpt_hybrid": "weights/dpt_hybrid-midas-501f0c75.pt",
+        "midas_v21_small": "checkpoints/midas_v21_small-70d6b9c8.pt",
+        "midas_v21": "checkpoints/midas_v21-f6b98070.pt",
+        "dpt_large": "checkpoints/dpt_large-midas-2f21e586.pt",
+        "dpt_hybrid": "checkpoints/dpt_hybrid-midas-501f0c75.pt",
     }
 
     if args.model_weights is None:

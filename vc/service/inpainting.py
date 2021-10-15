@@ -11,7 +11,6 @@ import torch
 import vispy
 from injector import inject
 
-from midas.run import run as run_depth
 from vc.service.file import FileService
 from vc.service.helper.inpainting.bilateral_filtering import sparse_bilateral_filtering
 from vc.service.helper.inpainting.mesh import write_ply, read_ply, output_3d_photo
@@ -20,6 +19,7 @@ from vc.service.helper.inpainting.networks import (
     Inpaint_Depth_Net,
     Inpaint_Edge_Net,
 )
+from .helper.midas.run import run as run_depth
 from .helper.utils import get_midas_sample, read_midas_depth
 
 
@@ -28,7 +28,7 @@ class InpaintingOptions:
     depth_edge_model_ckpt: str = 'checkpoints/edge-model.pth'
     depth_feat_model_ckpt: str = 'checkpoints/depth-model.pth'
     rgb_feat_model_ckpt: str = 'checkpoints/color-model.pth'
-    midas_model_ckpt: str = 'midas/model.pt'
+    midas_model_ckpt: str = 'checkpoints/midas.pt'
     midas_model_type: str = 'dpt_hybrid'  # one of "dpt_large" "dpt_hybrid" "midas_v21" "midas_v21_small"
     fps: int = 40
     num_frames: int = 200
