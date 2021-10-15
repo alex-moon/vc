@@ -3,9 +3,10 @@
 VC ("virtual content") is a tiny JEMSCI app that generates explorable dream worlds. It's built on top
 of the following machine vision libraries:
 
-* VQGAN/CLIP: https://github.com/nerdyrodent/VQGAN-CLIP based on work by https://github.com/crowsonkb
-* 3D Photo Inpainting: https://github.com/vt-vl-lab/3d-photo-inpainting
+* VQGAN: https://github.com/CompVis/taming-transformers
+* CLIP: https://github.com/openai/CLIP
 * MiDaS: https://github.com/isl-org/MiDaS
+* 3D Photo Inpainting: https://github.com/vt-vl-lab/3d-photo-inpainting
 * ESRGAN: https://github.com/xinntao/Real-ESRGAN
 
 ## Set-up

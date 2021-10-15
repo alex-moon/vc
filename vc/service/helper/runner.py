@@ -90,7 +90,8 @@ class GenerationRunner:
         video: VideoService,
         file: FileService,
         output_filename: str,
-        steps_dir: str
+        steps_dir: str,
+        name: str = None
     ):
         self.vqgan_clip = vqgan_clip
         self.inpainting = inpainting
@@ -99,7 +100,7 @@ class GenerationRunner:
         self.file = file
         self.output_filename = output_filename
         self.steps_dir = steps_dir
-        self.generation_name = RandomWord.get()
+        self.generation_name = name if name else RandomWord.get()
         self.now = datetime.now()
         self.suffix = self.video.generate_suffix()
 
