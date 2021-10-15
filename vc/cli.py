@@ -7,7 +7,8 @@ from vc import command
 
 class CommandLoader:
     commands = {
-        'inpainting': command.InpaintingCommand
+        'inpainting': command.InpaintingCommand,
+        'esrgan': command.EsrganCommand,
     }
 
     @classmethod
