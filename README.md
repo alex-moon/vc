@@ -6,7 +6,7 @@ of the following machine vision libraries:
 * VQGAN/CLIP: https://github.com/nerdyrodent/VQGAN-CLIP based on work by https://github.com/crowsonkb
 * 3D Photo Inpainting: https://github.com/vt-vl-lab/3d-photo-inpainting
 * MiDaS: https://github.com/isl-org/MiDaS
-* ISR: https://github.com/idealo/image-super-resolution
+* ESRGAN: https://github.com/xinntao/Real-ESRGAN
 
 ## Set-up
 
