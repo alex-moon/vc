@@ -373,7 +373,7 @@ class GenerationRunner:
                                                 video_step=video_step
                                             )
 
-                                            if step % cls.INTERIM_STEPS == 0:
+                                            if step % cls.INTERIM_STEPS == 1:
                                                 step += 1
                                                 yield HandleInterimStep(
                                                     step=step,
@@ -390,7 +390,7 @@ class GenerationRunner:
                                             video_step=video_step
                                         )
 
-                                        if step % cls.INTERIM_STEPS == 0:
+                                        if step % cls.INTERIM_STEPS == 1:
                                             step += 1
                                             yield HandleInterimStep(
                                                 step=step,
