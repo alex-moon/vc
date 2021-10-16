@@ -70,9 +70,6 @@
                     </a>
                 </li>
             </ul>
-            <div class="actions">
-                <button class="close">Show me</button>
-            </div>
         </div>
     </div>
 </div>
