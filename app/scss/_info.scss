@@ -93,6 +93,11 @@ vc-info {
                     margin: 4px 0;
                     display: flex;
                     justify-content: flex-end;
+
+                    button {
+                        width: auto;
+                        flex-grow: 1;
+                    }
                 }
             }
         }
