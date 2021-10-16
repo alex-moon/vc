@@ -19,13 +19,12 @@ export class Vc {
 
     constructor() {
         this.service = new Service();
-        this.$info = document.querySelector('vc-info');
         this.$requests = document.querySelector('vc-generation-requests');
         this.refreshAndSetTimeout();
         AuthHelper.listen(this.refresh.bind(this));
         this.bindEvents();
         if (EnvHelper.useLocal) {
-            this.toggleInfo();
+            setTimeout(this.toggleInfo.bind(this));
         }
     }
 
@@ -39,6 +38,7 @@ export class Vc {
     }
     
     toggleInfo() {
+        this.$info = document.querySelector('vc-info');
         this.$info.expand();
     }
 
