@@ -22,6 +22,8 @@ class GenerationRequest(db.Model, BaseModel):
     steps_total = db.Column(db.Integer)
 
     name = db.Column(db.String)
+    hash = db.Column(db.String)
+
     preview = db.Column(db.String)
     interim = db.Column(db.String)
     interim_watermarked = db.Column(db.String)

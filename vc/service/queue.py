@@ -3,6 +3,9 @@ import json
 from flask_rq import get_queue, get_connection
 from injector import Binder, inject
 from rq import Queue, SimpleWorker, Worker
+from rq.command import send_stop_job_command
+from rq.job import Job
+from vc.r import r
 
 
 class JobSerializer:
@@ -60,13 +63,23 @@ class QueueService:
     def __init__(self, job_serializer: JobSerializer):
         self.job_serializer = job_serializer
 
-    def enqueue(self, f, args=None, kwargs=None):
-        self.get_queue().enqueue_call(
+    def enqueue(self, f, args=None, kwargs=None) -> str:
+        job = self.get_queue().enqueue_call(
             f,
             args=args,
             kwargs=kwargs,
             timeout=self.TIMEOUT
         )
+        return job.id
+
+    def cancel_and_stop(self, job_id: str):
+        job = Job.fetch(job_id, connection=r)
+        job.cancel()
+        try:
+            send_stop_job_command(r, job_id)
+        except:
+            # don't fail if job not running
+            pass
 
     def get_worker(self):
         if self.worker is None:
