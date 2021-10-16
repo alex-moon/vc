@@ -9,3 +9,11 @@ class GenerationRequestCreatedEvent(VcEvent):
     def __init__(self, generation_request: GenerationRequest):
         self.generation_request = generation_request
 
+
+class GenerationRequestCancelledEvent(VcEvent):
+    id = 'generation_request.cancelled'
+    generation_request: GenerationRequest
+
+    def __init__(self, generation_request: GenerationRequest):
+        self.generation_request = generation_request
+
