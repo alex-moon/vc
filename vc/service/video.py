@@ -15,8 +15,8 @@ class VideoService:
         'mi_mode': 'mci',
         'mc_mode': 'aobmc',
         'me_mode': 'bidir',
-        'vsbmc': 1,
-        'fps': 60,
+        'vsbmc': '1',
+        'fps': '60',
     }
     file_service: FileService
 
