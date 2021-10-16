@@ -73,12 +73,12 @@ class QueueService:
         return job.id
 
     def cancel_and_stop(self, job_id: str):
-        job = Job.fetch(job_id, connection=r)
-        job.cancel()
         try:
+            job = Job.fetch(job_id, connection=r)
+            job.cancel()
             send_stop_job_command(r, job_id)
         except:
-            # don't fail if job not running
+            # don't fail if can't find job or job not running
             pass
 
     def get_worker(self):
