@@ -10,13 +10,13 @@ from vc.api import api
 class ImageSpec:
     texts: List[str] = None
     styles: List[str] = None
-    iterations: int = 75
+    iterations: int = 200
     upscale: bool = False
 
     schema = api.model('Image Spec', {
         'texts': fields.List(fields.String, default_factory=list),
         'styles': fields.List(fields.String, default_factory=list),
-        'iterations': fields.Integer(default=75),
+        'iterations': fields.Integer(default=200),
         'upscale': fields.Boolean(default=False),
     })
 

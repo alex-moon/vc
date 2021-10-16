@@ -17,16 +17,14 @@ vc-generation-request-summary {
         }
 
         .preview {
-            width: 100px;
             height: 100px;
             border-radius: $border-radius;
             border: solid 2px #535c69;
-            box-sizing: border-box;
             background-color: #535c69;
 
             img {
-                width: 100%;
-                height: 100%;
+                width: 100px;
+                height: 100px;
                 border-radius: $border-radius;
             }
         }
@@ -37,6 +35,7 @@ vc-generation-request-summary {
             flex-direction: column;
             margin-left: 16px;
             height: 100px;
+            overflow: hidden;
 
             .labels {
                 display: flex;
@@ -52,6 +51,10 @@ vc-generation-request-summary {
                 .name {
                     font-size: x-large;
                     font-weight: bold;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    min-width: 0;
                 }
 
                 .status {
@@ -132,14 +135,14 @@ vc-generation-request-summary {
         }
 
         .actions {
-            width: 100px;
-            height: 100px;
             margin-left: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
 
             button {
+                width: 64px;
+                height: 64px;
                 font-size: 64px;
                 line-height: 64px;
             }

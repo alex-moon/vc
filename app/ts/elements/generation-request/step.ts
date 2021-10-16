@@ -8,12 +8,17 @@ import {ImageSpec} from "../../models/image-spec";
     style: ``,
     template: `
 <div class="step">
-    <div class="number"></div>
+    <div class="number"><span></span></div>
     <div class="spec">
-        <h3>Texts</h3>
-        <vc-chipset class="texts"></vc-chipset>
-        <h3>Styles</h3>
-        <vc-chipset class="styles"></vc-chipset>    
+        <div class="text-chipset">
+            <h3>Texts</h3>
+            <vc-chipset class="texts"></vc-chipset>
+        </div>
+        <div class="text-chipset">
+            <h3>Styles</h3>
+            <vc-chipset class="styles"></vc-chipset>
+        </div>
+        <div class="fields"></div>
     </div>
 </div>
 `
@@ -24,7 +29,9 @@ export class GenerationRequestDetailsStep extends HTMLElement {
     $spec: HTMLElement
     $texts: Chipset;
     $styles: Chipset;
+    $fields: HTMLElement;
 
+    number: number;
     spec: ImageSpec
     @Toggle() expanded = false
 
@@ -34,16 +41,49 @@ export class GenerationRequestDetailsStep extends HTMLElement {
 
     connectedCallback() {
         this.$root = this.querySelector('.step');
-        this.$number = this.$root.querySelector('.number');
+        this.$number = this.$root.querySelector('.number span');
         this.$spec = this.$root.querySelector('.spec');
         this.$texts = this.$spec.querySelector('.texts');
         this.$styles = this.$spec.querySelector('.styles');
+        this.$fields = this.$spec.querySelector('.fields');
     }
 
     update(number: number, spec: ImageSpec) {
         this.spec = spec;
-        this.$number.innerHTML = number + '.';
+        this.number = number;
+        this.draw();
+    }
+
+    draw() {
+        this.$number.innerHTML = this.number + '.';
         this.$texts.update(this.spec.texts);
         this.$styles.update(this.spec.styles);
+        this.drawFields();
+    }
+
+    drawFields() {
+        for (const fieldName of [
+            'x_velocity',
+            'y_velocity',
+            'z_velocity',
+            'pan_velocity',
+            'tilt_velocity',
+            'roll_velocity',
+            'iterations',
+            'init_iterations',
+            'upscale',
+        ]) {
+            if (fieldName in this.spec) {
+                const field = document.createElement('div');
+                field.classList.add('field');
+                const label = document.createElement('label');
+                label.innerText = fieldName;
+                const span = document.createElement('span');
+                span.innerText = '' + (this.spec as any)[fieldName];
+                field.appendChild(label);
+                field.appendChild(span);
+                this.$fields.appendChild(field);
+            }
+        }
     }
 }

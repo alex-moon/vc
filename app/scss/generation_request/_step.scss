@@ -9,20 +9,54 @@ vc-generation-request-details-step {
         box-sizing: border-box;
 
         .number {
-            width: 64px;
             font-size: 48px;
             color: #5c6267;
             display: flex;
             align-items: center;
             justify-content: center;
+
+            span {
+                width: 64px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
         }
 
         .spec {
             padding: 8px 0;
             flex-grow: 1;
 
-            h3 {
-                margin: 8px 0;
+            .text-chipset {
+                margin-bottom: 16px;
+                h3 {
+                    margin: 0;
+                }
+            }
+
+            .fields {
+                display: flex;
+                flex-flow: row wrap;
+
+                .field {
+                    background: #f9f8ef;
+                    border: solid 1px #5c6267;
+                    border-radius: $border-radius;
+                    padding: 8px;
+                    position: relative;
+                    display: flex;
+                    margin: 8px 8px 0 0;
+
+                    label {
+                        font-weight: bold;
+                        display: block;
+                        margin-right: 8px;
+                    }
+
+                    span {
+
+                    }
+                }
             }
         }
     }

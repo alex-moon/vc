@@ -164,18 +164,18 @@ export class GenerationRequestDetails extends HTMLElement {
                 });
             }
             if (!this.request.cancelled && !this.request.failed && !this.request.completed) {
-                this.addAction('Cancel job', 'cancel', (e: MouseEvent) => {
+                this.addAction('Cancel', 'cancel', (e: MouseEvent) => {
                     if (window.confirm('Are you sure you would like to cancel this request?')) {
                         this.vc.cancel(this.request);
                     }
                 }, 'warn');
             } else {
-                this.addAction('Retry job', 'restart_alt', (e: MouseEvent) => {
+                this.addAction('Retry', 'restart_alt', (e: MouseEvent) => {
                     if (window.confirm('Are you sure you would like to restart this request?')) {
                         this.vc.retry(this.request);
                     }
                 });
-                this.addAction('Delete job', 'delete', (e: MouseEvent) => {
+                this.addAction('Delete', 'delete', (e: MouseEvent) => {
                     if (window.confirm('Are you sure you would like to delete this request?')) {
                         this.vc.delete(this.request);
                     }

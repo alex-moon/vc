@@ -57,7 +57,7 @@ class GenerationResult:
 
 
 class GenerationRunner:
-    INTERIM_STEPS = 10
+    INTERIM_STEPS = 42
     TRANSITION_SPEED = 0.05
 
     vqgan_clip: VqganClipService
@@ -172,6 +172,7 @@ class GenerationRunner:
             if self.last_style is None:
                 self.last_style = style
 
+            # @todo VC-28: generalise this for any number of text lists
             prompt = text
             if text != self.last_text:
                 if self.text_transition < 1.:
