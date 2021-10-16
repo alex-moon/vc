@@ -43,6 +43,11 @@ def events(binder: Binder):
         event.GenerationRequestCreatedEvent,
         event_listener.GenerationRequestCreatedEventListener
     )
+    bind_event_listener(
+        binder,
+        event.GenerationRequestCancelledEvent,
+        event_listener.GenerationRequestCancelledEventListener
+    )
 
 
 modules = [
