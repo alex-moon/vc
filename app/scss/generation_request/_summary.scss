@@ -69,7 +69,7 @@ vc-generation-request-summary {
                         background-color: #676666;
                     }
 
-                    &.started {
+                    &.started, &.retried {
                         color: #c5d9dd;
                         background-color: #535c69;
                     }
