@@ -48,7 +48,8 @@ class GenerationService:
         self,
         spec: GenerationSpec,
         callback: Callable,
-        steps_completed=0
+        steps_completed=0,
+        name=None
     ):
         print('starting')
         start = time()
@@ -62,7 +63,8 @@ class GenerationService:
             self.video,
             self.file,
             self.OUTPUT_FILENAME,
-            self.STEPS_DIR
+            self.STEPS_DIR,
+            name=name
         )
 
         for step in GenerationRunner.iterate_steps(spec):
