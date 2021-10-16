@@ -26,11 +26,18 @@ vc-generation-request-details {
             padding: 16px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-end;
+            flex-flow: row wrap;
 
             button {
+                width: auto;
+                padding: 0 16px;
                 font-size: x-large;
-                margin-right: 8px;
+                margin: 0 8px 8px 0;
+
+                @include mobile {
+                    flex-grow: 1;
+                }
             }
         }
 

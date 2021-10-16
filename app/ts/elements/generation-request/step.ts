@@ -74,15 +74,18 @@ export class GenerationRequestDetailsStep extends HTMLElement {
             'upscale',
         ]) {
             if (fieldName in this.spec) {
-                const field = document.createElement('div');
-                field.classList.add('field');
-                const label = document.createElement('label');
-                label.innerText = fieldName;
-                const span = document.createElement('span');
-                span.innerText = '' + (this.spec as any)[fieldName];
-                field.appendChild(label);
-                field.appendChild(span);
-                this.$fields.appendChild(field);
+                const fieldValue = (this.spec as any)[fieldName];
+                if (fieldValue) {
+                    const field = document.createElement('div');
+                    field.classList.add('field');
+                    const label = document.createElement('label');
+                    label.innerText = fieldName.split('_')[0];
+                    const span = document.createElement('span');
+                    span.innerText = '' + fieldValue;
+                    field.appendChild(label);
+                    field.appendChild(span);
+                    this.$fields.appendChild(field);
+                }
             }
         }
     }
