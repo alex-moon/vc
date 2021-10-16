@@ -41,8 +41,9 @@ class GenerationJob(Job):
             self.update_progress(generation_request, generation_progress)
 
         steps_completed = generation_request.steps_completed or 0
+        name = generation_request.name
         try:
-            self.service.handle(spec, update_progress, steps_completed)
+            self.service.handle(spec, update_progress, steps_completed, name)
             self.mark_completed(generation_request)
         except Exception as e:
             self.mark_failed(generation_request)
