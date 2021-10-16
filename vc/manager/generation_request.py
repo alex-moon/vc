@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from vc.model.generation_request import GenerationRequest
-from vc.event import GenerationRequestCreatedEvent
+from vc.event import GenerationRequestCreatedEvent, GenerationRequestCancelledEvent
 from vc.manager.base import Manager
 from vc.model.user import User
 

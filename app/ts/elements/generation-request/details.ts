@@ -154,7 +154,7 @@ export class GenerationRequestDetails extends HTMLElement {
                     if (window.confirm('Are you sure you would like to cancel this request?')) {
                         this.vc.cancel(this.request);
                     }
-                });
+                }, 'warn');
             } else {
                 this.addAction('Retry job', 'restart_alt', (e: MouseEvent) => {
                     if (window.confirm('Are you sure you would like to restart this request?')) {
@@ -165,17 +165,25 @@ export class GenerationRequestDetails extends HTMLElement {
                     if (window.confirm('Are you sure you would like to delete this request?')) {
                         this.vc.delete(this.request);
                     }
-                });
+                }, 'warn');
             }
         }
     }
 
-    addAction(label: string, icon_string: string, callback: (e: MouseEvent) => void) {
+    addAction(
+        label: string,
+        iconString: string,
+        callback: (e: MouseEvent) => void,
+        cssClass: string = null
+    ) {
         const button = document.createElement('button')
         button.innerText = label;
+        if (cssClass) {
+            button.classList.add(cssClass);
+        }
         const icon = document.createElement('span');
         icon.classList.add('material-icons');
-        icon.innerText = icon_string;
+        icon.innerText = iconString;
         button.insertBefore(icon, button.firstChild);
         this.$actions.appendChild(button);
         button.addEventListener('click', callback);

@@ -17,11 +17,16 @@ button {
   justify-content: center;
   align-items: center;
 
-  &:hover {
+  &:hover, &:active {
     background: #f0f5f0;
   }
-  &:active {
-    background: #d7e6d6;
+
+  &.warn {
+    background: #e6cfb9;
+
+    &:hover, &:active {
+      background: #f5ede6;
+    }
   }
 
   &[disabled] {
