@@ -5,6 +5,7 @@ import {ImageSpec} from "./models/image-spec";
 import {AuthHelper} from "./helpers/auth";
 import {GenerationRequest} from "./models/generation-request";
 import {Info} from "./elements/info";
+import {EnvHelper} from "./helpers/env";
 
 export class Vc {
     $info: Info;
@@ -19,15 +20,17 @@ export class Vc {
     constructor() {
         this.service = new Service();
         this.$info = document.querySelector('vc-info');
-        this.$form = document.querySelector('vc-login-form');
-        this.$form.connect(this);
         this.$requests = document.querySelector('vc-generation-requests');
         this.refreshAndSetTimeout();
         AuthHelper.listen(this.refresh.bind(this));
         this.bindEvents();
-        if ((window as any).env.useLocal) {
+        if (EnvHelper.useLocal) {
             this.toggleInfo();
         }
+    }
+
+    static get instance() {
+        return (global as any).vc;
     }
 
     bindEvents() {

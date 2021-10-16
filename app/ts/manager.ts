@@ -1,10 +1,11 @@
 import {GenerationRequest} from "./models/generation-request";
 import {AuthHelper} from "./helpers/auth";
+import {EnvHelper} from "./helpers/env";
 
 export class Manager {
     requests: GenerationRequest[]
-    isLocal = (window as any).env.useLocal
-    host = (window as any).env.host
+    isLocal = EnvHelper.useLocal
+    host = EnvHelper.host
     base_url = '/api/generation-request/'
 
     constructor() {

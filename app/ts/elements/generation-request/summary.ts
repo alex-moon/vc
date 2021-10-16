@@ -2,6 +2,7 @@ import {CustomElement, Dispatch, DispatchEmitter} from 'custom-elements-ts';
 import {GenerationRequest as Model} from "../../models/generation-request";
 import {StatusHelper} from "../../helpers/status";
 import {DetailsHelper} from "../../helpers/details";
+import {AuthHelper} from "../../helpers/auth";
 
 @CustomElement({
     tag: 'vc-generation-request-summary',
@@ -68,7 +69,7 @@ export class GenerationRequestSummary extends HTMLElement {
 
         this.updateStatus();
         this.updateBar();
-        if (DetailsHelper.hasDetails(this.request)) {
+        if (AuthHelper.hasToken() || DetailsHelper.hasDetails(this.request)) {
             this.addExpand();
         }
 

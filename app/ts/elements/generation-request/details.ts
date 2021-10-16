@@ -5,6 +5,7 @@ import {DetailsHelper, ImageCounter} from "../../helpers/details";
 import {Chipset} from "../chipset";
 import {AuthHelper} from "../../helpers/auth";
 import {Vc} from "../../vc";
+import {EnvHelper} from "../../helpers/env";
 
 @CustomElement({
     tag: 'vc-generation-request-details',
@@ -36,7 +37,7 @@ export class GenerationRequestDetails extends HTMLElement {
         // @todo injector of some kind?
         // https://nehalist.io/dependency-injection-in-typescript/
         // or https://www.npmjs.com/package/bottlejs
-        this.vc = (window as any).vc;
+        this.vc = Vc.instance;
     }
 
     connectedCallback() {
@@ -107,7 +108,7 @@ export class GenerationRequestDetails extends HTMLElement {
             this.$preview.appendChild(panel);
         }
 
-        if ((window as any).env.useLocal) {
+        if (EnvHelper.useLocal) {
             return;
         }
 

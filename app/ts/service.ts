@@ -1,7 +1,6 @@
 import {GenerationRequest} from "./models/generation-request";
 import {Manager} from "./manager";
 import {ImageSpec} from "./models/image-spec";
-import {DetailsHelper} from "./helpers/details";
 
 export class Service {
     manager: Manager
@@ -12,9 +11,7 @@ export class Service {
 
     refresh(callback: CallableFunction) {
         this.manager.index((requests: GenerationRequest[]) => {
-            callback(requests.filter((request) => {
-                return DetailsHelper.hasDetails(request);
-            }))
+            callback(requests);
         });
     }
 

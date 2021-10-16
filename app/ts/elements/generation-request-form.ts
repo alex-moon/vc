@@ -26,11 +26,8 @@ export class GenerationRequestForm extends HTMLElement {
         super();
     }
 
-    connect(vc: Vc) {
-        this.vc = vc;
-    }
-
     connectedCallback() {
+        this.vc = Vc.instance;
         this.$root = this.querySelector('.request-form');
 
         this.$header = this.$root.querySelector('h2');
