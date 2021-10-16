@@ -66,3 +66,19 @@ class GenerationRequestManager(Manager):
         self.save(model)
 
         return model
+
+    def publish(self, id_):
+        model = super().find_or_throw(id_)
+        model.published = datetime.now()
+
+        self.save(model)
+
+        return model
+
+    def unpublish(self, id_):
+        model = super().find_or_throw(id_)
+        model.published = None
+
+        self.save(model)
+
+        return model

@@ -89,6 +89,14 @@ export class Vc {
         this.service.delete(request, this.refresh.bind(this));
     }
 
+    publish(request: GenerationRequest) {
+        this.service.publish(request, this.refresh.bind(this));
+    }
+
+    unpublish(request: GenerationRequest) {
+        this.service.unpublish(request, this.refresh.bind(this));
+    }
+
     draw(requests: any) {
         this.$requests.update(requests);
     }

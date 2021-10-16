@@ -150,6 +150,19 @@ export class GenerationRequestDetails extends HTMLElement {
             this.$actions = document.createElement('div');
             this.$actions.classList.add('actions');
             this.$root.insertBefore(this.$actions, this.$root.firstChild);
+            if (this.request.published) {
+                this.addAction('Unpublish', 'remove_circle', (e: MouseEvent) => {
+                    if (window.confirm('Are you sure you would like to unpublish this request?')) {
+                        this.vc.unpublish(this.request);
+                    }
+                });
+            } else {
+                this.addAction('Publish', 'publish', (e: MouseEvent) => {
+                    if (window.confirm('Are you sure you would like to publish this request?')) {
+                        this.vc.publish(this.request);
+                    }
+                });
+            }
             if (!this.request.cancelled && !this.request.failed && !this.request.completed) {
                 this.addAction('Cancel job', 'cancel', (e: MouseEvent) => {
                     if (window.confirm('Are you sure you would like to cancel this request?')) {

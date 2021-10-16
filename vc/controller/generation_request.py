@@ -118,6 +118,10 @@ class GenerationRequestActionController(BaseController):
             return self.retry(id_)
         if action == 'delete':
             return self.soft_delete(id_)
+        if action == 'publish':
+            return self.publish(id_)
+        if action == 'unpublish':
+            return self.unpublish(id_)
         raise BadRequest('Unrecognised action: %s' % action)
 
     def cancel(self, id_):
@@ -128,3 +132,9 @@ class GenerationRequestActionController(BaseController):
 
     def retry(self, id_):
         return self.manager.retry(id_)
+
+    def publish(self, id_):
+        return self.manager.publish(id_)
+
+    def unpublish(self, id_):
+        return self.manager.unpublish(id_)

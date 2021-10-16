@@ -39,4 +39,12 @@ export class Service {
     delete(request: GenerationRequest, callback: CallableFunction) {
         this.manager.delete(request.id, callback)
     }
+
+    publish(request: GenerationRequest, callback: CallableFunction) {
+        this.manager.publish(request.id, callback)
+    }
+
+    unpublish(request: GenerationRequest, callback: CallableFunction) {
+        this.manager.unpublish(request.id, callback)
+    }
 }

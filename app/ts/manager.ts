@@ -88,6 +88,18 @@ export class Manager {
         });
     }
 
+    publish(id: number, callback: CallableFunction) {
+        this.put(id, 'publish').then((request: GenerationRequest) => {
+            callback(request);
+        });
+    }
+
+    unpublish(id: number, callback: CallableFunction) {
+        this.put(id, 'unpublish').then((request: GenerationRequest) => {
+            callback(request);
+        });
+    }
+
     load(data: GenerationRequest[]) {
         this.requests = data;
     }
