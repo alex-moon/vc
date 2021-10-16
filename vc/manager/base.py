@@ -15,13 +15,16 @@ class Manager:
     def __init__(self, dispatcher: VcEventDispatcher):
         self.dispatcher = dispatcher
 
+    def all_query(self):
+        return self.model_class.query.filter(
+            self.model_class.deleted.__eq__(None)
+        ).order_by(
+            self.model_class.created.desc()
+        )
+
     def all(self):
         try:
-            return self.model_class.query.filter(
-                self.model_class.deleted.__eq__(None)
-            ).order_by(
-                self.model_class.created.desc()
-            ).all()
+            return self.all_query().all()
         except Exception as e:
             db.session.rollback()
             raise e

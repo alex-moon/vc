@@ -40,10 +40,9 @@ class GenerationRequestsController(BaseController):
 
     @auth.login_required(optional=True)
     def get(self):
-        data = self.manager.all()
         if auth.current_user():
-            return ns.marshal(data, private_model)
-        return ns.marshal(data, public_model)
+            return ns.marshal(self.manager.all(), private_model)
+        return ns.marshal(self.manager.published(), public_model)
 
     @auth.login_required()
     @ns.marshal_with(private_model)

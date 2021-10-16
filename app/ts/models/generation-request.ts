@@ -17,5 +17,8 @@ export class GenerationRequest extends BaseModel {
     failed ?: string;
 
     cancelled ?: string;
+    retried ?: string;
     deleted ?: string;
+
+    published ?: string;
 }

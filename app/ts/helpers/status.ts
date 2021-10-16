@@ -8,6 +8,7 @@ export enum StatusSlug {
     COMPLETED = 'completed',
     FAILED = 'failed',
     CANCELLED = 'cancelled',
+    RETRIED = 'retried',
 }
 
 export interface Status {
@@ -23,10 +24,12 @@ export class StatusHelper {
         let slug = StatusSlug.QUEUED;
         let readable = 'Queued';
         let datetime = dayjs(request.created);
+
         if (request.started) {
             slug = StatusSlug.STARTED;
             readable = 'Started';
             datetime = dayjs(request.started);
+
             if (request.completed) {
                 slug = StatusSlug.COMPLETED;
                 readable = 'Completed';
@@ -39,6 +42,10 @@ export class StatusHelper {
                 slug = StatusSlug.CANCELLED;
                 readable = 'Cancelled';
                 datetime = dayjs(request.cancelled);
+            } else if (request.retried) {
+                slug = StatusSlug.RETRIED;
+                readable = 'Restarted';
+                datetime = dayjs(request.retried);
             }
         }
         datetime = datetime.format(StatusHelper.DATETIME_FORMAT);

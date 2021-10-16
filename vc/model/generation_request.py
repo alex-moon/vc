@@ -17,6 +17,7 @@ class GenerationRequest(db.Model, BaseModel):
     failed = db.Column(db.DateTime)
     cancelled = db.Column(db.DateTime)
     retried = db.Column(db.DateTime)
+    published = db.Column(db.DateTime)
 
     steps_completed = db.Column(db.Integer)
     steps_total = db.Column(db.Integer)
@@ -41,6 +42,7 @@ class GenerationRequest(db.Model, BaseModel):
         'failed': fields.DateTime(),
         'cancelled': fields.DateTime(),
         'retried': fields.DateTime(),
+        'published': fields.DateTime(),
         'steps_completed': fields.Integer,
         'steps_total': fields.Integer,
         'name': fields.String,
