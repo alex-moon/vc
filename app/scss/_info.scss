@@ -2,10 +2,12 @@
 
 $info-width: 400px;
 $info-height: calc(100vh - 118px);
+$border-radius: 8px;
+$transition: 0.5s;
 
 vc-info {
     .info-container {
-        background-color: #d7e6d6;
+        background: #f9f8ef;
         transition: $transition;
         overflow-y: auto;
         overflow-x: hidden;
@@ -47,6 +49,8 @@ vc-info {
 
             .text {
                 flex-grow: 1;
+                padding-bottom: 64px;
+
                 h2, h3, p {
                     font-weight: normal;
                     margin: 16px 0;
@@ -55,11 +59,41 @@ vc-info {
                 h2 {
                     margin: 0;
                 }
-            }
 
-            .actions {
-                display: flex;
-                justify-content: flex-end;
+                ul {
+                    list-style: none;
+                    margin: 0;
+                    padding: 0;
+
+                    li {
+                        margin: 0;
+                        display: flex;
+                        flex-direction: column;
+
+                        a {
+                            color: #535c69;
+                            background: #c5d9dd;
+                            padding: 8px;
+                            margin: 4px 0;
+                            border: solid 1px #535c69;
+                            border-radius: $border-radius;
+                        }
+
+                        a:hover {
+                            background: none;
+                        }
+
+                        strong, span {
+                            display: block;
+                        }
+                    }
+                }
+
+                .actions {
+                    margin: 4px 0;
+                    display: flex;
+                    justify-content: flex-end;
+                }
             }
         }
     }
