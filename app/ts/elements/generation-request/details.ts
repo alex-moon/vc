@@ -163,7 +163,11 @@ export class GenerationRequestDetails extends HTMLElement {
                     }
                 });
             }
-            if (!this.request.cancelled && !this.request.failed && !this.request.completed) {
+            if (
+                !this.request.cancelled
+                && (!this.request.failed || this.request.retried)
+                && !this.request.completed
+            ) {
                 this.addAction('Cancel', 'cancel', (e: MouseEvent) => {
                     if (window.confirm('Are you sure you would like to cancel this request?')) {
                         this.vc.cancel(this.request);
