@@ -7,12 +7,13 @@ from injector import inject
 from vc.service import (
     VqganClipService,
     InpaintingService,
+    EsrganService,
+    AbmeService,
     VideoService,
     FileService,
 )
 from vc.service.helper import DiagnosisHelper as dh
 from vc.service.helper.runner import GenerationRunner
-from vc.service.esrgan import EsrganService
 from vc.value_object import GenerationSpec
 from vc.value_object.generation_progress import GenerationProgress
 
@@ -24,6 +25,7 @@ class GenerationService:
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
     esrgan: EsrganService
+    abme: AbmeService
     video: VideoService
     file: FileService
 
@@ -35,12 +37,14 @@ class GenerationService:
         vqgan_clip: VqganClipService,
         inpainting: InpaintingService,
         esrgan: EsrganService,
+        abme: AbmeService,
         video: VideoService,
         file: FileService
     ):
         self.vqgan_clip = vqgan_clip
         self.inpainting = inpainting
         self.esrgan = esrgan
+        self.abme = abme
         self.video = video
         self.file = file
 
@@ -60,6 +64,7 @@ class GenerationService:
             self.vqgan_clip,
             self.inpainting,
             self.esrgan,
+            self.abme,
             self.video,
             self.file,
             self.OUTPUT_FILENAME,

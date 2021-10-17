@@ -9,6 +9,7 @@ from vc.service import FileService
 
 
 class VideoService:
+    DEFAULT_FRAMERATE = 25
     STEPS_DIR = 'steps'
     OUTPUT_FILENAME = 'output.mp4'
     MINTERPOLATE_CONFIG = {
@@ -16,7 +17,7 @@ class VideoService:
         'mc_mode': 'aobmc',
         'me_mode': 'bidir',
         'vsbmc': '1',
-        'fps': '60',
+        'fps': '50',
     }
     file_service: FileService
 
@@ -30,7 +31,8 @@ class VideoService:
         steps_dir=STEPS_DIR,
         now: datetime = None,
         suffix: str = None,
-        interpolate: bool = False
+        interpolate: bool = False,
+        fps_multiple: int = 1
     ):
         if suffix is None:
             suffix = self.generate_suffix()
@@ -43,12 +45,16 @@ class VideoService:
             in self.MINTERPOLATE_CONFIG.items()
         ]) if interpolate else ''
 
-        os.system(' '.join([
-            'ffmpeg -y -i "%s/%%04d.png"' % steps_dir,
+        cmd = ' '.join([
+            'ffmpeg -y ',
+            '-framerate %s' % (self.DEFAULT_FRAMERATE * fps_multiple),
+            '-i "%s/%%04d.png"' % steps_dir,
             '-b:v 8M -c:v h264_nvenc -pix_fmt yuv420p -strict -2',
             minterpolate_string,
             output_file
-        ]))
+        ])
+        print('running', cmd)
+        os.system(cmd)
 
         return self.file_service.put(output_file, output_file, now)
 

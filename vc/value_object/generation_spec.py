@@ -23,6 +23,8 @@ class ImageSpec:
 
 @dataclass
 class VideoStepSpec(ImageSpec):
+    interpolate: bool = False
+    iterations: int = 75
     init_iterations: int = 200
     epochs: int = 42
     x_velocity: float = 0.
@@ -37,6 +39,7 @@ class VideoStepSpec(ImageSpec):
         'styles': fields.List(fields.String, default_factory=list),
         'iterations': fields.Integer(default=75),
         'upscale': fields.Boolean(default=False),
+        'interpolate': fields.Boolean(default=False),
         'init_iterations': fields.Integer(default=200),
         'epochs': fields.Integer(default=42),
         'x_velocity': fields.Float(default=0.),

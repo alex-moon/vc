@@ -22,44 +22,58 @@ rm -rf ./CLIP/.git
 
 mkdir -p checkpoints
 
+# VQGAN
 file=checkpoints/vqgan_imagenet_f16_16384.yaml
 if [[ ! -f "$file" ]]; then
-  curl -L -o $file -C - 'http://mirror.io.community/blob/vqgan/vqgan_imagenet_f16_16384.yaml' #ImageNet 16384
+  curl -L -o $file -C - 'http://mirror.io.community/blob/vqgan/vqgan_imagenet_f16_16384.yaml'
 fi
-fil=checkpoints/vqgan_imagenet_f16_16384.ckpt
+file=checkpoints/vqgan_imagenet_f16_16384.ckpt
 if [[ ! -f "$file" ]]; then
-  curl -L -o $file -C - 'http://mirror.io.community/blob/vqgan/vqgan_imagenet_f16_16384.ckpt' #ImageNet 16384
+  curl -L -o $file -C - 'http://mirror.io.community/blob/vqgan/vqgan_imagenet_f16_16384.ckpt'
 fi
 
 # 3D Photo Inpainting
 file=checkpoints/color-model.pth
 if [[ ! -f "$file" ]]; then
-  wget https://filebox.ece.vt.edu/~jbhuang/project/3DPhoto/model/color-model.pth
-  mv color-model.pth $file
+  curl -L -o $file -C - https://filebox.ece.vt.edu/~jbhuang/project/3DPhoto/model/color-model.pth
 fi
 
 file=checkpoints/depth-model.pth
 if [[ ! -f "$file" ]]; then
-  wget https://filebox.ece.vt.edu/~jbhuang/project/3DPhoto/model/depth-model.pth
-  mv depth-model.pth $file
+  curl -L -o $file -C - https://filebox.ece.vt.edu/~jbhuang/project/3DPhoto/model/depth-model.pth
 fi
 
 file=checkpoints/edge-model.pth
 if [[ ! -f "$file" ]]; then
-  wget https://filebox.ece.vt.edu/~jbhuang/project/3DPhoto/model/edge-model.pth
-  mv edge-model.pth $file
+  curl -L -o $file -C - https://filebox.ece.vt.edu/~jbhuang/project/3DPhoto/model/edge-model.pth
 fi
 
+# MiDaS
 file=checkpoints/midas.pt
 if [[ ! -f "$file" ]]; then
-  wget https://github.com/intel-isl/DPT/releases/download/1_0/dpt_hybrid-midas-501f0c75.pt
-  mv dpt_hybrid-midas-501f0c75.pt $file
+  curl -L -o $file -C - https://github.com/intel-isl/DPT/releases/download/1_0/dpt_hybrid-midas-501f0c75.pt
 fi
 
+# ESRGAN
 file=checkpoints/RealESRGAN_x4plus.pth
 if [[ ! -f "$file" ]]; then
-  wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth
-  mv RealESRGAN_x4plus.pth $file
+  curl -L -o $file -C - https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth
+fi
+
+# ABME
+file=checkpoints/SBME_ckpt.pth
+if [[ ! -f "$file" ]]; then
+  curl -L -o $file -C - https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/models/SBME_ckpt.pth
+fi
+
+file=checkpoints/ABMR_ckpt.pth
+if [[ ! -f "$file" ]]; then
+  curl -L -o $file -C - https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/models/ABMR_ckpt.pth
+fi
+
+file=checkpoints/SynNet_ckpt.pth
+if [[ ! -f "$file" ]]; then
+  curl -L -o $file -C - https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/models/SynNet_ckpt.pth
 fi
 
 echo "Done"

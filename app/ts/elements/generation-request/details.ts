@@ -173,7 +173,9 @@ export class GenerationRequestDetails extends HTMLElement {
                         this.vc.cancel(this.request);
                     }
                 }, 'warn');
-            } else {
+            }
+
+            if (this.request.cancelled || this.request.failed && !this.request.retried) {
                 this.addAction('Retry', 'restart_alt', (e: MouseEvent) => {
                     if (window.confirm('Are you sure you would like to restart this request?')) {
                         this.vc.retry(this.request);

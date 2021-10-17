@@ -59,6 +59,7 @@ class GenerationJob(Job):
 
     def mark_failed(self, generation_request: GenerationRequest):
         generation_request.failed = datetime.now()
+        generation_request.retried = None
         self.request_manager.save(generation_request)
 
     def update_progress(

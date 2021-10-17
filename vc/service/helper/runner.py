@@ -14,6 +14,7 @@ from vc.service.helper.acceleration import Translate
 from vc.service.helper.rotation import Rotate
 from vc.service.inpainting import InpaintingOptions
 from vc.service.esrgan import EsrganService, EsrganOptions
+from vc.service.abme import AbmeService, AbmeOptions
 from vc.service.helper.random_word import RandomWord
 from vc.service.vqgan_clip import VqganClipOptions
 from vc.value_object import ImageSpec, VideoStepSpec, GenerationSpec
@@ -63,6 +64,7 @@ class GenerationRunner:
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
     esrgan: EsrganService
+    abme: AbmeService
     video: VideoService
     file: FileService
 
@@ -87,6 +89,7 @@ class GenerationRunner:
         vqgan_clip: VqganClipService,
         inpainting: InpaintingService,
         esrgan: EsrganService,
+        abme: AbmeService,
         video: VideoService,
         file: FileService,
         output_filename: str,
@@ -96,6 +99,7 @@ class GenerationRunner:
         self.vqgan_clip = vqgan_clip
         self.inpainting = inpainting
         self.esrgan = esrgan
+        self.abme = abme
         self.video = video
         self.file = file
         self.output_filename = output_filename
@@ -263,24 +267,38 @@ class GenerationRunner:
                 'output_file': filename_to_use,
             }))
 
-        if step.video_step:
-            step_filename = f'{step.video_step:04}.png'
-            dh.debug('GenerationRunner', 'video_step', step_filename)
-            copy(
-                filename_to_use,
-                os.path.join(self.steps_dir, step_filename)
-            )
-
+        if not step.video_step:
             return self.file.put(
                 self.output_filename,
-                '%s-preview.png' % self.generation_name,
-                self.now
+                '%s-%s.png' % (self.generation_name, step.step)
             )
+
+        video_step = step.video_step
+        if self.spec.interpolate:
+            video_step = video_step * 2 - 1
+
+        step_filepath = self.video_step_filepath(video_step)
+        dh.debug('GenerationRunner', 'video_step', step_filepath)
+        copy(filename_to_use, step_filepath)
+
+        if self.spec.interpolate and video_step > 1:
+            second_file = step_filepath
+            first_file = self.video_step_filepath(video_step - 2)
+            output_file = self.video_step_filepath(video_step - 1)
+            self.abme.handle(AbmeOptions(
+                first_file=first_file,
+                second_file=second_file,
+                output_file=output_file
+            ))
 
         return self.file.put(
             self.output_filename,
-            '%s-%s.png' % (self.generation_name, step.step)
+            '%s-preview.png' % self.generation_name,
+            self.now
         )
+
+    def video_step_filepath(self, video_step):
+        return os.path.join(self.steps_dir, f'{video_step:04}.png')
 
     def handle_interim(self, step: HandleInterimStep):
         return self.make_video(step)
@@ -291,12 +309,16 @@ class GenerationRunner:
             self.generation_name,
             'interim' if is_interim else 'result'
         )
+        interpolate = not is_interim
+        if isinstance(self.spec, VideoStepSpec):
+            interpolate = interpolate and not self.spec.interpolate
         unwatermarked = self.video.make_unwatermarked_video(
             output_file=filename,
             steps_dir=self.steps_dir,
             now=self.now if is_interim else None,
             suffix=self.suffix if is_interim else None,
-            interpolate=not is_interim
+            interpolate=interpolate,
+            fps_multiple=2 if self.spec.interpolate else 1
         )
         watermarked = self.video.make_watermarked_video(
             step.upscaled,

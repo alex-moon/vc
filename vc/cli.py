@@ -9,6 +9,9 @@ class CommandLoader:
     commands = {
         'inpainting': command.InpaintingCommand,
         'esrgan': command.EsrganCommand,
+        'abme': command.AbmeCommand,
+        'abme_steps': command.AbmeStepsCommand,
+        'video': command.VideoCommand,
     }
 
     @classmethod

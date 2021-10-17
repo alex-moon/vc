@@ -81,13 +81,16 @@ class EsrganService:
         end = -self.BORDER
         output = output[start:end, start:end]
 
+        # Convert to RGB
+        output = cv2.cvtColor(output, cv2.COLOR_RGBA2RGB)
+
         # Save
         cv2.imwrite(args.output_file, output)
 
         if os.getenv('DEBUG_FILES'):
             self.file_service.put(
                 args.output_file,
-                'isr-%s' % (
+                'esrgan-%s' % (
                     args.output_file
                 )
             )

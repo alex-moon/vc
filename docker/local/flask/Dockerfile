@@ -24,7 +24,8 @@ RUN apt install -y \
     mesa-utils-extra \
     libegl1-mesa-dev \
     libgles2-mesa-dev \
-    xvfb
+    xvfb \
+    nvidia-cuda-toolkit
 
 EXPOSE 5000
 EXPOSE 5001
