@@ -34,6 +34,10 @@ export class StatusHelper {
                 slug = StatusSlug.COMPLETED;
                 readable = 'Completed';
                 datetime = dayjs(request.completed);
+            } else if (request.retried) {
+                slug = StatusSlug.RETRIED;
+                readable = 'Restarted';
+                datetime = dayjs(request.retried);
             } else if (request.failed) {
                 slug = StatusSlug.FAILED;
                 readable = 'Failed';
@@ -42,10 +46,6 @@ export class StatusHelper {
                 slug = StatusSlug.CANCELLED;
                 readable = 'Cancelled';
                 datetime = dayjs(request.cancelled);
-            } else if (request.retried) {
-                slug = StatusSlug.RETRIED;
-                readable = 'Restarted';
-                datetime = dayjs(request.retried);
             }
         }
         datetime = datetime.format(StatusHelper.DATETIME_FORMAT);
