@@ -4,10 +4,12 @@ from torch.optim import AdamW
 from .IFNet_HDv3 import *
 from .loss import *
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 
 class Model:
+    device = torch.device(
+        'cuda' if torch.cuda.is_available() else 'cpu'
+    )
+
     def __init__(self, local_rank=-1):
         self.flownet = IFNet()
         self.device()
@@ -24,7 +26,7 @@ class Model:
         self.flownet.eval()
 
     def device(self):
-        self.flownet.to(device)
+        self.flownet.to(self.device)
 
     def load_model(self, path, rank=0):
         def convert(param):
