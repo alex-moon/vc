@@ -476,8 +476,8 @@ class VqganClipService:
             )
 
         loss = sum(loss_all)
-        loss.backward()
-        opt.step()
 
         with torch.no_grad():
+            loss.backward()
+            opt.step()
             z.copy_(z.maximum(z_min).minimum(z_max))
