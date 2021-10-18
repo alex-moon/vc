@@ -41,4 +41,12 @@ with open('planning/october.csv') as csv_file:
             'epochs': 20,
         })
 
-print(json.dumps(steps))
+print(json.dumps({
+    "spec": {
+        "videos": [
+            {
+                "steps": steps
+            }
+        ]
+    }
+}))
