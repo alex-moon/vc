@@ -26,6 +26,7 @@ with open('planning/october.csv') as csv_file:
                 'upscale': True,
                 'interpolate': True,
                 'epochs': 1,
+                'iterations': 75,
             })
         steps.append({
             'texts': [row['text']],
@@ -38,7 +39,8 @@ with open('planning/october.csv') as csv_file:
             'roll_velocity': to_float(row['roll']),
             'upscale': True,
             'interpolate': True,
-            'epochs': 20,
+            'epochs': 10,
+            'iterations': 75,
         })
 
 print(json.dumps({
