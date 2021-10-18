@@ -27,40 +27,39 @@ class RifeOptions:
 
 class RifeService:
     file_service: FileService
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     @inject
     def __init__(self, file_service: FileService):
         self.file_service = file_service
 
     def handle(self, args: RifeOptions):
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        torch.set_grad_enabled(False)
+        with torch.no_grad():
+            model = Model()
+            model.load_model(args.model_dir, -1)
+            dh.debug("[RIFE] Loaded v3.x HD model.")
 
-        model = Model()
-        model.load_model(args.model_dir, -1)
-        dh.debug("[RIFE] Loaded v3.x HD model.")
+            model.eval()
+            model.device()
 
-        model.eval()
-        model.device()
+            img0 = cv2.imread(args.first_file, cv2.IMREAD_UNCHANGED)
+            img1 = cv2.imread(args.second_file, cv2.IMREAD_UNCHANGED)
+            img0 = (torch.tensor(img0.transpose(2, 0, 1)).to(self.device) / 255.).unsqueeze(0)
+            img1 = (torch.tensor(img1.transpose(2, 0, 1)).to(self.device) / 255.).unsqueeze(0)
 
-        img0 = cv2.imread(args.first_file, cv2.IMREAD_UNCHANGED)
-        img1 = cv2.imread(args.second_file, cv2.IMREAD_UNCHANGED)
-        img0 = (torch.tensor(img0.transpose(2, 0, 1)).to(device) / 255.).unsqueeze(0)
-        img1 = (torch.tensor(img1.transpose(2, 0, 1)).to(device) / 255.).unsqueeze(0)
+            n, c, h, w = img0.shape
+            ph = ((h - 1) // 32 + 1) * 32
+            pw = ((w - 1) // 32 + 1) * 32
+            padding = (0, pw - w, 0, ph - h)
+            img0 = F.pad(img0, padding)
+            img1 = F.pad(img1, padding)
 
-        n, c, h, w = img0.shape
-        ph = ((h - 1) // 32 + 1) * 32
-        pw = ((w - 1) // 32 + 1) * 32
-        padding = (0, pw - w, 0, ph - h)
-        img0 = F.pad(img0, padding)
-        img1 = F.pad(img1, padding)
+            mid = model.inference(img0, img1)
 
-        mid = model.inference(img0, img1)
-
-        cv2.imwrite(
-            args.output_file,
-            (mid[0] * 255).byte().cpu().numpy().transpose(1, 2, 0)[:h, :w]
-        )
+            cv2.imwrite(
+                args.output_file,
+                (mid[0] * 255).byte().cpu().numpy().transpose(1, 2, 0)[:h, :w]
+            )
 
         torch.cuda.empty_cache()
 
