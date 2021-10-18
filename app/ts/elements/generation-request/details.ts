@@ -165,7 +165,7 @@ export class GenerationRequestDetails extends HTMLElement {
             }
             if (
                 !this.request.cancelled
-                && (!this.request.failed || this.request.retried)
+                && !this.request.failed
                 && !this.request.completed
             ) {
                 this.addAction('Cancel', 'cancel', (e: MouseEvent) => {
@@ -175,7 +175,7 @@ export class GenerationRequestDetails extends HTMLElement {
                 }, 'warn');
             }
 
-            if (this.request.cancelled || this.request.failed && !this.request.retried) {
+            if (this.request.cancelled || this.request.failed || this.request.completed) {
                 this.addAction('Retry', 'restart_alt', (e: MouseEvent) => {
                     if (window.confirm('Are you sure you would like to restart this request?')) {
                         this.vc.retry(this.request);
