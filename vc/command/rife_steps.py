@@ -5,11 +5,11 @@ from injector import inject
 
 from vc.command.base import BaseCommand
 from vc.service import VideoService
-from vc.service.abme import AbmeService, AbmeOptions
+from vc.service.rife import RifeService, RifeOptions
 
 
-class AbmeStepsCommand(BaseCommand):
-    description = 'Runs abme on steps files'
+class RifeStepsCommand(BaseCommand):
+    description = 'Runs rife on steps files'
     args = [
         {
             'dest': 'steps_dir',
@@ -27,12 +27,12 @@ class AbmeStepsCommand(BaseCommand):
         }
     ]
 
-    abme: AbmeService
+    rife: RifeService
     video: VideoService
 
     @inject
-    def __init__(self, abme: AbmeService, video: VideoService):
-        self.abme = abme
+    def __init__(self, rife: RifeService, video: VideoService):
+        self.rife = rife
         self.video = video
 
     def handle(self, args):
@@ -57,9 +57,9 @@ class AbmeStepsCommand(BaseCommand):
                 first_file = join(args.usteps_dir, f'{last_outnum:04}.png')
                 output_file = join(args.usteps_dir, f'{new_outnum:04}.png')
                 second_file = outfile
-                print('running abme', first_file, second_file, output_file)
-                self.abme.handle(
-                    AbmeOptions(
+                print('running rife', first_file, second_file, output_file)
+                self.rife.handle(
+                    RifeOptions(
                         first_file=first_file,
                         second_file=second_file,
                         output_file=output_file,

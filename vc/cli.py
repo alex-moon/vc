@@ -11,6 +11,8 @@ class CommandLoader:
         'esrgan': command.EsrganCommand,
         'abme': command.AbmeCommand,
         'abme_steps': command.AbmeStepsCommand,
+        'rife': command.RifeCommand,
+        'rife_steps': command.RifeStepsCommand,
         'video': command.VideoCommand,
     }
 

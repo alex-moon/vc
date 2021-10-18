@@ -6,7 +6,6 @@ import torch
 import torch.nn.functional as F
 import torchvision.transforms.functional as TF
 from injector import inject
-from skimage.color import rgba2rgb
 from skimage.io import imread
 from torchvision.utils import save_image
 

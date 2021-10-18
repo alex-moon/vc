@@ -14,7 +14,7 @@ from vc.service.helper.acceleration import Translate
 from vc.service.helper.rotation import Rotate
 from vc.service.inpainting import InpaintingOptions
 from vc.service.esrgan import EsrganService, EsrganOptions
-from vc.service.abme import AbmeService, AbmeOptions
+from vc.service.rife import RifeService, RifeOptions
 from vc.service.helper.random_word import RandomWord
 from vc.service.vqgan_clip import VqganClipOptions
 from vc.value_object import ImageSpec, VideoStepSpec, GenerationSpec
@@ -64,7 +64,7 @@ class GenerationRunner:
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
     esrgan: EsrganService
-    abme: AbmeService
+    rife: RifeService
     video: VideoService
     file: FileService
 
@@ -89,7 +89,7 @@ class GenerationRunner:
         vqgan_clip: VqganClipService,
         inpainting: InpaintingService,
         esrgan: EsrganService,
-        abme: AbmeService,
+        rife: RifeService,
         video: VideoService,
         file: FileService,
         output_filename: str,
@@ -99,7 +99,7 @@ class GenerationRunner:
         self.vqgan_clip = vqgan_clip
         self.inpainting = inpainting
         self.esrgan = esrgan
-        self.abme = abme
+        self.rife = rife
         self.video = video
         self.file = file
         self.output_filename = output_filename
@@ -285,7 +285,7 @@ class GenerationRunner:
             second_file = step_filepath
             first_file = self.video_step_filepath(video_step - 2)
             output_file = self.video_step_filepath(video_step - 1)
-            self.abme.handle(AbmeOptions(
+            self.rife.handle(RifeOptions(
                 first_file=first_file,
                 second_file=second_file,
                 output_file=output_file

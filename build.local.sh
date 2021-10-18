@@ -76,4 +76,10 @@ if [[ ! -f "$file" ]]; then
   curl -L -o $file -C - https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/models/SynNet_ckpt.pth
 fi
 
+# RIFE
+file=checkpoints/flownet.pkl
+if [[ ! -f "$file" ]]; then
+  curl -L -o $file -C - https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/models/flownet.pkl
+fi
+
 echo "Done"

@@ -8,7 +8,7 @@ from vc.service import (
     VqganClipService,
     InpaintingService,
     EsrganService,
-    AbmeService,
+    RifeService,
     VideoService,
     FileService,
 )
@@ -25,7 +25,7 @@ class GenerationService:
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
     esrgan: EsrganService
-    abme: AbmeService
+    rife: RifeService
     video: VideoService
     file: FileService
 
@@ -37,14 +37,14 @@ class GenerationService:
         vqgan_clip: VqganClipService,
         inpainting: InpaintingService,
         esrgan: EsrganService,
-        abme: AbmeService,
+        rife: RifeService,
         video: VideoService,
         file: FileService
     ):
         self.vqgan_clip = vqgan_clip
         self.inpainting = inpainting
         self.esrgan = esrgan
-        self.abme = abme
+        self.rife = rife
         self.video = video
         self.file = file
 
@@ -64,7 +64,7 @@ class GenerationService:
             self.vqgan_clip,
             self.inpainting,
             self.esrgan,
-            self.abme,
+            self.rife,
             self.video,
             self.file,
             self.OUTPUT_FILENAME,
