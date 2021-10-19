@@ -59,7 +59,7 @@ class GenerationResult:
 
 
 class GenerationRunner:
-    INTERIM_STEPS = 42
+    INTERIM_STEPS = 60
     TRANSITION_SPEED = 0.05
     INTERPOLATE_MULTIPLE = 4
 
@@ -285,13 +285,12 @@ class GenerationRunner:
 
         if self.spec.interpolate and video_step > 1:
             second_file = step_filepath
-            first_file = self.video_step_filepath(
-                video_step - self.INTERPOLATE_MULTIPLE
-            )
+            step_from = video_step - self.INTERPOLATE_MULTIPLE
+            first_file = self.video_step_filepath(step_from)
             self.rife.handle(RifeOptions(
                 first_file=first_file,
                 second_file=second_file,
-                output_file=self.video_step_filepath,
+                output_file=lambda i: self.video_step_filepath(i + step_from),
                 exp=self.INTERPOLATE_MULTIPLE
             ))
 

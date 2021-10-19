@@ -69,7 +69,7 @@ class RifeService:
                 if i == 0 or i == len(img_list) - 1:
                     continue
 
-                output_file = args.output_file(i + 1)
+                output_file = args.output_file(i)
                 dh.debug('RifeService', 'writing RIFE image', output_file)
                 cv2.imwrite(
                     output_file,
