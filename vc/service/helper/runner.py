@@ -321,14 +321,14 @@ class GenerationRunner:
             now=self.now if is_interim else None,
             suffix=self.suffix if is_interim else None,
             interpolate=interpolate,
-            fps_multiple=self.INTERPOLATE_MULTIPLE if self.spec.interpolate else 1
+            fps_multiple=self.INTERPOLATE_MULTIPLE if step.interpolated else 1
         )
         watermarked = self.video.make_watermarked_video(
             step.upscaled,
             output_file=filename,
             steps_dir=self.steps_dir,
             now=self.now if is_interim else None,
-            fps_multiple=self.INTERPOLATE_MULTIPLE if self.spec.interpolate else 1
+            fps_multiple=self.INTERPOLATE_MULTIPLE if step.interpolated else 1
         )
         return unwatermarked, watermarked
 
