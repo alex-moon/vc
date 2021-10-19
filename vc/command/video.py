@@ -35,5 +35,5 @@ class VideoCommand(BaseCommand):
         self.video.make_unwatermarked_video(
             'output.mp4',
             args.steps_dir,
-            interpolate=True
+            fps_multiple=4
         )
