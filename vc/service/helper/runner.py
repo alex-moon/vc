@@ -2,6 +2,7 @@ import os
 from dataclasses import dataclass
 from datetime import datetime
 from shutil import copy
+from math import log2
 
 from vc.service import (
     VqganClipService,
@@ -291,7 +292,7 @@ class GenerationRunner:
                 first_file=first_file,
                 second_file=second_file,
                 output_file=lambda i: self.video_step_filepath(i + step_from),
-                exp=self.INTERPOLATE_MULTIPLE
+                exp=int(log2(self.INTERPOLATE_MULTIPLE))
             ))
 
         return self.file.put(
