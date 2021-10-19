@@ -55,14 +55,14 @@ class RifeStepsCommand(BaseCommand):
                 last_outnum = outnum - 2
                 new_outnum = outnum - 1
                 first_file = join(args.usteps_dir, f'{last_outnum:04}.png')
-                output_file = join(args.usteps_dir, f'{new_outnum:04}.png')
                 second_file = outfile
+                output_file = lambda i: join(args.usteps_dir, f'{i:04}.png'),
                 print('running rife', first_file, second_file, output_file)
                 self.rife.handle(
                     RifeOptions(
                         first_file=first_file,
                         second_file=second_file,
-                        output_file=output_file,
+                        output_file=output_file
                     )
                 )
 

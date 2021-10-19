@@ -61,6 +61,7 @@ class GenerationResult:
 class GenerationRunner:
     INTERIM_STEPS = 42
     TRANSITION_SPEED = 0.05
+    INTERPOLATE_MULTIPLE = 2
 
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
@@ -276,7 +277,7 @@ class GenerationRunner:
 
         video_step = step.video_step
         if self.spec.interpolate:
-            video_step = video_step * 2 - 1
+            video_step = (video_step - 1) * self.INTERPOLATE_MULTIPLE + 1
 
         step_filepath = self.video_step_filepath(video_step)
         dh.debug('GenerationRunner', 'video_step', step_filepath)
@@ -284,12 +285,14 @@ class GenerationRunner:
 
         if self.spec.interpolate and video_step > 1:
             second_file = step_filepath
-            first_file = self.video_step_filepath(video_step - 2)
-            output_file = self.video_step_filepath(video_step - 1)
+            first_file = self.video_step_filepath(
+                video_step - self.INTERPOLATE_MULTIPLE
+            )
             self.rife.handle(RifeOptions(
                 first_file=first_file,
                 second_file=second_file,
-                output_file=output_file
+                output_file=self.video_step_filepath,
+                exp=self.INTERPOLATE_MULTIPLE
             ))
 
         return self.file.put(
@@ -319,14 +322,14 @@ class GenerationRunner:
             now=self.now if is_interim else None,
             suffix=self.suffix if is_interim else None,
             interpolate=interpolate,
-            fps_multiple=2 if self.spec.interpolate else 1
+            fps_multiple=self.INTERPOLATE_MULTIPLE if self.spec.interpolate else 1
         )
         watermarked = self.video.make_watermarked_video(
             step.upscaled,
             output_file=filename,
             steps_dir=self.steps_dir,
             now=self.now if is_interim else None,
-            fps_multiple=2 if self.spec.interpolate else 1
+            fps_multiple=self.INTERPOLATE_MULTIPLE if self.spec.interpolate else 1
         )
         return unwatermarked, watermarked
 

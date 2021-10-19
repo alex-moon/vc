@@ -1,6 +1,7 @@
 import os
 import warnings
 from dataclasses import dataclass
+from typing import Callable
 
 import cv2
 import torch
@@ -8,18 +9,18 @@ from injector import inject
 from torch.nn import functional as F
 
 from vc.service.file import FileService
-from .helper.rife.model.RIFE_HDv3 import Model
 from .helper.diagnosis import DiagnosisHelper as dh
+from .helper.rife.model.RIFE_HDv3 import Model
 
 warnings.filterwarnings("ignore")
 
 @dataclass
 class RifeOptions:
-    first_file: str = 'first.png'
-    second_file: str = 'second.png'
-    output_file: str = 'output.png'
+    first_file: str
+    second_file: str
+    output_file: Callable[[int], str]
     model_dir: str = 'checkpoints'
-    exp: int = 4
+    exp: int = 2
     ratio: float = 0
     rthreshold: float = 0.02
     rmaxcycles: int = 8
@@ -54,20 +55,33 @@ class RifeService:
             img0 = F.pad(img0, padding)
             img1 = F.pad(img1, padding)
 
-            mid = model.inference(img0, img1)
+            img_list = [img0, img1]
+            for i in range(args.exp):
+                tmp = []
+                for j in range(len(img_list) - 1):
+                    mid = model.inference(img_list[j], img_list[j + 1])
+                    tmp.append(img_list[j])
+                    tmp.append(mid)
+                tmp.append(img1)
+                img_list = tmp
 
-            dh.debug('RifeService', 'writing RIFE image', args.output_file)
-            cv2.imwrite(
-                args.output_file,
-                (mid[0] * 255).byte().cpu().numpy().transpose(1, 2, 0)[:h, :w]
-            )
+            for i, img in enumerate(img_list):
+                if i == 0 or i == len(img_list) - 1:
+                    continue
+
+                output_file = args.output_file(i + 1)
+                dh.debug('RifeService', 'writing RIFE image', output_file)
+                cv2.imwrite(
+                    output_file,
+                    (img[0] * 255).byte().cpu().numpy().transpose(1, 2, 0)[:h, :w]
+                )
+
+                if os.getenv('DEBUG_FILES'):
+                    self.file_service.put(
+                        output_file,
+                        'rife-%s' % (
+                            output_file
+                        )
+                    )
 
         torch.cuda.empty_cache()
-
-        if os.getenv('DEBUG_FILES'):
-            self.file_service.put(
-                args.output_file,
-                'rife-%s' % (
-                    args.output_file
-                )
-            )
