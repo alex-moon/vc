@@ -325,7 +325,8 @@ class GenerationRunner:
             step.upscaled,
             output_file=filename,
             steps_dir=self.steps_dir,
-            now=self.now if is_interim else None
+            now=self.now if is_interim else None,
+            fps_multiple=2 if self.spec.interpolate else 1
         )
         return unwatermarked, watermarked
 
