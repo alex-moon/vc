@@ -36,6 +36,7 @@ class ImageGenerationStep(GenerationStep):
 @dataclass
 class VideoGenerationStep(GenerationStep):
     upscaled: bool
+    interpolated: bool
 
 
 @dataclass
@@ -311,7 +312,7 @@ class GenerationRunner:
         )
         interpolate = not is_interim
         if isinstance(self.spec, VideoStepSpec):
-            interpolate = interpolate and not self.spec.interpolate
+            interpolate = interpolate and not step.interpolated
         unwatermarked = self.video.make_unwatermarked_video(
             output_file=filename,
             steps_dir=self.steps_dir,
@@ -373,6 +374,7 @@ class GenerationRunner:
         if spec.videos:
             for video in spec.videos:
                 upscaled = False
+                interpolated = False
                 video_step = 0
                 step += 1
                 yield CleanFilesStep(step=step)
@@ -380,6 +382,8 @@ class GenerationRunner:
                     for step_spec in video.steps:
                         if step_spec.upscale:
                             upscaled = True
+                        if step_spec.interpolate:
+                            interpolated = True
 
                         if step_spec.texts:
                             for text in step_spec.texts:
@@ -423,5 +427,6 @@ class GenerationRunner:
                 step += 1
                 yield VideoGenerationStep(
                     step=step,
-                    upscaled=upscaled
+                    upscaled=upscaled,
+                    interpolated=interpolated
                 )

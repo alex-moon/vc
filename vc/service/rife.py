@@ -37,7 +37,7 @@ class RifeService:
         with torch.no_grad():
             model = Model()
             model.load_model(args.model_dir, -1)
-            dh.debug("[RIFE] Loaded v3.x HD model.")
+            dh.debug('RifeService', 'loaded v3.x HD model.')
 
             model.eval()
             model.device()
@@ -56,6 +56,7 @@ class RifeService:
 
             mid = model.inference(img0, img1)
 
+            dh.debug('RifeService', 'writing RIFE image', args.output_file)
             cv2.imwrite(
                 args.output_file,
                 (mid[0] * 255).byte().cpu().numpy().transpose(1, 2, 0)[:h, :w]

@@ -1,6 +1,5 @@
 import gc
 import os
-import time
 from dataclasses import dataclass, field
 from typing import List
 
@@ -12,8 +11,14 @@ import vispy
 from injector import inject
 
 from vc.service.file import FileService
-from vc.service.helper.inpainting.bilateral_filtering import sparse_bilateral_filtering
-from vc.service.helper.inpainting.mesh import write_ply, read_ply, output_3d_photo
+from vc.service.helper.diagnosis import DiagnosisHelper as dh
+from vc.service.helper.inpainting.bilateral_filtering import \
+    sparse_bilateral_filtering
+from vc.service.helper.inpainting.mesh import (
+    write_ply,
+    read_ply,
+    output_3d_photo,
+)
 from vc.service.helper.inpainting.networks import (
     Inpaint_Color_Net,
     Inpaint_Depth_Net,
@@ -105,9 +110,9 @@ class InpaintingService:
         else:
             device = "cpu"
 
-        print(f"running on device {device}")
+        dh.debug('InpaintingService', 'running on device', device)
 
-        print("Current Source ==> ", sample['tgt_name'])
+        dh.debug('InpaintingService', 'current source', sample['tgt_name'])
         mesh_fi = os.path.join(
             args.mesh_folder,
             sample['tgt_name'] + '.ply'
@@ -115,7 +120,7 @@ class InpaintingService:
 
         image = imageio.imread(sample['ref_img_fi'], pilmode="RGB")
 
-        print(f"Running depth extraction at {time.time()}")
+        dh.debug('InpaintingService', 'Running depth extraction')
         run_depth(
             sample['ref_img_fi'],
             args.depth_folder,
@@ -170,8 +175,8 @@ class InpaintingService:
             depth = vis_depths[-1]
             torch.cuda.empty_cache()
 
-            print("Start Running 3D_Photo ... device", device)
-            print(f"Loading edge model at {time.time()}")
+            dh.debug('InpaintingService', 'Start Running 3D_Photo', device)
+            dh.debug('InpaintingService', 'Loading edge model')
             depth_edge_model = Inpaint_Edge_Net(init_weights=True)
             depth_edge_weight = torch.load(
                 args.depth_edge_model_ckpt,
@@ -183,7 +188,7 @@ class InpaintingService:
             depth_edge_model = depth_edge_model.to(device)
             depth_edge_model.eval()
 
-            print(f"Loading depth model at {time.time()}")
+            dh.debug('InpaintingService', 'Loading depth model')
             depth_feat_model = Inpaint_Depth_Net()
             depth_feat_weight = torch.load(
                 args.depth_feat_model_ckpt,
@@ -196,7 +201,7 @@ class InpaintingService:
             depth_feat_model.eval()
             depth_feat_model = depth_feat_model.to(device)
 
-            print(f"Loading rgb model at {time.time()}")
+            dh.debug('InpaintingService', 'Loading rgb model')
             rgb_model = Inpaint_Color_Net()
             rgb_feat_weight = torch.load(
                 args.rgb_feat_model_ckpt,
@@ -206,8 +211,9 @@ class InpaintingService:
             rgb_model.eval()
             rgb_model = rgb_model.to(device)
 
-            print(
-                f"Writing depth ply (and basically doing everything) at {time.time()}"
+            dh.debug(
+                'InpaintingService',
+                'Writing depth ply (and basically doing everything)'
             )
             rt_info = write_ply(
                 image,
@@ -221,7 +227,7 @@ class InpaintingService:
             )
 
             if rt_info is False:
-                print('Failed to write ply')
+                dh.log('InpaintingService', 'Failed to write ply')
                 return
 
             del depth
@@ -234,7 +240,7 @@ class InpaintingService:
         elif rt_info is not False:
             verts, colors, faces, height, width, hfov, vfov = rt_info
         else:
-            print('Could not determine ply')
+            dh.log('InpaintingService', 'Could not determine ply')
             return
 
         del rt_info
@@ -242,7 +248,7 @@ class InpaintingService:
         gc.collect()
         torch.cuda.empty_cache()
 
-        print(f"Making inpainting frame at {time.time()}")
+        dh.debug('InpaintingService', 'Making inpainting frame')
 
         top = (
             args.original_h // 2

@@ -6,6 +6,7 @@ from datetime import datetime
 from injector import inject
 
 from vc.service import FileService
+from vc.service.helper.diagnosis import DiagnosisHelper as dh
 
 
 class VideoService:
@@ -53,7 +54,7 @@ class VideoService:
             minterpolate_string,
             output_file
         ])
-        print('running', cmd)
+        dh.debug('VideoService', 'running', cmd)
         os.system(cmd)
 
         return self.file_service.put(output_file, output_file, now)
