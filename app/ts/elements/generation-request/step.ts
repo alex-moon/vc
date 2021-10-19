@@ -72,6 +72,7 @@ export class GenerationRequestDetailsStep extends HTMLElement {
             'iterations',
             'init_iterations',
             'upscale',
+            'interpolate',
             'epochs',
         ]) {
             if (fieldName in this.spec) {
