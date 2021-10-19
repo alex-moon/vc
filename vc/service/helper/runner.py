@@ -408,7 +408,8 @@ class GenerationRunner:
                                                 step += 1
                                                 yield HandleInterimStep(
                                                     step=step,
-                                                    upscaled=upscaled
+                                                    upscaled=upscaled,
+                                                    interpolated=interpolated
                                                 )
                                 else:
                                     for i in range(step_spec.epochs):
@@ -425,7 +426,8 @@ class GenerationRunner:
                                             step += 1
                                             yield HandleInterimStep(
                                                 step=step,
-                                                upscaled=upscaled
+                                                upscaled=upscaled,
+                                                interpolated=interpolated
                                             )
 
                 step += 1
