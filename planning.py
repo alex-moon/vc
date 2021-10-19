@@ -28,6 +28,7 @@ with open('planning/october.csv') as csv_file:
                 'epochs': 1,
                 'iterations': 75,
             })
+
         steps.append({
             'texts': [row['text']],
             'styles': ['%s | %s' % (row['season'], row['style'])],

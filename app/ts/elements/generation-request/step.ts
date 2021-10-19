@@ -72,6 +72,7 @@ export class GenerationRequestDetailsStep extends HTMLElement {
             'iterations',
             'init_iterations',
             'upscale',
+            'epochs',
         ]) {
             if (fieldName in this.spec) {
                 const fieldValue = (this.spec as any)[fieldName];
