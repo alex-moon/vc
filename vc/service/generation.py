@@ -55,7 +55,7 @@ class GenerationService:
         steps_completed=0,
         name=None
     ):
-        print('starting')
+        dh.debug('GenerationService', 'starting')
         start = time()
 
         steps_total = self.calculate_total_steps(spec)
@@ -96,7 +96,7 @@ class GenerationService:
                 timedelta(seconds=time() - start)
             ))
 
-        print('done in %s', timedelta(seconds=time() - start))
+        dh.debug('GenerationService', 'done in', timedelta(seconds=time() - start))
 
     def calculate_total_steps(self, spec):
         steps_total = 0

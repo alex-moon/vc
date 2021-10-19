@@ -1,13 +1,13 @@
 import os
 from dataclasses import dataclass
-from PIL import Image
 
 import cv2
 from basicsr.archs.rrdbnet_arch import RRDBNet
 from injector import inject
 
 from vc.service.file import FileService
-from .helper.esrgan import RealESRGANer
+from vc.service.helper.esrgan import RealESRGANer
+from vc.service.helper.diagnosis import DiagnosisHelper as dh
 
 
 @dataclass
@@ -59,17 +59,15 @@ class EsrganService:
 
         h, w = img.shape[0:2]
         if max(h, w) > 1000 and args.netscale == 4:
-            import warnings
-            warnings.warn('The input image is large, try X2 model for better performance.')
+            dh.log('EsrganService', 'The input image is large, try X2 model for better performance.')
         if max(h, w) < 500 and args.netscale == 2:
-            import warnings
-            warnings.warn('The input image is small, try X4 model for better performance.')
+            dh.log('EsrganService', 'The input image is small, try X4 model for better performance.')
 
         try:
             output, _ = upsampler.enhance(img, outscale=args.outscale)
         except Exception as error:
-            print('Error', error)
-            print('If you encounter CUDA out of memory, try to set --tile with a smaller number.')
+            dh.log('EsrganService', 'Error', error)
+            dh.log('EsrganService', 'hint: try smaller value for tile', args.tile)
             raise error
 
         # Resize

@@ -19,8 +19,9 @@ from tqdm import tqdm
 
 from CLIP import clip
 from vc.service import FileService
-from .helper.torch import TorchHelper
-from .helper.vqgan import VqganHelper
+from vc.service.helper.torch import TorchHelper
+from vc.service.helper.vqgan import VqganHelper
+from vc.service.helper.diagnosis import DiagnosisHelper as dh
 
 
 @dataclass
@@ -65,7 +66,7 @@ class VqganClipService:
         self.file_service = file_service
 
     def handle(self, args: VqganClipOptions):
-        print(json.dumps(asdict(args), indent=4))
+        dh.debug('VqganClipService', json.dumps(asdict(args), indent=4))
 
         if args.cudnn_determinism:
             torch.backends.cudnn.deterministic = True
@@ -229,24 +230,24 @@ class VqganClipService:
             raise RuntimeError("Unknown optimiser. Are choices broken?")
 
         # Output for the user
-        print('Using device:', self.device)
-        print('Optimising using:', args.optimiser)
+        dh.debug('VqganClipService', 'Using device:', self.device)
+        dh.debug('VqganClipService', 'Optimising using:', args.optimiser)
 
         if args.prompts:
-            print('Using text prompts:', args.prompts)
+            dh.debug('VqganClipService', 'Using text prompts:', args.prompts)
         if args.image_prompts:
-            print('Using image prompts:', args.image_prompts)
+            dh.debug('VqganClipService', 'Using image prompts:', args.image_prompts)
         if args.init_image:
-            print('Using initial image:', args.init_image)
+            dh.debug('VqganClipService', 'Using initial image:', args.init_image)
         if args.noise_prompt_weights:
-            print('Noise prompt weights:', args.noise_prompt_weights)
+            dh.debug('VqganClipService', 'Noise prompt weights:', args.noise_prompt_weights)
 
         if args.seed is None:
             seed = torch.seed()
         else:
             seed = args.seed
         torch.manual_seed(seed)
-        print('Using seed:', seed)
+        dh.debug('VqganClipService', 'Using seed:', seed)
 
         # DO IT @todo put training in a separate Trainer class
         i = 0
@@ -409,7 +410,7 @@ class VqganClipService:
         out = self.synth(model, z)
         info = PngImagePlugin.PngInfo()
         info.add_text('comment', f'{prompts}')
-        print("vqgan_clip.py:", "Writing VQGAN/CLIP output frame:", os.path.abspath(output))
+        dh.debug('VqganClipService', "vqgan_clip.py:", "Writing VQGAN/CLIP output frame:", os.path.abspath(output))
         TF.to_pil_image(out[0].cpu()).save(output, pnginfo=info)
 
     def ascend_txt(self, model, perceptor, args, prompts, z_orig, z, i):
