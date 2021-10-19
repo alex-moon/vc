@@ -61,7 +61,7 @@ class GenerationResult:
 class GenerationRunner:
     INTERIM_STEPS = 42
     TRANSITION_SPEED = 0.05
-    INTERPOLATE_MULTIPLE = 2
+    INTERPOLATE_MULTIPLE = 4
 
     vqgan_clip: VqganClipService
     inpainting: InpaintingService
