@@ -49,9 +49,24 @@ if [[ ! -f "$file" ]]; then
 fi
 
 # MiDaS
-file=checkpoints/midas.pt
+file=checkpoints/dpt_large-midas-2f21e586.pt
+if [[ ! -f "$file" ]]; then
+  curl -L -o $file -C - https://github.com/intel-isl/DPT/releases/download/1_0/dpt_large-midas-2f21e586.pt
+fi
+
+file=checkpoints/dpt_hybrid-midas-501f0c75.pt
 if [[ ! -f "$file" ]]; then
   curl -L -o $file -C - https://github.com/intel-isl/DPT/releases/download/1_0/dpt_hybrid-midas-501f0c75.pt
+fi
+
+file=checkpoints/model-small-70d6b9c8.pt
+if [[ ! -f "$file" ]]; then
+  curl -L -o $file -C - https://github.com/intel-isl/MiDaS/releases/download/v2_1/model-small-70d6b9c8.pt
+fi
+
+file=checkpoints/model-f6b98070.pt
+if [[ ! -f "$file" ]]; then
+  curl -L -o $file -C - https://github.com/intel-isl/MiDaS/releases/download/v2_1/model-f6b98070.pt
 fi
 
 # ESRGAN

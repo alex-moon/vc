@@ -24,7 +24,8 @@ from vc.service.helper.inpainting.networks import (
     Inpaint_Depth_Net,
     Inpaint_Edge_Net,
 )
-from .helper.midas.run import run as run_depth
+from .helper.midas import run_depth
+from .helper.midas.utils import read_pfm
 from .helper.utils import get_midas_sample, read_midas_depth
 
 
@@ -33,8 +34,7 @@ class InpaintingOptions:
     depth_edge_model_ckpt: str = 'checkpoints/edge-model.pth'
     depth_feat_model_ckpt: str = 'checkpoints/depth-model.pth'
     rgb_feat_model_ckpt: str = 'checkpoints/color-model.pth'
-    midas_model_ckpt: str = 'checkpoints/midas.pt'
-    midas_model_type: str = 'dpt_hybrid'  # one of "dpt_large" "dpt_hybrid" "midas_v21" "midas_v21_small"
+    midas_model_type: str = 'midas_v21_small'  # @todo 'dpt_hybrid' >:(
     fps: int = 40
     num_frames: int = 200
     x_shift: float = 0.00
@@ -58,7 +58,7 @@ class InpaintingOptions:
     gpu_ids: int = 0
     offscreen_rendering: bool = False
     img_format: str = '.png'
-    depth_format: str = '.npy'
+    depth_format: str = '.pfm'
     require_midas: bool = True
     depth_threshold: float = 0.04
     ext_edge_threshold: float = 0.002
@@ -87,6 +87,12 @@ class InpaintingOptions:
 
 
 class InpaintingService:
+    model_paths = {
+        "midas_v21_small": "checkpoints/model-small-70d6b9c8.pt",
+        "midas_v21": "checkpoints/model-f6b98070.pt",
+        "dpt_large": "checkpoints/dpt_large-midas-2f21e586.pt",
+        "dpt_hybrid": "checkpoints/dpt_hybrid-midas-501f0c75.pt",
+    }
     file_service: FileService
 
     @inject
@@ -120,19 +126,22 @@ class InpaintingService:
 
         image = imageio.imread(sample['ref_img_fi'], pilmode="RGB")
 
+        midas_model_ckpt = self.model_paths[args.midas_model_type]
         dh.debug('InpaintingService', 'Running depth extraction')
         run_depth(
             sample['ref_img_fi'],
             args.depth_folder,
-            args.midas_model_ckpt,
+            midas_model_ckpt,
             args.midas_model_type
         )
 
-        depth_file = (
-            np.load(sample['depth_fi'])
-            if 'npy' in args.depth_format
-            else imageio.imread(sample['depth_fi'])
-        )
+        if 'npy' in args.depth_format:
+            depth_file = np.load(sample['depth_fi'])
+        elif 'pfm' in args.depth_format:
+            depth_file, _ = read_pfm(sample['depth_fi'])
+        else:
+            depth_file = imageio.imread(sample['depth_fi'])
+
         args.output_h, args.output_w = depth_file.shape[:2]
 
         frac = args.longer_side_len / max(args.output_h, args.output_w)

@@ -3750,7 +3750,7 @@ def output_3d_photo_dynamic(
     path = args.output_filename
     if output_dir:
         path = os.path.join(output_dir, path)
-    print("mesh.py:", "Writing Inpainting output frame:", os.path.abspath(path))
+    print("mesh.py", "Writing Inpainting output frame:", os.path.abspath(path))
 
     write_png(path, img)
 

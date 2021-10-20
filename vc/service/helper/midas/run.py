@@ -1,21 +1,26 @@
 """Compute depth maps for images in the input folder.
 """
-import argparse
-import glob
 import os
 
 import cv2
 import torch
 from torchvision.transforms import Compose
 
-from .utils import read_image, write_depth
 from .midas.dpt_depth import DPTDepthModel
 from .midas.midas_net import MidasNet
 from .midas.midas_net_custom import MidasNet_small
 from .midas.transforms import Resize, NormalizeImage, PrepareForNet
+from .utils import read_image, write_depth
+from vc.service.helper.diagnosis import DiagnosisHelper as dh
 
 
-def run(input_path, output_path, model_path, model_type="large", optimize=True):
+def run_depth(
+    input_path,
+    output_path,
+    model_path,
+    model_type="dpt_large",
+    optimize=True
+):
     """Run MonoDepthNN to compute depth maps.
 
     Args:
@@ -23,18 +28,18 @@ def run(input_path, output_path, model_path, model_type="large", optimize=True):
         output_path (str): path to output folder
         model_path (str): path to saved model
     """
-    print("initialize")
+    dh.debug('midas', "initialize")
 
     # select device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print("device: %s" % device)
+    dh.debug('midas', "device", device)
 
     # load network
     if model_type == "dpt_large": # DPT-Large
         model = DPTDepthModel(
             path=model_path,
             backbone="vitl16_384",
-            non_negative=True,
+            non_negative=True
         )
         net_w, net_h = 384, 384
         resize_mode = "minimal"
@@ -43,15 +48,15 @@ def run(input_path, output_path, model_path, model_type="large", optimize=True):
         model = DPTDepthModel(
             path=model_path,
             backbone="vitb_rn50_384",
-            non_negative=True,
+            non_negative=True
         )
         net_w, net_h = 384, 384
-        resize_mode="minimal"
+        resize_mode = "minimal"
         normalization = NormalizeImage(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
     elif model_type == "midas_v21":
         model = MidasNet(model_path, non_negative=True)
         net_w, net_h = 384, 384
-        resize_mode="upper_bound"
+        resize_mode = "upper_bound"
         normalization = NormalizeImage(
             mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
         )
@@ -63,7 +68,7 @@ def run(input_path, output_path, model_path, model_type="large", optimize=True):
             mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
         )
     else:
-        print(f"model_type '{model_type}' not implemented, use: --model_type large")
+        dh.debug('midas', f"model_type '{model_type}' not implemented, use: --model_type large")
         assert False
     
     transform = Compose(
@@ -96,94 +101,40 @@ def run(input_path, output_path, model_path, model_type="large", optimize=True):
 
     model.to(device)
 
-    # get input
-    img_names = glob.glob(os.path.join(input_path, "*"))
-    num_images = len(img_names)
-
     # create output folder
     os.makedirs(output_path, exist_ok=True)
 
-    print("start processing")
+    dh.debug('midas', 'processing', input_path)
 
-    for ind, img_name in enumerate(img_names):
+    # input
 
-        print("  processing {} ({}/{})".format(img_name, ind + 1, num_images))
+    img = read_image(input_path)
+    img_input = transform({"image": img})["image"]
 
-        # input
-
-        img = read_image(img_name)
-        img_input = transform({"image": img})["image"]
-
-        # compute
-        with torch.no_grad():
-            sample = torch.from_numpy(img_input).to(device).unsqueeze(0)
-            if optimize and device == torch.device("cuda"):
-                sample = sample.to(memory_format=torch.channels_last)  
-                sample = sample.half()
-            prediction = model.forward(sample)
-            prediction = (
-                torch.nn.functional.interpolate(
-                    prediction.unsqueeze(1),
-                    size=img.shape[:2],
-                    mode="bicubic",
-                    align_corners=False,
-                )
-                .squeeze()
-                .cpu()
-                .numpy()
+    # compute
+    with torch.no_grad():
+        sample = torch.from_numpy(img_input).to(device).unsqueeze(0)
+        if optimize and device == torch.device("cuda"):
+            sample = sample.to(memory_format=torch.channels_last)
+            sample = sample.half()
+        prediction = model.forward(sample)
+        prediction = (
+            torch.nn.functional.interpolate(
+                prediction.unsqueeze(1),
+                size=img.shape[:2],
+                mode="bicubic",
+                align_corners=False,
             )
-
-        # output
-        filename = os.path.join(
-            output_path, os.path.splitext(os.path.basename(img_name))[0]
+            .squeeze()
+            .cpu()
+            .numpy()
         )
-        write_depth(filename, prediction, bits=2)
 
-    print("finished")
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('-i', '--input_path', 
-        default='input',
-        help='folder with input images'
+    # output
+    filename = os.path.join(
+        output_path, os.path.splitext(os.path.basename(input_path))[0]
     )
+    dh.debug('midas', 'writing', os.path.abspath(filename))
+    write_depth(filename, prediction, bits=2)
 
-    parser.add_argument('-o', '--output_path', 
-        default='output',
-        help='folder for output images'
-    )
-
-    parser.add_argument('-m', '--model_weights', 
-        default=None,
-        help='path to the trained weights of model'
-    )
-
-    parser.add_argument('-t', '--model_type', 
-        default='dpt_large',
-        help='model type: dpt_large, dpt_hybrid, midas_v21_large or midas_v21_small'
-    )
-
-    parser.add_argument('--optimize', dest='optimize', action='store_true')
-    parser.add_argument('--no-optimize', dest='optimize', action='store_false')
-    parser.set_defaults(optimize=True)
-
-    args = parser.parse_args()
-
-    default_models = {
-        "midas_v21_small": "checkpoints/midas_v21_small-70d6b9c8.pt",
-        "midas_v21": "checkpoints/midas_v21-f6b98070.pt",
-        "dpt_large": "checkpoints/dpt_large-midas-2f21e586.pt",
-        "dpt_hybrid": "checkpoints/dpt_hybrid-midas-501f0c75.pt",
-    }
-
-    if args.model_weights is None:
-        args.model_weights = default_models[args.model_type]
-
-    # set torch options
-    torch.backends.cudnn.enabled = True
-    torch.backends.cudnn.benchmark = True
-
-    # compute depth maps
-    run(args.input_path, args.output_path, args.model_weights, args.model_type, args.optimize)
+    dh.debug('midas', "finished")

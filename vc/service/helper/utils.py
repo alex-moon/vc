@@ -15,6 +15,7 @@ except ImportError:
 import imageio
 import copy
 from collections import namedtuple
+from vc.service.helper.midas.utils import read_pfm
 
 
 # @todo put all in class and clean up
@@ -964,7 +965,7 @@ def get_midas_sample(args, aft_certain=None):
 
     image_folder = os.path.dirname(image_file)
 
-    seq_dir = os.path.splitext(os.path.basename(image_file))[0]
+    image_name = os.path.splitext(os.path.basename(image_file))[0]
     generic_pose = np.eye(4)
 
     tgts_pose = generic_pose * 1.
@@ -984,11 +985,11 @@ def get_midas_sample(args, aft_certain=None):
         aft_flag = False
 
     if specific is not None and len(specific) > 0:
-        if specific != seq_dir:
+        if specific != image_name:
             return
 
     if aft_certain is not None and len(aft_certain) > 0:
-        if aft_certain == seq_dir:
+        if aft_certain == image_name:
             aft_flag = True
         if aft_flag is False:
             return
@@ -996,11 +997,11 @@ def get_midas_sample(args, aft_certain=None):
     sample = {
         'depth_fi': os.path.join(
             depth_folder,
-            seq_dir + args.depth_format
+            image_name + args.depth_format
         ),
         'ref_img_fi': os.path.join(
             image_folder,
-            seq_dir + args.img_format
+            image_name + args.img_format
         )
     }
     height, width = imageio.imread(sample['ref_img_fi']).shape[:2]
@@ -1095,8 +1096,11 @@ def smooth_cntsyn_gap(
 
 
 def read_midas_depth(disp_fi, disp_rescale=10., h=None, w=None):
-    if 'npy' in os.path.splitext(disp_fi)[-1]:
+    filename = os.path.splitext(disp_fi)[-1]
+    if 'npy' in filename:
         disp = np.load(disp_fi)
+    elif 'pfm' in filename:
+        disp, _ = read_pfm(disp_fi)
     else:
         disp = imageio.imread(disp_fi).astype(np.float32)
     disp = disp - disp.min()

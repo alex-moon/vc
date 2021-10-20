@@ -1,15 +1,13 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from .base_model import BaseModel
 from .blocks import (
-    FeatureFusionBlock,
     FeatureFusionBlock_custom,
     Interpolate,
     _make_encoder,
-    forward_vit,
 )
+from .vit import forward_vit
 
 
 def _make_fusion_block(features, use_bn):
@@ -33,7 +31,6 @@ class DPT(BaseModel):
         channels_last=False,
         use_bn=False,
     ):
-
         super(DPT, self).__init__()
 
         self.channels_last = channels_last
@@ -53,7 +50,7 @@ class DPT(BaseModel):
             expand=False,
             exportable=False,
             hooks=hooks[backbone],
-            use_readout=readout,
+            use_readout=readout
         )
 
         self.scratch.refinenet1 = _make_fusion_block(features, use_bn)
@@ -63,9 +60,8 @@ class DPT(BaseModel):
 
         self.scratch.output_conv = head
 
-
     def forward(self, x):
-        if self.channels_last == True:
+        if self.channels_last:
             x.contiguous(memory_format=torch.channels_last)
 
         layer_1, layer_2, layer_3, layer_4 = forward_vit(self.pretrained, x)

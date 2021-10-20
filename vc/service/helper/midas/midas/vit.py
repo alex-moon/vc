@@ -121,8 +121,6 @@ def forward_flex(self, x):
         self.pos_embed, h // self.patch_size[1], w // self.patch_size[0]
     )
 
-    B = x.shape[0]
-
     if hasattr(self.patch_embed, "backbone"):
         x = self.patch_embed.backbone(x)
         if isinstance(x, (list, tuple)):
@@ -132,13 +130,13 @@ def forward_flex(self, x):
 
     if getattr(self, "dist_token", None) is not None:
         cls_tokens = self.cls_token.expand(
-            B, -1, -1
+            b, -1, -1
         )  # stole cls_tokens impl from Phil Wang, thanks
         dist_token = self.dist_token.expand(B, -1, -1)
         x = torch.cat((cls_tokens, dist_token, x), dim=1)
     else:
         cls_tokens = self.cls_token.expand(
-            B, -1, -1
+            b, -1, -1
         )  # stole cls_tokens impl from Phil Wang, thanks
         x = torch.cat((cls_tokens, x), dim=1)
 
