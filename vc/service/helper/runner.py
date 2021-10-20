@@ -186,13 +186,13 @@ class GenerationRunner:
             prompt = text
             if text != self.last_text:
                 if self.text_transition < 1.:
+                    self.text_transition += transition_speed
                     prompt = '%s : %s | %s : %s' % (
                         self.last_text,
                         1. - self.text_transition,
                         text,
                         self.text_transition
                     )
-                    self.text_transition += transition_speed
                 else:
                     self.last_text = text
                     self.text_transition = 0.
