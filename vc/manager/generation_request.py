@@ -35,7 +35,6 @@ class GenerationRequestManager(Manager):
     def cancel(self, id_):
         model = super().find_or_throw(id_)
         model.cancelled = datetime.now()
-        model.retried = None
 
         self.dispatcher.dispatch(
             GenerationRequestCancelledEvent(model)
@@ -56,7 +55,6 @@ class GenerationRequestManager(Manager):
     def retry(self, id_):
         model = super().find_or_throw(id_)
         model.retried = datetime.now()
-        model.cancelled = None
 
         # @todo technically should be a different event
         self.dispatcher.dispatch(

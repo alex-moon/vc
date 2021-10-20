@@ -80,18 +80,18 @@ export class GenerationRequestSummary extends HTMLElement {
         this.$status.classList.remove('queued', 'started', 'completed', 'failed');
         this.$status.innerHTML = '';
 
-        let {slug, readable, datetime} = StatusHelper.get(this.request);
+        const status = StatusHelper.get(this.request);
 
-        this.$status.classList.add(slug);
+        this.$status.classList.add(status.field);
 
         let child = document.createElement('div');
         child.classList.add('readable');
-        child.innerHTML = readable;
+        child.innerHTML = status.readable;
         this.$status.appendChild(child);
 
         child = document.createElement('div');
         child.classList.add('datetime');
-        child.innerHTML = datetime;
+        child.innerHTML = status.datetime;
         this.$status.appendChild(child);
     }
 

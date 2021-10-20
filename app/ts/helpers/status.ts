@@ -2,8 +2,8 @@ import {GenerationRequest} from "../models/generation-request";
 
 const dayjs = require('dayjs');
 
-export enum StatusSlug {
-    QUEUED = 'queued',
+export enum StatusField {
+    QUEUED = 'created',
     STARTED = 'started',
     COMPLETED = 'completed',
     FAILED = 'failed',
@@ -11,44 +11,52 @@ export enum StatusSlug {
     RETRIED = 'retried',
 }
 
-export interface Status {
-    slug: string;
-    readable: string;
-    datetime: string;
+export class Status {
+    static DATETIME_FORMAT = 'ddd D MMM [at] h:mma';
+
+    field: StatusField;
+    value: string;
+    constructor(field: StatusField, value: string) {
+        this.field = field;
+        this.value = value;
+    }
+    get readable() {
+        return {
+            [StatusField.QUEUED]: 'Queued',
+            [StatusField.STARTED]: 'Started',
+            [StatusField.COMPLETED]: 'Completed',
+            [StatusField.FAILED]: 'Failed',
+            [StatusField.CANCELLED]: 'Cancelled',
+            [StatusField.RETRIED]: 'Restarted',
+        }[this.field];
+    }
+    get datetime() {
+        return dayjs(this.value).format(Status.DATETIME_FORMAT);
+    }
 }
 
 export class StatusHelper {
-    static DATETIME_FORMAT = 'ddd D MMM [at] h:mma';
-
     static get(request: GenerationRequest) {
-        let slug = StatusSlug.QUEUED;
-        let readable = 'Queued';
-        let datetime = dayjs(request.created);
+        const [field, value] = StatusHelper.getMostRecent(request);
+        return new Status(field, value);
+    }
 
-        if (request.started) {
-            slug = StatusSlug.STARTED;
-            readable = 'Started';
-            datetime = dayjs(request.started);
-
-            if (request.completed) {
-                slug = StatusSlug.COMPLETED;
-                readable = 'Completed';
-                datetime = dayjs(request.completed);
-            } else if (request.retried) {
-                slug = StatusSlug.RETRIED;
-                readable = 'Restarted';
-                datetime = dayjs(request.retried);
-            } else if (request.failed) {
-                slug = StatusSlug.FAILED;
-                readable = 'Failed';
-                datetime = dayjs(request.failed);
-            } else if (request.cancelled) {
-                slug = StatusSlug.CANCELLED;
-                readable = 'Cancelled';
-                datetime = dayjs(request.cancelled);
+    private static getMostRecent(request: GenerationRequest) {
+        let latestValue = null;
+        let latestField = null;
+        for (const field of Object.values(StatusField)) {
+            const value = (request as any)[field];
+            if (latestField === null) {
+                latestField = field;
+            }
+            if (latestValue === null) {
+                latestValue = value;
+            }
+            if (value > latestValue) {
+                latestValue = value;
+                latestField = field;
             }
         }
-        datetime = datetime.format(StatusHelper.DATETIME_FORMAT);
-        return {slug, readable, datetime} as Status;
+        return [latestField, latestValue];
     }
 }

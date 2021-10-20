@@ -8,6 +8,7 @@ of the following machine vision libraries:
 * MiDaS: https://github.com/isl-org/MiDaS
 * 3D Photo Inpainting: https://github.com/vt-vl-lab/3d-photo-inpainting
 * ESRGAN: https://github.com/xinntao/Real-ESRGAN
+* RIFE: https://github.com/hzwer/arXiv2020-RIFE
 
 ## Set-up
 

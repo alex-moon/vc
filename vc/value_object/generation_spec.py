@@ -23,7 +23,6 @@ class ImageSpec:
 
 @dataclass
 class VideoStepSpec(ImageSpec):
-    interpolate: bool = False
     iterations: int = 75
     init_iterations: int = 200
     epochs: int = 42
@@ -33,6 +32,8 @@ class VideoStepSpec(ImageSpec):
     pan_velocity: float = 0.
     tilt_velocity: float = 0.
     roll_velocity: float = 0.
+    interpolate: bool = False
+    transition: int = 20
 
     schema = api.model('Video Step Spec', {
         'texts': fields.List(fields.String, default_factory=list),

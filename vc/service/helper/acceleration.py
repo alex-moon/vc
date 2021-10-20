@@ -1,37 +1,34 @@
 from math import isclose
 
 
-class Acceleration:
-    x = 0.0005
-    y = 0.0005
-    z = 0.0005
-
-
 class Multiplier:
     x = -0.01
     y = 0.01
     z = -0.01
 
     @classmethod
-    def accelerate_x(cls, x, target):
+    def accelerate_x(cls, x, target, transition):
+        acceleration = abs(cls.x) / transition
         target = cls.x * target
-        if isclose(x, target, abs_tol=Acceleration.x * 0.5):
+        if isclose(x, target, abs_tol=acceleration * 0.5):
             return 0
-        return Acceleration.x if x < target else -Acceleration.x
+        return acceleration if x < target else -acceleration
 
     @classmethod
-    def accelerate_y(cls, y, target):
+    def accelerate_y(cls, y, target, transition):
+        acceleration = abs(cls.y) / transition
         target = cls.y * target
-        if isclose(y, target, abs_tol=Acceleration.y * 0.5):
+        if isclose(y, target, abs_tol=acceleration * 0.5):
             return 0
-        return Acceleration.y if y < target else -Acceleration.y
+        return acceleration if y < target else -acceleration
 
     @classmethod
-    def accelerate_z(cls, z, target):
+    def accelerate_z(cls, z, target, transition):
+        acceleration = abs(cls.z) / transition
         target = cls.z * target
-        if isclose(z, target, abs_tol=Acceleration.z * 0.5):
+        if isclose(z, target, abs_tol=acceleration * 0.5):
             return 0
-        return Acceleration.z if z < target else -Acceleration.z
+        return acceleration if z < target else -acceleration
 
 
 class Velocity:
@@ -40,19 +37,19 @@ class Velocity:
         self.y = 0.
         self.z = 0.
 
-    def accelerate(self, x_target, y_target, z_target):
-        self.accelerate_x(x_target)
-        self.accelerate_y(y_target)
-        self.accelerate_z(z_target)
+    def accelerate(self, x_target, y_target, z_target, transition):
+        self.accelerate_x(x_target, transition)
+        self.accelerate_y(y_target, transition)
+        self.accelerate_z(z_target, transition)
 
-    def accelerate_x(self, target):
-        self.x += Multiplier.accelerate_x(self.x, target)
+    def accelerate_x(self, target, transition):
+        self.x += Multiplier.accelerate_x(self.x, target, transition)
 
-    def accelerate_y(self, target):
-        self.y += Multiplier.accelerate_y(self.y, target)
+    def accelerate_y(self, target, transition):
+        self.y += Multiplier.accelerate_y(self.y, target, transition)
 
-    def accelerate_z(self, target):
-        self.z += Multiplier.accelerate_z(self.z, target)
+    def accelerate_z(self, target, transition):
+        self.z += Multiplier.accelerate_z(self.z, target, transition)
 
     def to_tuple(self):
         return self.x, self.y, self.z
@@ -72,17 +69,20 @@ class Translate:
     x = 0.
     y = 0.
     z = 0.
+    transition = 20
 
     def __init__(
         self,
         x_target: float,
         y_target: float,
         z_target: float,
-        previous=None
+        previous=None,
+        transition=20
     ):
         self.x_target = x_target
         self.y_target = y_target
         self.z_target = z_target
+        self.transition = transition
 
         if previous is not None:
             self.velocity = previous.velocity
@@ -96,7 +96,8 @@ class Translate:
         self.velocity.accelerate(
             self.x_target,
             self.y_target,
-            self.z_target
+            self.z_target,
+            self.transition
         )
 
         self.x += self.velocity.x

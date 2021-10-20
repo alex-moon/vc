@@ -17,6 +17,17 @@
             </div>
             <h3>Acknowledgements</h3>
             <p>
+                This app started life as a fork of the following open source repository.
+            </p>
+            <ul>
+                <li>
+                    <a target="_blank" href="https://github.com/nerdyrodent/VQGAN-CLIP">
+                        <strong>VQGAN+CLIP</strong>
+                        <span>Nerdy Rodent</span>
+                    </a>
+                </li>
+            </ul>
+            <p>
                 These works are built on the following AI stack. We would like to thank the
                 authors for making their code available.
             </p>
@@ -49,6 +60,12 @@
                     <a target="_blank" href="https://github.com/xinntao/Real-ESRGAN">
                         <strong>ESRGAN</strong>
                         <span>Xintao Wang, Liangbin Xie, Chao Dong, Ying Shan</span>
+                    </a>
+                </li>
+                <li>
+                    <a target="_blank" href="https://github.com/hzwer/arXiv2020-RIFE">
+                        <strong>RIFE</strong>
+                        <span>Zhewei Huang, Tianyuan Zhang, Wen Heng, Boxin Shi, Shuchang Zhou</span>
                     </a>
                 </li>
             </ul>

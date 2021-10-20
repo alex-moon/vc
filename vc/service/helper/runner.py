@@ -61,7 +61,6 @@ class GenerationResult:
 
 class GenerationRunner:
     INTERIM_STEPS = 60
-    TRANSITION_SPEED = 0.05
     INTERPOLATE_MULTIPLE = 4
 
     vqgan_clip: VqganClipService
@@ -149,18 +148,20 @@ class GenerationRunner:
     def generate_image(self, step: ImageGenerationStep):
         if step.spec != self.spec:
             self.spec = step.spec
-            if isinstance(self.spec, VideoStepSpec):
+            if isinstance(step.spec, VideoStepSpec):
                 self.translate = Translate(
-                    self.spec.x_velocity,
-                    self.spec.y_velocity,
-                    self.spec.z_velocity,
-                    previous=self.translate
+                    step.spec.x_velocity,
+                    step.spec.y_velocity,
+                    step.spec.z_velocity,
+                    previous=self.translate,
+                    transition=step.spec.transition
                 )
                 self.rotate = Rotate(
-                    self.spec.tilt_velocity,
-                    self.spec.pan_velocity,
-                    self.spec.roll_velocity,
-                    previous=self.rotate
+                    step.spec.tilt_velocity,
+                    step.spec.pan_velocity,
+                    step.spec.roll_velocity,
+                    previous=self.rotate,
+                    transition=step.spec.transition
                 )
 
         text = step.text
@@ -172,12 +173,14 @@ class GenerationRunner:
         pan, tilt, roll = 0., 0., 0.
         prompt = text if style is None else '%s | %s' % (text, style)
 
-        if isinstance(self.spec, VideoStepSpec):
+        if isinstance(step.spec, VideoStepSpec):
             if self.last_text is None:
                 self.last_text = text
 
             if self.last_style is None:
                 self.last_style = style
+
+            transition_speed = 1. / step.spec.transition
 
             # @todo VC-28: generalise this for any number of text lists
             prompt = text
@@ -189,7 +192,7 @@ class GenerationRunner:
                         text,
                         self.text_transition
                     )
-                    self.text_transition += self.TRANSITION_SPEED
+                    self.text_transition += transition_speed
                 else:
                     self.last_text = text
                     self.text_transition = 0.
@@ -205,7 +208,7 @@ class GenerationRunner:
                             style,
                             self.style_transition
                         )
-                        self.style_transition += self.TRANSITION_SPEED
+                        self.style_transition += transition_speed
                     else:
                         self.last_style = style
                         self.style_transition = 0.
@@ -225,11 +228,11 @@ class GenerationRunner:
             dh.debug('GenerationRunner', 'pan', pan)
             dh.debug('GenerationRunner', 'roll', roll)
 
-            if self.spec.init_iterations and not os.path.isfile(self.output_filename):
-                dh.debug('GenerationRunner', 'init', self.spec.init_iterations)
+            if step.spec.init_iterations and not os.path.isfile(self.output_filename):
+                dh.debug('GenerationRunner', 'init', step.spec.init_iterations)
                 self.vqgan_clip.handle(VqganClipOptions(**{
                     'prompts': prompt,
-                    'max_iterations': self.spec.init_iterations,
+                    'max_iterations': step.spec.init_iterations,
                     'output_filename': self.output_filename,
                     'init_image': None
                 }))
@@ -237,7 +240,7 @@ class GenerationRunner:
         dh.debug('GenerationRunner', 'vqgan_clip', 'handle')
         self.vqgan_clip.handle(VqganClipOptions(**{
             'prompts': prompt,
-            'max_iterations': self.spec.iterations,
+            'max_iterations': step.spec.iterations,
             'init_image': (
                 self.output_filename
                 if os.path.isfile(self.output_filename)
@@ -262,7 +265,7 @@ class GenerationRunner:
             dh.debug('GenerationRunner', 'inpainting', 'skipped (not moving)')
 
         filename_to_use = self.output_filename
-        if self.spec.upscale:
+        if step.spec.upscale:
             filename_to_use = filename_to_use.replace('.png', '-upscaled.png')
             dh.debug('GenerationRunner', 'esrgan', 'handle')
             self.esrgan.handle(EsrganOptions(**{
@@ -277,14 +280,14 @@ class GenerationRunner:
             )
 
         video_step = step.video_step
-        if self.spec.interpolate:
+        if step.spec.interpolate:
             video_step = (video_step - 1) * self.INTERPOLATE_MULTIPLE + 1
 
         step_filepath = self.video_step_filepath(video_step)
         dh.debug('GenerationRunner', 'video_step', step_filepath)
         copy(filename_to_use, step_filepath)
 
-        if self.spec.interpolate and video_step > 1:
+        if step.spec.interpolate and video_step > 1:
             second_file = step_filepath
             step_from = video_step - self.INTERPOLATE_MULTIPLE
             first_file = self.video_step_filepath(step_from)
@@ -313,9 +316,7 @@ class GenerationRunner:
             self.generation_name,
             'interim' if is_interim else 'result'
         )
-        interpolate = not is_interim
-        if isinstance(self.spec, VideoStepSpec):
-            interpolate = interpolate and not step.interpolated
+        interpolate = not is_interim and not step.interpolated
         unwatermarked = self.video.make_unwatermarked_video(
             output_file=filename,
             steps_dir=self.steps_dir,

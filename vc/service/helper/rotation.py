@@ -1,37 +1,34 @@
 from math import isclose, pi
 
 
-class RotateAcceleration:
-    tilt = 0.0009
-    pan = 0.0009
-    roll = 0.0009
-
-
 class Multiplier:
     tilt = -(2 * pi / 360)
     pan = -(2 * pi / 360)
     roll = -(2 * pi / 360)
 
     @classmethod
-    def accelerate_tilt(cls, tilt, target):
+    def accelerate_tilt(cls, tilt, target, transition):
+        acceleration = abs(cls.tilt) / transition  # target or cls.tilt?
         target = cls.tilt * target
-        if isclose(tilt, target, abs_tol=RotateAcceleration.tilt * 0.5):
+        if isclose(tilt, target, abs_tol=acceleration * 0.5):
             return 0
-        return RotateAcceleration.tilt if tilt < target else -RotateAcceleration.tilt
+        return acceleration if tilt < target else -acceleration
 
     @classmethod
-    def accelerate_pan(cls, pan, target):
+    def accelerate_pan(cls, pan, target, transition):
+        acceleration = abs(cls.pan) / transition  # target or cls.pan?
         target = cls.pan * target
-        if isclose(pan, target, abs_tol=RotateAcceleration.pan * 0.5):
+        if isclose(pan, target, abs_tol=acceleration * 0.5):
             return 0
-        return RotateAcceleration.pan if pan < target else -RotateAcceleration.pan
+        return acceleration if pan < target else -acceleration
 
     @classmethod
-    def accelerate_roll(cls, roll, target):
+    def accelerate_roll(cls, roll, target, transition):
+        acceleration = abs(cls.roll) / transition  # target or cls.roll?
         target = cls.roll * target
-        if isclose(roll, target, abs_tol=RotateAcceleration.roll * 0.5):
+        if isclose(roll, target, abs_tol=acceleration * 0.5):
             return 0
-        return RotateAcceleration.roll if roll < target else -RotateAcceleration.roll
+        return acceleration if roll < target else -acceleration
 
 
 class RotateVelocity:
@@ -40,19 +37,19 @@ class RotateVelocity:
         self.pan = 0.
         self.roll = 0.
 
-    def accelerate(self, tilt_target, pan_target, roll_target):
-        self.accelerate_tilt(tilt_target)
-        self.accelerate_pan(pan_target)
-        self.accelerate_roll(roll_target)
+    def accelerate(self, tilt_target, pan_target, roll_target, transition):
+        self.accelerate_tilt(tilt_target, transition)
+        self.accelerate_pan(pan_target, transition)
+        self.accelerate_roll(roll_target, transition)
 
-    def accelerate_tilt(self, target):
-        self.tilt += Multiplier.accelerate_tilt(self.tilt, target)
+    def accelerate_tilt(self, target, transition):
+        self.tilt += Multiplier.accelerate_tilt(self.tilt, target, transition)
 
-    def accelerate_pan(self, target):
-        self.pan += Multiplier.accelerate_pan(self.pan, target)
+    def accelerate_pan(self, target, transition):
+        self.pan += Multiplier.accelerate_pan(self.pan, target, transition)
 
-    def accelerate_roll(self, target):
-        self.roll += Multiplier.accelerate_roll(self.roll, target)
+    def accelerate_roll(self, target, transition):
+        self.roll += Multiplier.accelerate_roll(self.roll, target, transition)
 
     def to_tuple(self):
         return self.tilt, self.pan, self.roll
@@ -72,17 +69,20 @@ class Rotate:
     tilt = 0.
     pan = 0.
     roll = 0.
+    transition = 20
 
     def __init__(
         self,
         tilt_target: float,
         pan_target: float,
         roll_target: float,
-        previous=None
+        previous=None,
+        transition=20
     ):
         self.tilt_target = tilt_target
         self.pan_target = pan_target
         self.roll_target = roll_target
+        self.transition = transition
 
         if previous is not None:
             self.velocity = previous.velocity
@@ -96,7 +96,8 @@ class Rotate:
         self.velocity.accelerate(
             self.tilt_target,
             self.pan_target,
-            self.roll_target
+            self.roll_target,
+            self.transition
         )
 
         self.tilt += self.velocity.tilt

@@ -6,6 +6,7 @@ import {Chipset} from "../chipset";
 import {AuthHelper} from "../../helpers/auth";
 import {Vc} from "../../vc";
 import {EnvHelper} from "../../helpers/env";
+import {StatusField, StatusHelper} from "../../helpers/status";
 
 @CustomElement({
     tag: 'vc-generation-request-details',
@@ -163,11 +164,10 @@ export class GenerationRequestDetails extends HTMLElement {
                     }
                 });
             }
-            if (
-                !this.request.cancelled
-                && !this.request.failed
-                && !this.request.completed
-            ) {
+
+            const status = StatusHelper.get(this.request);
+
+            if (status.field !== StatusField.CANCELLED) {
                 this.addAction('Cancel', 'cancel', (e: MouseEvent) => {
                     if (window.confirm('Are you sure you would like to cancel this request?')) {
                         this.vc.cancel(this.request);
@@ -175,7 +175,11 @@ export class GenerationRequestDetails extends HTMLElement {
                 }, 'warn');
             }
 
-            if (this.request.cancelled || this.request.failed || this.request.completed) {
+            if ([
+                StatusField.CANCELLED,
+                StatusField.FAILED,
+                StatusField.COMPLETED,
+            ].includes(status.field)) {
                 this.addAction('Retry', 'restart_alt', (e: MouseEvent) => {
                     if (window.confirm('Are you sure you would like to restart this request?')) {
                         this.vc.retry(this.request);

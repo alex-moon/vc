@@ -50,8 +50,9 @@ class GenerationJob(Job):
             raise e
 
     def mark_started(self, generation_request: GenerationRequest):
-        generation_request.started = datetime.now()
-        self.request_manager.save(generation_request)
+        if not generation_request.started:
+            generation_request.started = datetime.now()
+            self.request_manager.save(generation_request)
 
     def mark_completed(self, generation_request: GenerationRequest):
         generation_request.completed = datetime.now()

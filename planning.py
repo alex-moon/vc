@@ -12,10 +12,13 @@ with open('planning/october.csv') as csv_file:
     fieldnames = reader.fieldnames
     season = None
     for row in reader:
-        if season is not None and row['season'] != season:
+        if season is None:
+            season = row['season']
+
+        if row['season'] != season:
             season = row['season']
             steps.append({
-                'texts': ['a burst of flames, a flash of burning fire'],
+                'texts': ['a burst of flames, a flash of burning fire | %s' % row['text']],
                 'styles': ['%s | %s' % (row['season'], row['style'])],
                 'x_velocity': to_float(row['x']),
                 'y_velocity': to_float(row['y']),
@@ -26,12 +29,13 @@ with open('planning/october.csv') as csv_file:
                 'upscale': True,
                 'interpolate': True,
                 'epochs': 1,
-                'iterations': 75,
+                'iterations': 200,
+                'transition': 1,
             })
 
         steps.append({
             'texts': [row['text']],
-            'styles': ['%s | %s' % (row['season'], row['style'])],
+            'styles': ['%s : 0.4 | %s' % (row['season'], row['style'])],
             'x_velocity': to_float(row['x']),
             'y_velocity': to_float(row['y']),
             'z_velocity': to_float(row['z']),
@@ -40,7 +44,7 @@ with open('planning/october.csv') as csv_file:
             'roll_velocity': to_float(row['roll']),
             'upscale': True,
             'interpolate': True,
-            'epochs': 10,
+            'epochs': 42,
             'iterations': 75,
         })
 
