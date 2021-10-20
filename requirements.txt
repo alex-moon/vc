@@ -89,7 +89,7 @@ scikit-image
 six==1.16.0
 tensorboard-plugin-wit==1.8.0
 tensorboard==2.4.1
-timm
+timm==0.4.5
 torch-optimizer==0.1.0
 torchmetrics==0.4.1
 tqdm==4.61.2
