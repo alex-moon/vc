@@ -34,7 +34,7 @@ class InpaintingOptions:
     depth_edge_model_ckpt: str = 'checkpoints/edge-model.pth'
     depth_feat_model_ckpt: str = 'checkpoints/depth-model.pth'
     rgb_feat_model_ckpt: str = 'checkpoints/color-model.pth'
-    midas_model_type: str = 'midas_v21_small'  # @todo 'dpt_hybrid' >:(
+    midas_model_type: str = 'dpt_hybrid'  # use 'midas_v21_small' for faster
     fps: int = 40
     num_frames: int = 200
     x_shift: float = 0.00
