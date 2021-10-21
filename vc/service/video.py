@@ -1,5 +1,6 @@
 import os
 import random
+import shutil
 import string
 from datetime import datetime
 
@@ -75,14 +76,23 @@ class VideoService:
             else 'app/assets/watermark-400.png'
         )
         os.system(' '.join([
-            'ffmpeg -y -i "%s/%%04d.png"' % steps_dir,
+            'ffmpeg -y',
             '-framerate %s' % (self.DEFAULT_FRAMERATE * fps_multiple),
+            '-i "%s/%%04d.png"' % steps_dir,
             '-i %s -filter_complex "overlay=0:0"' % watermark_file,
             '-b:v 8M -c:v h264_nvenc -pix_fmt yuv420p -strict -2',
             output_file
         ]))
 
         return self.file_service.put(output_file, output_file, now)
+
+    # unused as this doesn't give us as much return as we might like @todo VC-29
+    def optimize(self, filepath):
+        optimized = 'optimized-%s' % filepath
+        os.system(
+            'ffmpeg -y -i "%s" "%s"' % (filepath, optimized)
+        )
+        shutil.move(optimized, filepath)
 
     def generate_suffix(self):
         return ''.join(
