@@ -16,8 +16,8 @@ class IsrOptions:
 
 
 class IsrService:
-    TARGET_WIDTH = int(os.getenv('SIZE_WIDTH_LG'))
-    TARGET_HEIGHT = int(os.getenv('SIZE_HEIGHT_LG'))
+    TARGET_WIDTH = int(os.getenv('SIZE_WIDTH_LG', 400))
+    TARGET_HEIGHT = int(os.getenv('SIZE_HEIGHT_LG', 400))
     BORDER = 2
 
     file_service: FileService

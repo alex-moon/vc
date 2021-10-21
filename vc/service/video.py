@@ -62,7 +62,7 @@ class VideoService:
 
     def make_watermarked_video(
         self,
-        width: int = os.getenv('SIZE_WIDTH_SM'),
+        width: int = int(os.getenv('SIZE_WIDTH_SM', 400)),
         output_file=OUTPUT_FILENAME,
         steps_dir=STEPS_DIR,
         now: datetime = None,

@@ -318,9 +318,9 @@ class GenerationRunner:
         )
         interpolate = not is_interim and not step.interpolated
         width = int(
-            os.getenv('SIZE_WIDTH_LG')
+            os.getenv('SIZE_WIDTH_LG', 800)
             if step.upscaled
-            else os.getenv('SIZE_WIDTH_SM')
+            else os.getenv('SIZE_WIDTH_SM', 400)
         )
         unwatermarked = self.video.make_unwatermarked_video(
             output_file=filename,

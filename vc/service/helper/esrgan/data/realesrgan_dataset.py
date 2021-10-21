@@ -93,7 +93,7 @@ class RealESRGANDataset(data.Dataset):
         img_gt = augment(img_gt, self.opt['use_hflip'], self.opt['use_rot'])
 
         h, w = img_gt.shape[0:2]
-        crop_pad_size = os.getenv('SIZE_WIDTH_SM')
+        crop_pad_size = os.getenv('SIZE_WIDTH_SM', 400)
         # pad
         if h < crop_pad_size or w < crop_pad_size:
             pad_h = max(0, crop_pad_size - h)

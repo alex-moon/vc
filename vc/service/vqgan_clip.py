@@ -95,8 +95,8 @@ class VqganClipService:
 
         if args.size is None:
             args.size = [
-                int(os.getenv('SIZE_WIDTH_SM')),
-                int(os.getenv('SIZE_HEIGHT_SM')),
+                int(os.getenv('SIZE_WIDTH_SM', 400)),
+                int(os.getenv('SIZE_HEIGHT_SM', 400)),
             ]
 
         # VQGAN
