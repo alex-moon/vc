@@ -16,7 +16,8 @@ class IsrOptions:
 
 
 class IsrService:
-    TARGET_SIZE = 800
+    TARGET_WIDTH = int(os.getenv('SIZE_WIDTH_LG'))
+    TARGET_HEIGHT = int(os.getenv('SIZE_HEIGHT_LG'))
     BORDER = 2
 
     file_service: FileService
@@ -43,13 +44,17 @@ class IsrService:
         output = Image.fromarray(result)
 
         # Resize
-        size = self.TARGET_SIZE + 2 * self.BORDER
-        output.thumbnail((size, size), Image.ANTIALIAS)
+        width = self.TARGET_WIDTH + 2 * self.BORDER
+        height = self.TARGET_HEIGHT + 2 * self.BORDER
+        output.thumbnail((width, height), Image.ANTIALIAS)
 
         # Crop
-        start = self.BORDER
-        end = self.TARGET_SIZE
-        output.crop(start, start, end, end)
+        output.crop(
+            self.BORDER,
+            self.BORDER,
+            self.TARGET_WIDTH,
+            self.TARGET_HEIGHT
+        )
 
         # Save
         output.save(args.output_file)

@@ -62,7 +62,7 @@ class VideoService:
 
     def make_watermarked_video(
         self,
-        upscaled,
+        width: int = os.getenv('SIZE_WIDTH_SM'),
         output_file=OUTPUT_FILENAME,
         steps_dir=STEPS_DIR,
         now: datetime = None,
@@ -70,11 +70,7 @@ class VideoService:
     ):
         suffix = 'watermarked'
         output_file = output_file.replace('.mp4', '-%s.mp4' % suffix)
-        watermark_file = (
-            'app/assets/watermark.png'
-            if upscaled
-            else 'app/assets/watermark-400.png'
-        )
+        watermark_file = 'app/assets/watermark-%s.png' % width
         os.system(' '.join([
             'ffmpeg -y',
             '-framerate %s' % (self.DEFAULT_FRAMERATE * fps_multiple),

@@ -46,7 +46,7 @@ class InpaintingOptions:
     traj_type: str = 'double-straight-line'
     video_postfix: str = 'zoom-in'
     specific: str = ''
-    longer_side_len: int = 400
+    longer_side_len: int = os.getenv('SIZE_WIDTH_SM')
     input_file: str = 'output.png'
     output_filename: str = 'output.png'
     depth_folder: str = 'depth'

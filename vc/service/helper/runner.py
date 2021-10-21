@@ -317,6 +317,11 @@ class GenerationRunner:
             'interim' if is_interim else 'result'
         )
         interpolate = not is_interim and not step.interpolated
+        width = int(
+            os.getenv('SIZE_WIDTH_LG')
+            if step.upscaled
+            else os.getenv('SIZE_WIDTH_SM')
+        )
         unwatermarked = self.video.make_unwatermarked_video(
             output_file=filename,
             steps_dir=self.steps_dir,
@@ -326,7 +331,7 @@ class GenerationRunner:
             fps_multiple=self.INTERPOLATE_MULTIPLE if step.interpolated else 1
         )
         watermarked = self.video.make_watermarked_video(
-            step.upscaled,
+            width=width,
             output_file=filename,
             steps_dir=self.steps_dir,
             now=self.now if is_interim else None,

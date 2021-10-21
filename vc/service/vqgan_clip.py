@@ -94,7 +94,10 @@ class VqganClipService:
             os.mkdir('steps')
 
         if args.size is None:
-            args.size = [400, 400]
+            args.size = [
+                int(os.getenv('SIZE_WIDTH_SM')),
+                int(os.getenv('SIZE_HEIGHT_SM')),
+            ]
 
         # VQGAN
         model = self.vqgan_helper.load_vqgan_model(

@@ -26,7 +26,8 @@ class EsrganOptions:
 
 
 class EsrganService:
-    TARGET_SIZE = 800
+    TARGET_WIDTH = int(os.getenv('SIZE_WIDTH_LG'))
+    TARGET_HEIGHT = int(os.getenv('SIZE_HEIGHT_LG'))
     BORDER = 2
 
     file_service: FileService
@@ -71,8 +72,9 @@ class EsrganService:
             raise error
 
         # Resize
-        size = self.TARGET_SIZE + 2 * self.BORDER
-        output = cv2.resize(output, (size, size), interpolation=cv2.INTER_AREA)
+        width = self.TARGET_WIDTH + 2 * self.BORDER
+        height = self.TARGET_HEIGHT + 2 * self.BORDER
+        output = cv2.resize(output, (width, height), interpolation=cv2.INTER_AREA)
 
         # Crop
         start = self.BORDER

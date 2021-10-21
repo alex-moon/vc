@@ -45,9 +45,9 @@
                     </a>
                 </li>
                 <li>
-                    <a target="_blank" href="https://github.com/isl-org/MiDaS">
-                        <strong>MiDaS</strong>
-                        <span>René Ranftl, Katrin Lasinger, David Hafner, Konrad Schindler, Vladlen Koltun</span>
+                    <a target="_blank" href="https://github.com/isl-org/DPT">
+                        <strong>DPT</strong>
+                        <span>René Ranftl, Alexey Bochkovskiy, Vladlen Koltun</span>
                     </a>
                 </li>
                 <li>
