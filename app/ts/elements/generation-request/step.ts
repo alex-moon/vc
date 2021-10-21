@@ -74,6 +74,7 @@ export class GenerationRequestDetailsStep extends HTMLElement {
             'upscale',
             'interpolate',
             'epochs',
+            'transition',
         ]) {
             if (fieldName in this.spec) {
                 const fieldValue = (this.spec as any)[fieldName];

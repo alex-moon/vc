@@ -14,4 +14,6 @@ export class VideoStepSpec extends ImageSpec {
     pan_velocity ?: number;
     tilt_velocity ?: number;
     roll_velocity ?: number;
+    interpolate ?: boolean;
+    transition ?: number;
 }
