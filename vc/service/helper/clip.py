@@ -163,8 +163,7 @@ class MakeCutouts(nn.Module):
         # yoinked from https://github.com/sportsracer48/pytti
         cutouts = []
         _, _, side_x, side_y = input.shape
-        offsetx_max = side_x - self.cut_size + 1
-        offsety_max = side_y - self.cut_size + 1
+        max_size = min(side_x, side_y)
 
         paddingx = min(round(side_x * self.padding), side_x)
         paddingy = min(round(side_y * self.padding), side_y)
@@ -175,24 +174,35 @@ class MakeCutouts(nn.Module):
         )
         i = 0
         while i < self.cutn:
-            px = min(self.cut_size, paddingx)
-            py = min(self.cut_size, paddingy)
+            size = int(
+                max_size * (
+                    torch
+                    .zeros(1, )
+                    .normal_(mean=.8, std=.3)
+                    .clip(self.cut_size / max_size, 1.)
+                    ** self.cut_pow
+                )
+            )
+            offsetx_max = side_x - size + 1
+            offsety_max = side_y - size + 1
+
+            px = min(size, paddingx)
+            py = min(size, paddingy)
             offsetx = (torch.rand([]) * (offsetx_max + 2 * px) - px).floor().int()
             offsety = (torch.rand([]) * (offsety_max + 2 * py) - py).floor().int()
             cutout = input[
                 :,
                 :,
-                paddingy + offsety:paddingy + offsety + self.cut_size,
-                paddingx + offsetx:paddingx + offsetx + self.cut_size
+                paddingy + offsety:paddingy + offsety + size,
+                paddingx + offsetx:paddingx + offsetx + size
             ]
             try:
                 cutouts.append(self.av_pool(cutout))
             except:
-                pass
+                pass  # @todo figure out why we get this exception
             else:
                 i += 1
 
-        print('got', len(cutouts), 'cutouts')
         batch = self.augs(torch.cat(cutouts, dim=0))
 
         if self.noise_fac:
