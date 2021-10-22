@@ -6,8 +6,9 @@ fi
 source venv/bin/activate
 python3 -m pip install --upgrade pip
 pip3 install --no-cache-dir Cython wheel decorator numpy
-pip3 install --no-cache-dir -r requirements.txt
+pip3 install --no-cache-dir -r requirements.txt # @todo work out what's actually needed here and put in line above
 pip3 install --no-cache-dir torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
+pip3 install --no-cache-dir -r requirements.txt
 
 # VQGAN+CLIP
 if [[ ! -d "CLIP" ]]; then

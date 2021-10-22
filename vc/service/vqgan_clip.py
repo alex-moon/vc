@@ -2,7 +2,7 @@ import json
 import math
 import os
 from dataclasses import dataclass, field, asdict
-from typing import List
+from typing import List, Optional
 from urllib.request import urlopen
 
 import numpy as np
@@ -20,7 +20,7 @@ from tqdm import tqdm
 from CLIP import clip
 from vc.service import FileService
 from vc.service.helper.dimensions import DimensionsHelper
-from vc.service.helper.torch import TorchHelper
+from vc.service.helper.clip import ClipHelper
 from vc.service.helper.vqgan import VqganHelper
 from vc.service.helper.diagnosis import DiagnosisHelper as dh
 
@@ -29,10 +29,10 @@ from vc.service.helper.diagnosis import DiagnosisHelper as dh
 class VqganClipOptions:
     prompts: str = None
     image_prompts: str = None
-    max_iterations: int = 500
+    max_iterations: int = 200
     display_freq: int = 50
-    size: int = None
-    init_image: str = 'output.png'
+    size: List[int] = None
+    init_image: Optional[str] = 'output.png'
     output_filename: str = 'output.png'
     init_noise: str = 'gradient'
     init_weight: float = 0.
@@ -53,7 +53,7 @@ class VqganClipOptions:
 class VqganClipService:
     file_service: FileService
     vqgan_helper: VqganHelper
-    torch_helper: TorchHelper
+    clip_helper: ClipHelper
     device = torch.device(
         'cuda' if torch.cuda.is_available() else 'cpu'
     )
@@ -63,7 +63,7 @@ class VqganClipService:
         ImageFile.LOAD_TRUNCATED_IMAGES = True
         torch.backends.cudnn.benchmark = False
         self.vqgan_helper = VqganHelper()
-        self.torch_helper = TorchHelper()
+        self.clip_helper = ClipHelper()
         self.file_service = file_service
 
     def handle(self, args: VqganClipOptions):
@@ -72,7 +72,7 @@ class VqganClipService:
         if args.cudnn_determinism:
             torch.backends.cudnn.deterministic = True
 
-        if not args.augments:
+        if args.augments is None:
             args.augments = [['Af', 'Pe', 'Ji', 'Er']]
 
         # Split text prompts using the pipe character
@@ -123,17 +123,13 @@ class VqganClipService:
         if self.vqgan_helper.gumbel:
             e_dim = 256
             n_toks = model.quantize.n_embed
-            z_min = model.quantize.embed.weight.min(dim=0).values[None, :, None,
-                    None]
-            z_max = model.quantize.embed.weight.max(dim=0).values[None, :, None,
-                    None]
+            z_min = model.quantize.embed.weight.min(dim=0).values[None, :, None, None]
+            z_max = model.quantize.embed.weight.max(dim=0).values[None, :, None, None]
         else:
             e_dim = model.quantize.e_dim
             n_toks = model.quantize.n_e
-            z_min = model.quantize.embedding.weight.min(dim=0).values[None, :,
-                    None, None]
-            z_max = model.quantize.embedding.weight.max(dim=0).values[None, :,
-                    None, None]
+            z_min = model.quantize.embedding.weight.min(dim=0).values[None, :, None, None]
+            z_max = model.quantize.embedding.weight.max(dim=0).values[None, :, None, None]
 
         # Image initialisation
         if args.init_image:
@@ -187,7 +183,7 @@ class VqganClipService:
                 clip.tokenize(txt).to(self.device)
             ).float()
             prompts.append(
-                self.torch_helper.prompt(embed, weight, stop).to(self.device)
+                self.clip_helper.prompt(embed, weight, stop).to(self.device)
             )
 
         for prompt in args.image_prompts:
@@ -202,7 +198,7 @@ class VqganClipService:
             )
             embed = perceptor.encode_image(self.normalize(batch)).float()
             prompts.append(
-                self.torch_helper.prompt(embed, weight, stop).to(self.device)
+                self.clip_helper.prompt(embed, weight, stop).to(self.device)
             )
 
         for seed, weight in zip(
@@ -214,7 +210,7 @@ class VqganClipService:
                 [1, perceptor.visual.output_dim]
             ).normal_(generator=gen)
             prompts.append(
-                self.torch_helper.prompt(embed, weight).to(self.device)
+                self.clip_helper.prompt(embed, weight).to(self.device)
             )
 
         # Set the optimiser
@@ -364,7 +360,7 @@ class VqganClipService:
         )(batch)
 
     def make_cutouts(self, args, perceptor, batch):
-        return self.torch_helper.make_cutouts(
+        return self.clip_helper.make_cutouts(
             args.augments,
             perceptor.visual.input_resolution,
             args.cutn,
@@ -377,7 +373,7 @@ class VqganClipService:
         ) - 2 * x @ codebook.T
         indices = d.argmin(-1)
         x_q = F.one_hot(indices, codebook.shape[0]).to(d.dtype) @ codebook
-        return self.torch_helper.replace_grad(x_q, x)
+        return self.clip_helper.replace_grad(x_q, x)
 
     def parse_prompt(self, prompt):
         vals = prompt.rsplit(':', 2)
@@ -401,7 +397,7 @@ class VqganClipService:
                 z.movedim(1, 3),
                 model.quantize.embedding.weight
             ).movedim(3, 1)
-        return self.torch_helper.clamp_with_grad(
+        return self.clip_helper.clamp_with_grad(
             model.decode(z_q).add(1).div(2),
             0,
             1
@@ -421,7 +417,7 @@ class VqganClipService:
 
     def ascend_txt(self, model, perceptor, args, prompts, z_orig, z, i):
         out = self.synth(model, z)
-        iii = perceptor.encode_image(
+        input = perceptor.encode_image(
             self.normalize(
                 self.make_cutouts(
                     args,
@@ -444,7 +440,7 @@ class VqganClipService:
             )
 
         for prompt in prompts:
-            result.append(prompt(iii))
+            result.append(prompt(input))
 
         return result
 

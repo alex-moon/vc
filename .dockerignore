@@ -1,8 +1,12 @@
 venv
+venv.mac
+node_modules
+log
 results
+mesh
+depth
 checkpoints
 taming-transformers
-node_modules
 samples
 .git
 BoostingMonocularDepth

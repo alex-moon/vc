@@ -1524,8 +1524,8 @@ def context_and_holes(
         mode='constant'
     ).astype(np.bool)
     cur_tmp_mask_map = np.zeros_like(forbidden_map).astype(np.bool)
-    passive_background = 10 if 10 is not None else background_thickness
-    passive_context = 1 if 1 is not None else context_thickness
+    passive_background = 10
+    passive_context = 1
 
     for edge_id, edge_cc in enumerate(edge_ccs):
         cur_mask_cc = []

@@ -56,7 +56,6 @@ class InpaintingOptions:
     load_ply: bool = False
     save_ply: bool = True
     inference_video: bool = True
-    gpu_ids: int = 0
     offscreen_rendering: bool = False
     img_format: str = '.png'
     depth_format: str = '.pfm'
@@ -112,10 +111,7 @@ class InpaintingService:
 
         sample = get_midas_sample(args)
 
-        if isinstance(args.gpu_ids, int) and (args.gpu_ids >= 0):
-            device = args.gpu_ids
-        else:
-            device = "cpu"
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         dh.debug('InpaintingService', 'running on device', device)
 

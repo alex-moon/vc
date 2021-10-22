@@ -26,7 +26,7 @@ services:
     links:
       - pgsql
     extra_hosts:
-      - "laravel.local:192.168.99.186"
+      - "laravel.local:192.168.99.198"
     # command: sleep 999999999
     command: ./docker.flask.sh
 
