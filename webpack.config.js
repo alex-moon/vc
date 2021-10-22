@@ -14,7 +14,7 @@ function getEnv() {
       }
     case 'local':
       return {
-        useLocal: false,
+        useLocal: true,
         host: '"https://vc-api.ajmoon.uk"',
         env: 'local',
       }

@@ -7,6 +7,7 @@ from PIL import Image
 from injector import inject
 
 from vc.service import FileService
+from vc.service.helper.dimensions import DimensionsHelper
 
 
 @dataclass
@@ -16,8 +17,6 @@ class IsrOptions:
 
 
 class IsrService:
-    TARGET_WIDTH = int(os.getenv('SIZE_WIDTH_LG', 400))
-    TARGET_HEIGHT = int(os.getenv('SIZE_HEIGHT_LG', 400))
     BORDER = 2
 
     file_service: FileService
@@ -44,16 +43,18 @@ class IsrService:
         output = Image.fromarray(result)
 
         # Resize
-        width = self.TARGET_WIDTH + 2 * self.BORDER
-        height = self.TARGET_HEIGHT + 2 * self.BORDER
+        target_width = DimensionsHelper.width_large()
+        target_height = DimensionsHelper.height_large()
+        width = target_width + 2 * self.BORDER
+        height = target_height + 2 * self.BORDER
         output.thumbnail((width, height), Image.ANTIALIAS)
 
         # Crop
         output.crop(
             self.BORDER,
             self.BORDER,
-            self.TARGET_WIDTH,
-            self.TARGET_HEIGHT
+            target_width,
+            target_height
         )
 
         # Save

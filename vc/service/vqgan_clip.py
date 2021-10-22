@@ -19,6 +19,7 @@ from tqdm import tqdm
 
 from CLIP import clip
 from vc.service import FileService
+from vc.service.helper.dimensions import DimensionsHelper
 from vc.service.helper.torch import TorchHelper
 from vc.service.helper.vqgan import VqganHelper
 from vc.service.helper.diagnosis import DiagnosisHelper as dh
@@ -95,8 +96,8 @@ class VqganClipService:
 
         if args.size is None:
             args.size = [
-                int(os.getenv('SIZE_WIDTH_SM', 400)),
-                int(os.getenv('SIZE_HEIGHT_SM', 400)),
+                DimensionsHelper.width_small(),
+                DimensionsHelper.height_small(),
             ]
 
         # VQGAN

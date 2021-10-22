@@ -12,6 +12,7 @@ from vc.service import (
 )
 from vc.service.helper import DiagnosisHelper as dh
 from vc.service.helper.acceleration import Translate
+from vc.service.helper.dimensions import DimensionsHelper
 from vc.service.helper.rotation import Rotate
 from vc.service.inpainting import InpaintingOptions
 from vc.service.esrgan import EsrganService, EsrganOptions
@@ -317,10 +318,10 @@ class GenerationRunner:
             'interim' if is_interim else 'result'
         )
         interpolate = not is_interim and not step.interpolated
-        width = int(
-            os.getenv('SIZE_WIDTH_LG', 800)
+        width = (
+            DimensionsHelper.width_large()
             if step.upscaled
-            else os.getenv('SIZE_WIDTH_SM', 400)
+            else DimensionsHelper.width_small()
         )
         unwatermarked = self.video.make_unwatermarked_video(
             output_file=filename,

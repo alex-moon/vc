@@ -12,6 +12,8 @@ from basicsr.utils import FileClient, get_root_logger, imfrombytes, img2tensor
 from basicsr.utils.registry import DATASET_REGISTRY
 from torch.utils import data as data
 
+from vc.service.helper.dimensions import DimensionsHelper
+
 
 @DATASET_REGISTRY.register()
 class RealESRGANDataset(data.Dataset):
@@ -93,7 +95,7 @@ class RealESRGANDataset(data.Dataset):
         img_gt = augment(img_gt, self.opt['use_hflip'], self.opt['use_rot'])
 
         h, w = img_gt.shape[0:2]
-        crop_pad_size = os.getenv('SIZE_WIDTH_SM', 400)
+        crop_pad_size = DimensionsHelper.width_small()
         # pad
         if h < crop_pad_size or w < crop_pad_size:
             pad_h = max(0, crop_pad_size - h)

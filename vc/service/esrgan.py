@@ -6,6 +6,7 @@ from basicsr.archs.rrdbnet_arch import RRDBNet
 from injector import inject
 
 from vc.service.file import FileService
+from vc.service.helper.dimensions import DimensionsHelper
 from vc.service.helper.esrgan import RealESRGANer
 from vc.service.helper.diagnosis import DiagnosisHelper as dh
 
@@ -26,8 +27,6 @@ class EsrganOptions:
 
 
 class EsrganService:
-    TARGET_WIDTH = int(os.getenv('SIZE_WIDTH_LG', 400))
-    TARGET_HEIGHT = int(os.getenv('SIZE_HEIGHT_LG', 400))
     BORDER = 2
 
     file_service: FileService
@@ -72,8 +71,8 @@ class EsrganService:
             raise error
 
         # Resize
-        width = self.TARGET_WIDTH + 2 * self.BORDER
-        height = self.TARGET_HEIGHT + 2 * self.BORDER
+        width = DimensionsHelper.width_large() + 2 * self.BORDER
+        height = DimensionsHelper.height_large() + 2 * self.BORDER
         output = cv2.resize(output, (width, height), interpolation=cv2.INTER_AREA)
 
         # Crop

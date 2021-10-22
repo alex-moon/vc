@@ -24,6 +24,7 @@ from vc.service.helper.inpainting.networks import (
     Inpaint_Depth_Net,
     Inpaint_Edge_Net,
 )
+from .helper.dimensions import DimensionsHelper
 from .helper.midas import run_depth
 from .helper.midas.utils import read_pfm
 from .helper.utils import get_midas_sample, read_midas_depth
@@ -46,7 +47,7 @@ class InpaintingOptions:
     traj_type: str = 'double-straight-line'
     video_postfix: str = 'zoom-in'
     specific: str = ''
-    longer_side_len: int = int(os.getenv('SIZE_WIDTH_SM', 400))
+    longer_side_len: int = DimensionsHelper.width_small()
     input_file: str = 'output.png'
     output_filename: str = 'output.png'
     depth_folder: str = 'depth'
