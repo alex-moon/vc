@@ -1,11 +1,7 @@
-from os import listdir
-from os.path import isfile, join, splitext
-from shutil import copyfile
 from injector import inject
 
 from vc.command.base import BaseCommand
 from vc.service import VideoService
-from vc.service.abme import AbmeService, AbmeOptions
 
 
 class VideoCommand(BaseCommand):
@@ -24,7 +20,6 @@ class VideoCommand(BaseCommand):
         }
     ]
 
-    abme: AbmeService
     video: VideoService
 
     @inject
@@ -35,5 +30,7 @@ class VideoCommand(BaseCommand):
         self.video.make_unwatermarked_video(
             'output.mp4',
             args.steps_dir,
-            fps_multiple=4
+            suffix='sofar',
+            fps_multiple=4 if not args.interpolate else 1,
+            interpolate=args.interpolate
         )

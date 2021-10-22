@@ -84,7 +84,7 @@ class InpaintingOptions:
         default_factory=lambda: [0., 0., 0., 0.]
     )
     anti_flickering: bool = False
-    dynamic_fov: bool = False
+    dynamic_fov: bool = True
 
 
 class InpaintingService:
