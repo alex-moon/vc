@@ -100,6 +100,8 @@ class VqganClipService:
                 DimensionsHelper.height_small(),
             ]
 
+        dh.debug('VqganClipService', 'size', args.size)
+
         # VQGAN
         model = self.vqgan_helper.load_vqgan_model(
             args.vqgan_config,
