@@ -9,13 +9,6 @@ class VqganClipCommand(BaseCommand):
     description = 'Runs vqgan_clip on an input file'
     args = [
         {
-            'dest': 'input_file',
-            'type': str,
-            'help': 'Input file',
-            'default': 'output.png',
-            'nargs': '?',
-        },
-        {
             'dest': 'output_file',
             'type': str,
             'help': 'Output file',
@@ -33,7 +26,7 @@ class VqganClipCommand(BaseCommand):
             'dest': 'iterations',
             'type': int,
             'help': 'Iterations',
-            'default': 75,
+            'default': 200,
             'nargs': '?',
         }
     ]
@@ -47,7 +40,7 @@ class VqganClipCommand(BaseCommand):
     def handle(self, args):
         print('got %s %s' % (args.input_file, args.output_file))
         self.vqgan_clip.handle(VqganClipOptions(
-            init_image=None,  # args.input_file,
+            init_image=None,
             output_filename=args.output_file,
             prompts=args.prompt,
             max_iterations=args.iterations,
