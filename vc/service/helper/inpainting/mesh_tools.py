@@ -289,10 +289,7 @@ def extrapolate(
     ]
     end_depth_maps = ((valid_line * input_edge_map) > 0) * input_depth
 
-    if isinstance(args.gpu_ids, int) and (args.gpu_ids >= 0):
-        device = args.gpu_ids
-    else:
-        device = "cpu"
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     valid_edge_ids = sorted(
         list(input_other_edge_with_id[(valid_line * input_edge_map) > 0])
@@ -986,10 +983,7 @@ def depth_inpainting(
     )
 
     with torch.no_grad():
-        device = args.gpu_ids if isinstance(
-            args.gpu_ids,
-            int
-        ) and args.gpu_ids >= 0 else "cpu"
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         depth_output = depth_feat_model.forward_3P(
             resize_mask,
             tensor_depth_dict['context'],

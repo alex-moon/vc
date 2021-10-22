@@ -2194,10 +2194,7 @@ def DL_inpaint_edge(
     specific_edge_loc=None,
     inpaint_iter=0
 ):
-    if isinstance(args.gpu_ids, int) and (args.gpu_ids >= 0):
-        device = args.gpu_ids
-    else:
-        device = "cpu"
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     edge_maps_with_id = edge_maps
     edge_condition = lambda x, m: m.nodes[x].get('far') is not None and len(

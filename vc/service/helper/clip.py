@@ -193,8 +193,8 @@ class MakeCutouts(nn.Module):
             cutout = input[
                 :,
                 :,
+                paddingx + offsetx:paddingx + offsetx + size,
                 paddingy + offsety:paddingy + offsety + size,
-                paddingx + offsetx:paddingx + offsetx + size
             ]
             try:
                 cutouts.append(self.av_pool(cutout))

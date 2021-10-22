@@ -42,7 +42,7 @@ class VqganClipOptions:
     noise_prompt_seeds: List[int] = field(default_factory=list)
     noise_prompt_weights: List[float] = field(default_factory=list)
     step_size: float = 0.1
-    cutn: int = 32
+    cutn: int = 8
     cut_pow: float = 1.
     seed: int = None
     optimiser: str = 'Adam'
@@ -54,9 +54,7 @@ class VqganClipService:
     file_service: FileService
     vqgan_helper: VqganHelper
     clip_helper: ClipHelper
-    device = torch.device(
-        'cuda' if torch.cuda.is_available() else 'cpu'
-    )
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     @inject
     def __init__(self, file_service: FileService):

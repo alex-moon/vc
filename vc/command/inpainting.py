@@ -22,13 +22,6 @@ class InpaintingCommand(BaseCommand):
             'default': 'debug.png',
             'nargs': '?',
         },
-        {
-            'dest': 'gpu_ids',
-            'type': int,
-            'help': 'GPU ID - use 0 for GPU, -1 for CPU',
-            'default': -1,
-            'nargs': '?',
-        },
     ]
 
     inpainting: InpaintingService
@@ -42,7 +35,6 @@ class InpaintingCommand(BaseCommand):
         self.inpainting.handle(InpaintingOptions(
             input_file=args.input_file,
             output_filename=args.output_file,
-            gpu_ids=args.gpu_ids,
             offscreen_rendering=True,
             x_shift=-0.01,
             y_shift=0.01,
