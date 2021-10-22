@@ -41,9 +41,15 @@ class Prompt(nn.Module):
     def forward(self, input):
         input_normed = F.normalize(input.unsqueeze(1), dim=2)
         embed_normed = F.normalize(self.embed.unsqueeze(0), dim=2)
-        dists = input_normed.sub(embed_normed).norm(dim=2).div(2).arcsin().pow(
-            2
-        ).mul(2)
+        dists = (
+            input_normed
+                .sub(embed_normed)
+                .norm(dim=2)
+                .div(2)
+                .arcsin()
+                .pow(2)
+                .mul(2)
+        )
         dists = dists * self.weight.sign()
         return self.weight.abs() * self.torch_helper.replace_grad(
             dists,
@@ -57,6 +63,7 @@ class MakeCutouts(nn.Module):
         self.cut_size = cut_size
         self.cutn = cutn
         self.cut_pow = cut_pow
+        self.padding = 0.5
 
         # Pick your own augments & their order
         augment_list = []
@@ -153,17 +160,43 @@ class MakeCutouts(nn.Module):
         self.max_pool = nn.AdaptiveMaxPool2d((self.cut_size, self.cut_size))
 
     def forward(self, input):
+        # yoinked from https://github.com/sportsracer48/pytti
         cutouts = []
+        _, _, side_x, side_y = input.shape
+        offsetx_max = side_x - self.cut_size + 1
+        offsety_max = side_y - self.cut_size + 1
 
-        for _ in range(self.cutn):
-            # Use Pooling
-            cutout = (self.av_pool(input) + self.max_pool(input)) / 2
-            cutouts.append(cutout)
+        paddingx = min(round(side_x * self.padding), side_x)
+        paddingy = min(round(side_y * self.padding), side_y)
+        input = F.pad(
+            input,
+            (paddingx, paddingx, paddingy, paddingy),
+            mode='constant'  # 'reflect', 'replicate', 'circular', 'constant'
+        )
+        i = 0
+        while i < self.cutn:
+            px = min(self.cut_size, paddingx)
+            py = min(self.cut_size, paddingy)
+            offsetx = (torch.rand([]) * (offsetx_max + 2 * px) - px).floor().int()
+            offsety = (torch.rand([]) * (offsety_max + 2 * py) - py).floor().int()
+            cutout = input[
+                :,
+                :,
+                paddingy + offsety:paddingy + offsety + self.cut_size,
+                paddingx + offsetx:paddingx + offsetx + self.cut_size
+            ]
+            try:
+                cutouts.append(self.av_pool(cutout))
+            except:
+                pass
+            else:
+                i += 1
 
+        print('got', len(cutouts), 'cutouts')
         batch = self.augs(torch.cat(cutouts, dim=0))
 
         if self.noise_fac:
-            facs = batch.new_empty([self.cutn, 1, 1, 1]).uniform_(
+            facs = batch.new_empty([len(cutouts), 1, 1, 1]).uniform_(
                 0,
                 self.noise_fac
             )

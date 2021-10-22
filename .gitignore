@@ -35,4 +35,5 @@ weights
 /app/assets/latest.json
 /planning
 venv.mac
+vc/service/helper/abme/correlation_package/
 

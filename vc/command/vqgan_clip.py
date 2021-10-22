@@ -38,7 +38,6 @@ class VqganClipCommand(BaseCommand):
         self.vqgan_clip = vqgan_clip
 
     def handle(self, args):
-        print('got %s %s' % (args.input_file, args.output_file))
         self.vqgan_clip.handle(VqganClipOptions(
             init_image=None,
             output_filename=args.output_file,
