@@ -203,13 +203,13 @@ class GenerationRunner:
 
                 if style != self.last_style:
                     if self.style_transition < 1.:
+                        self.style_transition += transition_speed
                         styles = '%s : %s | %s : %s' % (
                             self.last_style,
                             1. - self.style_transition,
                             style,
                             self.style_transition
                         )
-                        self.style_transition += transition_speed
                     else:
                         self.last_style = style
                         self.style_transition = 0.
