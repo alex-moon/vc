@@ -189,8 +189,8 @@ class MakeCutouts(nn.Module):
 
             px = min(size, paddingx)
             py = min(size, paddingy)
-            offsetx = (self.randc() * (offsetx_max + 2 * px) - px).floor().int()
-            offsety = (self.randc() * (offsety_max + 2 * py) - py).floor().int()
+            offsetx = int(self.randc() * (offsetx_max + 2 * px) - px)
+            offsety = int(self.randc() * (offsety_max + 2 * py) - py)
             cutout = input[
                 :,
                 :,
