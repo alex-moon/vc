@@ -1,4 +1,5 @@
 import kornia.augmentation as K
+import numpy as np
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -188,8 +189,8 @@ class MakeCutouts(nn.Module):
 
             px = min(size, paddingx)
             py = min(size, paddingy)
-            offsetx = (torch.rand([]) * (offsetx_max + 2 * px) - px).floor().int()
-            offsety = (torch.rand([]) * (offsety_max + 2 * py) - py).floor().int()
+            offsetx = (self.randc() * (offsetx_max + 2 * px) - px).floor().int()
+            offsety = (self.randc() * (offsety_max + 2 * py) - py).floor().int()
             cutout = input[
                 :,
                 :,
@@ -212,6 +213,9 @@ class MakeCutouts(nn.Module):
             )
             batch = batch + facs * torch.randn_like(batch)
         return batch
+
+    def randc(self, min=0., max=1., mean=0.5, sd=0.5):
+        return np.clip(np.random.normal(mean, sd), min, max)
 
 
 class ClipHelper:
