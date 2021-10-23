@@ -215,7 +215,7 @@ class MakeCutouts(nn.Module):
         return batch
 
     def randc(self, min=0., max=1., mean=0.5, sd=0.5):
-        return np.clip(np.random.normal(mean, sd), min, max)
+        return float(np.clip(np.random.normal(mean, sd), min, max))
 
 
 class ClipHelper:

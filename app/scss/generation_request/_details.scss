@@ -67,7 +67,7 @@ vc-generation-request-details {
 
                 img, video {
                     width: $panel-width;
-                    height: $panel-width;
+                    height: auto;
                     border-radius: $border-radius;
 
                     @include mobile {
