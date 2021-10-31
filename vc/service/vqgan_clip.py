@@ -30,7 +30,7 @@ class VqganClipOptions:
     prompts: str = None
     image_prompts: str = None
     max_iterations: int = 200
-    display_freq: int = 50
+    display_freq: int = None
     size: List[int] = None
     init_image: Optional[str] = 'output.png'
     output_filename: str = 'output.png'
@@ -42,7 +42,7 @@ class VqganClipOptions:
     noise_prompt_seeds: List[int] = field(default_factory=list)
     noise_prompt_weights: List[float] = field(default_factory=list)
     step_size: float = 0.1
-    cutn: int = 48
+    cutn: int = 64
     cut_pow: float = 1.
     seed: int = None
     optimiser: str = 'Adam'
@@ -72,6 +72,9 @@ class VqganClipService:
 
         if args.augments is None:
             args.augments = [['Af', 'Pe', 'Ji', 'Er']]
+
+        if args.display_freq is None:
+            args.display_freq = args.max_iterations - 1
 
         # Split text prompts using the pipe character
         if args.prompts:
@@ -177,12 +180,19 @@ class VqganClipService:
         # CLIP tokenize/encode
         for prompt in args.prompts:
             txt, weight, stop = self.parse_prompt(prompt)
+            ground = txt[-1] == '_'
+            if ground:
+                txt = txt[:-1]
             embed = perceptor.encode_text(
                 clip.tokenize(txt).to(self.device)
             ).float()
-            prompts.append(
-                self.clip_helper.prompt(embed, weight, stop).to(self.device)
-            )
+            dh.debug('txt', txt, 'ground', ground)
+            prompts.append(self.clip_helper.prompt(
+                embed,
+                weight,
+                stop,
+                ground
+            ).to(self.device))
 
         for prompt in args.image_prompts:
             path, weight, stop = self.parse_prompt(prompt)
@@ -195,9 +205,11 @@ class VqganClipService:
                 TF.to_tensor(img).unsqueeze(0).to(self.device)
             )
             embed = perceptor.encode_image(self.normalize(batch)).float()
-            prompts.append(
-                self.clip_helper.prompt(embed, weight, stop).to(self.device)
-            )
+            prompts.append(self.clip_helper.prompt(
+                embed,
+                weight,
+                stop
+            ).to(self.device))
 
         for seed, weight in zip(
             args.noise_prompt_seeds,
@@ -207,9 +219,10 @@ class VqganClipService:
             embed = torch.empty(
                 [1, perceptor.visual.output_dim]
             ).normal_(generator=gen)
-            prompts.append(
-                self.clip_helper.prompt(embed, weight).to(self.device)
-            )
+            prompts.append(self.clip_helper.prompt(
+                embed,
+                weight
+            ).to(self.device))
 
         # Set the optimiser
         if args.optimiser == "Adam":
@@ -415,15 +428,8 @@ class VqganClipService:
 
     def ascend_txt(self, model, perceptor, args, prompts, z_orig, z, i):
         out = self.synth(model, z)
-        input = perceptor.encode_image(
-            self.normalize(
-                self.make_cutouts(
-                    args,
-                    perceptor,
-                    out
-                )
-            )
-        ).float()
+        cutouts, offsets, sizes = self.make_cutouts(args, perceptor, out)
+        inputs = perceptor.encode_image(self.normalize(cutouts)).float()
 
         result = []
 
@@ -438,7 +444,7 @@ class VqganClipService:
             )
 
         for prompt in prompts:
-            result.append(prompt(input))
+            result.append(prompt(inputs, offsets, sizes))
 
         return result
 

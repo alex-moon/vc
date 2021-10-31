@@ -10,12 +10,14 @@ from vc.api import api
 class ImageSpec:
     texts: List[str] = None
     styles: List[str] = None
+    ground: str = None
     iterations: int = 200
     upscale: bool = False
 
     schema = api.model('Image Spec', {
         'texts': fields.List(fields.String, default_factory=list),
         'styles': fields.List(fields.String, default_factory=list),
+        'ground': str,
         'iterations': fields.Integer(default=200),
         'upscale': fields.Boolean(default=False),
     })
@@ -38,6 +40,7 @@ class VideoStepSpec(ImageSpec):
     schema = api.model('Video Step Spec', {
         'texts': fields.List(fields.String, default_factory=list),
         'styles': fields.List(fields.String, default_factory=list),
+        'ground': str,
         'iterations': fields.Integer(default=75),
         'upscale': fields.Boolean(default=False),
         'interpolate': fields.Boolean(default=False),

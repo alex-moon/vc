@@ -35,7 +35,7 @@ with open('planning/october.csv') as csv_file:
 
         steps.append({
             'texts': [row['text']],
-            'styles': ['%s : 0.4 | %s' % (row['season'], row['style'])],
+            'styles': ['%s _ | %s' % (row['season'], row['style'])],
             'x_velocity': to_float(row['x']),
             'y_velocity': to_float(row['y']),
             'z_velocity': to_float(row['z']),

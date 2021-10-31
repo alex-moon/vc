@@ -1,8 +1,11 @@
+import math
+
 import kornia.augmentation as K
-import numpy as np
 import torch
 from torch import nn
 from torch.nn import functional as F
+
+from vc.service.helper.diagnosis import DiagnosisHelper as dh
 
 
 class ReplaceGrad(torch.autograd.Function):
@@ -27,14 +30,77 @@ class ClampWithGrad(torch.autograd.Function):
     @staticmethod
     def backward(ctx, grad_in):
         input, = ctx.saved_tensors
-        return grad_in * (grad_in * (
-            input - input.clamp(ctx.min, ctx.max)) >= 0), None, None
+        return grad_in * (
+            grad_in * (
+                input - input.clamp(ctx.min, ctx.max)
+            ) >= 0
+        ), None, None
+
+
+# yoinked from https://github.com/sportsracer48/pytti
+class PyttiPrompt(nn.Module):
+    def __init__(
+        self,
+        clip_helper,
+        embed,
+        weight=1.,
+        stop=float('-inf'),
+        ground=False
+    ):
+        super().__init__()
+        self.register_buffer('embed',  embed)
+        self.register_buffer('weight', torch.as_tensor(weight))
+        self.register_buffer('stop',   torch.as_tensor(stop))
+        self.input_axes = ('n', 'c', 'i') # @todo shouldn't need this hopefully
+        self.clip_helper = clip_helper
+        self.ground = ground
+
+    def forward(self, input, position, size):
+        dists = self.spherical_dist_loss(input, self.embed)
+        dists = dists * self.weight.sign()
+        mask = self.mask(position, size, self.ground)
+        stops = torch.maximum(
+            mask.float() + self.weight.sign().clamp(max=0),
+            self.stop
+        )
+        dists = self.weight.abs() * self.clip_helper.replace_grad(
+            dists,
+            torch.maximum(dists, stops)
+        )
+
+        return dists.mean()
+
+    def spherical_dist_loss(self, input, embed):
+        # input = input.unsqueeze(1)
+        # embed = embed.unsqueeze(0)
+        input_normed = F.normalize(input, dim=-1)
+        embed_normed = F.normalize(embed, dim=-1)
+        return (
+            input_normed
+                .sub(embed_normed)
+                .norm(dim=-1)
+                .div(2)
+                .arcsin()
+                .pow(2)
+                .mul(2)
+        )
+
+    def mask(self, pos, size, ground=False, thresh=0.3535):
+        x = (pos[..., 0] + size[..., 0] * 0.5) - 0.5
+        y = (pos[..., 1] + size[..., 1] * 0.5) - 0.5
+        distance = torch.hypot(x, y)
+        return (
+            distance.lt(thresh)
+            if ground
+            else distance.gt(thresh)
+        )
+        # return distance.sub(thresh).mul(1 if ground else -1).sign()
 
 
 class Prompt(nn.Module):
-    def __init__(self, torch_helper, embed, weight=1., stop=float('-inf')):
+    def __init__(self, clip_helper, embed, weight=1., stop=float('-inf')):
         super().__init__()
-        self.torch_helper = torch_helper
+        self.clip_helper = clip_helper
         self.register_buffer('embed', embed)
         self.register_buffer('weight', torch.as_tensor(weight))
         self.register_buffer('stop', torch.as_tensor(stop))
@@ -52,7 +118,7 @@ class Prompt(nn.Module):
                 .mul(2)
         )
         dists = dists * self.weight.sign()
-        return self.weight.abs() * self.torch_helper.replace_grad(
+        return self.weight.abs() * self.clip_helper.replace_grad(
             dists,
             torch.maximum(dists, self.stop)
         ).mean()
@@ -64,7 +130,8 @@ class MakeCutouts(nn.Module):
         self.cut_size = cut_size
         self.cutn = cutn
         self.cut_pow = cut_pow
-        self.padding = 0.5
+        self.padding = 0.25
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # Pick your own augments & their order
         augment_list = []
@@ -163,6 +230,8 @@ class MakeCutouts(nn.Module):
     def forward(self, input):
         # yoinked from https://github.com/sportsracer48/pytti
         cutouts = []
+        offsets = []
+        sizes = []
         _, _, side_x, side_y = input.shape
         max_size = min(side_x, side_y)
 
@@ -175,47 +244,55 @@ class MakeCutouts(nn.Module):
         )
         i = 0
         while i < self.cutn:
+            xrandc = self.randc()
+            yrandc = self.randc()
+            distance = math.hypot(xrandc - 0.5, yrandc - 0.5)
             size = int(
                 max_size * (
                     torch
-                    .zeros(1, )
-                    .normal_(mean=.8, std=.3)
-                    .clip(self.cut_size / max_size, 1.)
-                    ** self.cut_pow
-                )
+                        .zeros(1, )
+                        .normal_(mean=.8, std=.3)
+                        .clip(self.cut_size / max_size, 1.)
+                            ** self.cut_pow
+                ) * (1 - distance * 0.2)
             )
             offsetx_max = side_x - size + 1
             offsety_max = side_y - size + 1
 
             px = min(size, paddingx)
             py = min(size, paddingy)
-            offsetx = int(self.randc() * (offsetx_max + 2 * px) - px)
-            offsety = int(self.randc() * (offsety_max + 2 * py) - py)
-            cutout = input[
-                :,
-                :,
-                paddingx + offsetx:paddingx + offsetx + size,
-                paddingy + offsety:paddingy + offsety + size,
-            ]
-            try:
-                cutouts.append(self.av_pool(cutout))
-            except:
-                pass  # @todo figure out why we get this exception
-            else:
-                i += 1
+            offsetx = int(xrandc * (offsetx_max + 2 * px) - px)
+            offsety = int(yrandc * (offsety_max + 2 * py) - py)
+            xfrom, xto = paddingx + offsetx, paddingx + offsetx + size
+            yfrom, yto = paddingy + offsety, paddingy + offsety + size
+            cutout = input[:, :, xfrom:xto, yfrom:yto]
 
-        batch = self.augs(torch.cat(cutouts, dim=0))
+            cutouts.append(self.av_pool(cutout))
+            offsets.append(torch.as_tensor(
+                [[offsetx / side_x, offsety / side_y]]
+            ).to(self.device))
+            sizes.append(torch.as_tensor(
+                [[size / side_x, size / side_y]]
+            ).to(self.device))
+
+            i += 1
+
+        cutouts = self.augs(torch.cat(cutouts, dim=0))
+        offsets = torch.cat(offsets)
+        sizes = torch.cat(sizes)
 
         if self.noise_fac:
-            facs = batch.new_empty([len(cutouts), 1, 1, 1]).uniform_(
-                0,
-                self.noise_fac
-            )
-            batch = batch + facs * torch.randn_like(batch)
-        return batch
+            facs = cutouts.new_empty(
+                [len(cutouts), 1, 1, 1]
+            ).uniform_(0,self.noise_fac)
+            cutouts = cutouts + facs * torch.randn_like(cutouts)
+
+        # @todo cat_with_pad ...???
+        return cutouts, offsets, sizes
 
     def randc(self, min=0., max=1., mean=0.5, sd=0.5):
-        return float(np.clip(np.random.normal(mean, sd), min, max))
+        return torch.rand([])
+        # return float(np.clip(np.random.normal(mean, sd), min, max))
 
 
 class ClipHelper:
@@ -225,8 +302,8 @@ class ClipHelper:
     def clamp_with_grad(self, *args, **kwargs):
         return ClampWithGrad.apply(*args, **kwargs)
 
-    def prompt(self, embed, weight=1., stop=float('-inf')):
-        return Prompt(self, embed, weight, stop)
+    def prompt(self, embed, weight=1., stop=float('-inf'), ground=False):
+        return PyttiPrompt(self, embed, weight, stop, ground)
 
     def make_cutouts(self, augments, cut_size, cutn, cut_pow=1.):
         return MakeCutouts(augments, cut_size, cutn, cut_pow)
