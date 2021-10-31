@@ -131,7 +131,7 @@ class MakeCutouts(nn.Module):
                     )
                 )
 
-        print(augment_list)
+        # print(augment_list)
 
         self.augs = nn.Sequential(*augment_list)
 
