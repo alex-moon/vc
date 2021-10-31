@@ -17,7 +17,7 @@ class ImageSpec:
     schema = api.model('Image Spec', {
         'texts': fields.List(fields.String, default_factory=list),
         'styles': fields.List(fields.String, default_factory=list),
-        'ground': str,
+        'ground': fields.String,
         'iterations': fields.Integer(default=200),
         'upscale': fields.Boolean(default=False),
     })
@@ -40,7 +40,7 @@ class VideoStepSpec(ImageSpec):
     schema = api.model('Video Step Spec', {
         'texts': fields.List(fields.String, default_factory=list),
         'styles': fields.List(fields.String, default_factory=list),
-        'ground': str,
+        'ground': fields.String,
         'iterations': fields.Integer(default=75),
         'upscale': fields.Boolean(default=False),
         'interpolate': fields.Boolean(default=False),

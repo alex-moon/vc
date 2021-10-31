@@ -10,16 +10,16 @@ steps = []
 with open('planning/october.csv') as csv_file:
     reader = csv.DictReader(csv_file)
     fieldnames = reader.fieldnames
-    season = None
+    ground = None
     for row in reader:
-        if season is None:
-            season = row['season']
+        if ground is None:
+            ground = row['ground']
 
-        if row['season'] != season:
-            season = row['season']
+        if row['ground'] != ground:
+            ground = row['ground']
             steps.append({
-                'texts': ['a burst of flames, a flash of burning fire | %s' % row['text']],
-                'styles': ['%s | %s' % (row['season'], row['style'])],
+                'texts': ['a burst of flames, a flash of burning fire'],
+                'styles': ['%s _ | %s' % (row['ground'], row['style'])],
                 'x_velocity': to_float(row['x']),
                 'y_velocity': to_float(row['y']),
                 'z_velocity': to_float(row['z']),
@@ -28,14 +28,14 @@ with open('planning/october.csv') as csv_file:
                 'roll_velocity': to_float(row['roll']),
                 'upscale': True,
                 'interpolate': True,
-                'epochs': 1,
+                'epochs': 5,
                 'iterations': 200,
-                'transition': 1,
+                'transition': 5,
             })
 
         steps.append({
             'texts': [row['text']],
-            'styles': ['%s _ | %s' % (row['season'], row['style'])],
+            'styles': ['%s _ | %s' % (row['ground'], row['style'])],
             'x_velocity': to_float(row['x']),
             'y_velocity': to_float(row['y']),
             'z_velocity': to_float(row['z']),
@@ -44,7 +44,8 @@ with open('planning/october.csv') as csv_file:
             'roll_velocity': to_float(row['roll']),
             'upscale': True,
             'interpolate': True,
-            'epochs': 42,
+            'epochs': 10,
+            'transition': 10,
             'iterations': 75,
         })
 

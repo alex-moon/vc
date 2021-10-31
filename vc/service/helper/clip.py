@@ -37,45 +37,31 @@ class ClampWithGrad(torch.autograd.Function):
         ), None, None
 
 
-# yoinked from https://github.com/sportsracer48/pytti
-class PyttiPrompt(nn.Module):
+# based on https://github.com/sportsracer48/pytti
+class MaskingPrompt(nn.Module):
+    text: str = None
+
     def __init__(
         self,
         clip_helper,
         embed,
         weight=1.,
         stop=float('-inf'),
-        ground=False
+        ground=False,
+        text=None
     ):
         super().__init__()
         self.register_buffer('embed',  embed)
         self.register_buffer('weight', torch.as_tensor(weight))
         self.register_buffer('stop',   torch.as_tensor(stop))
-        self.input_axes = ('n', 'c', 'i') # @todo shouldn't need this hopefully
         self.clip_helper = clip_helper
         self.ground = ground
+        self.text = text
 
     def forward(self, input, position, size):
-        dists = self.spherical_dist_loss(input, self.embed)
-        dists = dists * self.weight.sign()
-        mask = self.mask(position, size, self.ground)
-        stops = torch.maximum(
-            mask.float() + self.weight.sign().clamp(max=0),
-            self.stop
-        )
-        dists = self.weight.abs() * self.clip_helper.replace_grad(
-            dists,
-            torch.maximum(dists, stops)
-        )
-
-        return dists.mean()
-
-    def spherical_dist_loss(self, input, embed):
-        # input = input.unsqueeze(1)
-        # embed = embed.unsqueeze(0)
         input_normed = F.normalize(input, dim=-1)
-        embed_normed = F.normalize(embed, dim=-1)
-        return (
+        embed_normed = F.normalize(self.embed, dim=-1)
+        dists = (
             input_normed
                 .sub(embed_normed)
                 .norm(dim=-1)
@@ -84,17 +70,44 @@ class PyttiPrompt(nn.Module):
                 .pow(2)
                 .mul(2)
         )
+        dists = dists * self.weight.sign()
+        mask = self.mask(
+            position,
+            size,
+            self.ground
+        )
+        dists = self.clip_helper.replace_grad(
+            dists,
+            torch.maximum(dists, self.stop)
+        )
+        weight = mask.mul(self.weight.abs())
+        # dh.debug('ClipHelper', {
+        #     'text': self.text,
+        #     'position': position,
+        #     'size': size,
+        #     'mask': mask,
+        #     'weight': weight,
+        #     'dists': dists,
+        # })
+        return weight.mul(dists).mean()
 
-    def mask(self, pos, size, ground=False, thresh=0.3535):
+    def mask(self, pos, size, ground=False):
+        max = torch.as_tensor(
+            0.707107 # == hypot(0.5, 0.5)
+            + 2 * self.clip_helper.padding
+        )
         x = (pos[..., 0] + size[..., 0] * 0.5) - 0.5
         y = (pos[..., 1] + size[..., 1] * 0.5) - 0.5
         distance = torch.hypot(x, y)
-        return (
-            distance.lt(thresh)
-            if ground
-            else distance.gt(thresh)
-        )
-        # return distance.sub(thresh).mul(1 if ground else -1).sign()
+        # dh.debug('ClipHelper', {
+        #     'text': self.text,
+        #     'distance': distance,
+        #     'x': x,
+        #     'y': y,
+        # })
+        if ground:
+            return distance.div(max)
+        return torch.as_tensor(1.).sub(distance.div(max)).clamp(min=0)
 
 
 class Prompt(nn.Module):
@@ -125,12 +138,12 @@ class Prompt(nn.Module):
 
 
 class MakeCutouts(nn.Module):
-    def __init__(self, augments, cut_size, cutn, cut_pow=1.):
+    def __init__(self, clip_helper, augments, cut_size, cutn, cut_pow=1.):
         super().__init__()
         self.cut_size = cut_size
         self.cutn = cutn
         self.cut_pow = cut_pow
-        self.padding = 0.25
+        self.clip_helper = clip_helper
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # Pick your own augments & their order
@@ -228,15 +241,15 @@ class MakeCutouts(nn.Module):
         self.max_pool = nn.AdaptiveMaxPool2d((self.cut_size, self.cut_size))
 
     def forward(self, input):
-        # yoinked from https://github.com/sportsracer48/pytti
+        # based on https://github.com/sportsracer48/pytti
         cutouts = []
         offsets = []
         sizes = []
         _, _, side_x, side_y = input.shape
         max_size = min(side_x, side_y)
 
-        paddingx = min(round(side_x * self.padding), side_x)
-        paddingy = min(round(side_y * self.padding), side_y)
+        paddingx = min(round(side_x * self.clip_helper.padding), side_x)
+        paddingy = min(round(side_y * self.clip_helper.padding), side_y)
         input = F.pad(
             input,
             (paddingx, paddingx, paddingy, paddingy),
@@ -244,8 +257,8 @@ class MakeCutouts(nn.Module):
         )
         i = 0
         while i < self.cutn:
-            xrandc = self.randc()
-            yrandc = self.randc()
+            xrandc = torch.rand([])
+            yrandc = torch.rand([])
             distance = math.hypot(xrandc - 0.5, yrandc - 0.5)
             size = int(
                 max_size * (
@@ -287,23 +300,24 @@ class MakeCutouts(nn.Module):
             ).uniform_(0,self.noise_fac)
             cutouts = cutouts + facs * torch.randn_like(cutouts)
 
-        # @todo cat_with_pad ...???
         return cutouts, offsets, sizes
 
+    # not used (get a random number with a normal distribution)
     def randc(self, min=0., max=1., mean=0.5, sd=0.5):
-        return torch.rand([])
-        # return float(np.clip(np.random.normal(mean, sd), min, max))
+        return float(np.clip(np.random.normal(mean, sd), min, max))
 
 
 class ClipHelper:
+    padding = 0.25
+
     def replace_grad(self, *args, **kwargs):
         return ReplaceGrad.apply(*args, **kwargs)
 
     def clamp_with_grad(self, *args, **kwargs):
         return ClampWithGrad.apply(*args, **kwargs)
 
-    def prompt(self, embed, weight=1., stop=float('-inf'), ground=False):
-        return PyttiPrompt(self, embed, weight, stop, ground)
+    def prompt(self, embed, weight=1., stop=float('-inf'), ground=False, text=None):
+        return MaskingPrompt(self, embed, weight, stop, ground, text)
 
     def make_cutouts(self, augments, cut_size, cutn, cut_pow=1.):
-        return MakeCutouts(augments, cut_size, cutn, cut_pow)
+        return MakeCutouts(self, augments, cut_size, cutn, cut_pow)

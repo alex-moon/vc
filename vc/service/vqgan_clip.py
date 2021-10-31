@@ -42,7 +42,7 @@ class VqganClipOptions:
     noise_prompt_seeds: List[int] = field(default_factory=list)
     noise_prompt_weights: List[float] = field(default_factory=list)
     step_size: float = 0.1
-    cutn: int = 64
+    cutn: int = 48
     cut_pow: float = 1.
     seed: int = None
     optimiser: str = 'Adam'
@@ -183,15 +183,17 @@ class VqganClipService:
             ground = txt[-1] == '_'
             if ground:
                 txt = txt[:-1]
+            txt = txt.strip()
             embed = perceptor.encode_text(
                 clip.tokenize(txt).to(self.device)
             ).float()
-            dh.debug('txt', txt, 'ground', ground)
+            dh.debug('VqganClipService', 'prompt', txt, 'ground', ground)
             prompts.append(self.clip_helper.prompt(
                 embed,
                 weight,
                 stop,
-                ground
+                ground,
+                txt
             ).to(self.device))
 
         for prompt in args.image_prompts:
