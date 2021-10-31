@@ -19,7 +19,7 @@ class VqganClipCommand(BaseCommand):
             'dest': 'prompt',
             'type': str,
             'help': 'Text prompts with : and | as usual',
-            'default': 'an old telephone sitting on a glass table | mineral_ : 0.4 | Fernell Franco',
+            'default': 'an old telephone sitting on a glass table | mineral : 0.4 | Fernell Franco',
             'nargs': '?',
         },
         {
