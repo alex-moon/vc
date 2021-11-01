@@ -92,10 +92,7 @@ class MaskingPrompt(nn.Module):
         return weight.mul(dists).mean()
 
     def mask(self, pos, size, ground=False):
-        max = torch.as_tensor(
-            0.707107 # == hypot(0.5, 0.5)
-            + self.clip_helper.padding
-        )
+        max = torch.as_tensor(0.707107)  # == hypot(0.5, 0.5)
         x = (pos[..., 0] + size[..., 0] * 0.5) - 0.5
         y = (pos[..., 1] + size[..., 1] * 0.5) - 0.5
         distance = torch.hypot(x, y)
@@ -257,25 +254,39 @@ class MakeCutouts(nn.Module):
         )
         i = 0
         while i < self.cutn:
-            xrandc = torch.rand([])
-            yrandc = torch.rand([])
-            distance = math.hypot(xrandc - 0.5, yrandc - 0.5)
-            size = int(
-                max_size * (
-                    torch
-                        .zeros(1, )
-                        .normal_(mean=.8, std=.3)
-                        .clip(self.cut_size / max_size, 1.)
-                            ** self.cut_pow
-                ) * (1 - distance * 0.2)
-            )
-            offsetx_max = side_x - size + 1
-            offsety_max = side_y - size + 1
+            if i == 0:
+                size = max_size
+                offsetx_max = side_x - size + 1
+                offsety_max = side_y - size + 1
+                px = min(size, paddingx)
+                py = min(size, paddingy)
+                offsetx = int(0.5 * (offsetx_max + 2 * px) - px)
+                offsety = int(0.5 * (offsety_max + 2 * py) - py)
+                dh.debug('ClipHelper', 'master cutout', {
+                    'x': offsetx / side_x,
+                    'y': offsety / side_y,
+                })
+            else:
+                xrandc = torch.rand([])
+                yrandc = torch.rand([])
+                distance = math.hypot(xrandc - 0.5, yrandc - 0.5)
+                size = int(
+                    max_size * (
+                        torch
+                            .zeros(1, )
+                            .normal_(mean=.8, std=.3)
+                            .clip(self.cut_size / max_size, 1.)
+                                ** self.cut_pow
+                    ) * (1 - distance * 0.2)
+                )
+                offsetx_max = side_x - size + 1
+                offsety_max = side_y - size + 1
 
-            px = min(size, paddingx)
-            py = min(size, paddingy)
-            offsetx = int(xrandc * (offsetx_max + 2 * px) - px)
-            offsety = int(yrandc * (offsety_max + 2 * py) - py)
+                px = min(size, paddingx)
+                py = min(size, paddingy)
+                offsetx = int(xrandc * (offsetx_max + 2 * px) - px)
+                offsety = int(yrandc * (offsety_max + 2 * py) - py)
+
             xfrom, xto = paddingx + offsetx, paddingx + offsetx + size
             yfrom, yto = paddingy + offsety, paddingy + offsety + size
             cutout = input[:, :, xfrom:xto, yfrom:yto]
