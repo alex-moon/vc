@@ -94,7 +94,7 @@ class MaskingPrompt(nn.Module):
     def mask(self, pos, size, ground=False):
         max = torch.as_tensor(
             0.707107 # == hypot(0.5, 0.5)
-            + 2 * self.clip_helper.padding
+            + self.clip_helper.padding
         )
         x = (pos[..., 0] + size[..., 0] * 0.5) - 0.5
         y = (pos[..., 1] + size[..., 1] * 0.5) - 0.5
