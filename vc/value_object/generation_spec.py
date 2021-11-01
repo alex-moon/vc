@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 
 from flask_restplus import fields
 
@@ -10,7 +10,7 @@ from vc.api import api
 class ImageSpec:
     texts: List[str] = None
     styles: List[str] = None
-    ground: str = None
+    ground: Optional[str] = None
     iterations: int = 200
     upscale: bool = False
 
