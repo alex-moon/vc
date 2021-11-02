@@ -62,6 +62,7 @@ vc-generation-request-details {
                 }
 
                 vc-chipset {
+                    display: block;
                     width: $image-width;
                     vc-chip {
                         text-overflow: ellipsis;
