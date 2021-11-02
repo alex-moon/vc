@@ -84,6 +84,14 @@ vc-generation-request-details {
                 video {
                     width: $video-width;
                 }
+
+                img, video {
+                    height: auto;
+                    border-radius: $border-radius;
+                    @include mobile {
+                        width: 100%;
+                    }
+                }
             }
         }
     }
