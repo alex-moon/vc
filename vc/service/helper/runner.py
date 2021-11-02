@@ -356,9 +356,6 @@ class GenerationRunner:
 
         if spec.images:
             for step_spec in spec.images:
-                step += 1
-                yield CleanFilesStep(step)
-
                 if step_spec.texts:
                     for text in step_spec.texts:
                         if step_spec.styles:

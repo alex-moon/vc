@@ -19,7 +19,6 @@ with open('planning/october.csv') as csv_file:
             ground = row['ground']
             steps.append({
                 'texts': ['a burst of flames, a flash of burning fire'],
-                'styles': ['%s _ | %s' % (row['ground'], row['style'])],
                 'x_velocity': to_float(row['x']),
                 'y_velocity': to_float(row['y']),
                 'z_velocity': to_float(row['z']),
@@ -29,13 +28,13 @@ with open('planning/october.csv') as csv_file:
                 'upscale': True,
                 'interpolate': True,
                 'epochs': 5,
-                'iterations': 200,
+                'iterations': 150,
                 'transition': 5,
             })
 
         steps.append({
             'texts': [row['text']],
-            'styles': ['%s _ | %s' % (row['ground'], row['style'])],
+            'styles': ['%s | %s' % (row['ground'], row['style'])],
             'x_velocity': to_float(row['x']),
             'y_velocity': to_float(row['y']),
             'z_velocity': to_float(row['z']),
@@ -44,8 +43,7 @@ with open('planning/october.csv') as csv_file:
             'roll_velocity': to_float(row['roll']),
             'upscale': True,
             'interpolate': True,
-            'epochs': 10,
-            'transition': 10,
+            'epochs': 42,
             'iterations': 75,
         })
 
