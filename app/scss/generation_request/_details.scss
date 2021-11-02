@@ -61,15 +61,11 @@ vc-generation-request-details {
                     height: 100%;
                 }
 
-                vc-chip {
-                    text-overflow: ellipsis;
-                }
-
-                img, video {
-                    height: auto;
-                    border-radius: $border-radius;
-                    @include mobile {
-                        width: 100%;
+                vc-chipset {
+                    display: block;
+                    width: $image-width;
+                    vc-chip {
+                        text-overflow: ellipsis;
                     }
                 }
 
@@ -79,6 +75,14 @@ vc-generation-request-details {
 
                 video {
                     width: $video-width;
+                }
+
+                img, video {
+                    height: auto;
+                    border-radius: $border-radius;
+                    @include mobile {
+                        width: 100%;
+                    }
                 }
             }
         }

@@ -17,13 +17,20 @@
             </div>
             <h3>Acknowledgements</h3>
             <p>
-                This app started life as a fork of the following open source repository.
+                This app leans heavily on code from the following fellow hackers. We would
+                like to thank them for making their code available.
             </p>
             <ul>
                 <li>
                     <a target="_blank" href="https://github.com/nerdyrodent/VQGAN-CLIP">
                         <strong>VQGAN+CLIP</strong>
                         <span>Nerdy Rodent</span>
+                    </a>
+                </li>
+                <li>
+                    <a target="_blank" href="https://github.com/sportsracer48/pytti">
+                        <strong>Pytti</strong>
+                        <span>Henry Rachootin</span>
                     </a>
                 </li>
             </ul>
@@ -71,7 +78,7 @@
             </ul>
             <p>
                 Works created prior to Friday 8 October 2021 used the following in place
-                of <strong>MiDaS</strong> and <strong>ESRGAN</strong>.
+                of <strong>DPT</strong> and <strong>ESRGAN</strong>.
             </p>
             <ul>
                 <li>
