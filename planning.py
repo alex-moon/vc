@@ -1,5 +1,6 @@
 import json
 import csv
+from re import split
 
 
 def to_float(input: str):
@@ -12,11 +13,12 @@ with open('planning/october.csv') as csv_file:
     fieldnames = reader.fieldnames
     ground = None
     for row in reader:
+        row_ground = split('[^a-z]', row['ground'])[0]
         if ground is None:
-            ground = row['ground']
+            ground = row_ground
 
-        if row['ground'] != ground:
-            ground = row['ground']
+        if row_ground != ground:
+            ground = row_ground
             steps.append({
                 'texts': ['a burst of flames, a flash of burning fire'],
                 'x_velocity': to_float(row['x']),
