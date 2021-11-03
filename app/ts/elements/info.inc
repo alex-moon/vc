@@ -28,7 +28,7 @@
                     </a>
                 </li>
                 <li>
-                    <a target="_blank" href="https://github.com/sportsracer48/pytti">
+                    <a target="_blank" href="https://www.patreon.com/sportsracer48/posts">
                         <strong>Pytti</strong>
                         <span>Henry Rachootin</span>
                     </a>
