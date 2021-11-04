@@ -4,7 +4,7 @@
             <h2><strong>vc</strong>: Virtual Content</h2>
             <p>
                 <strong>vc</strong> is a digital art project by North East England-based British/Australian
-                software engineer <a target="_blank" href="https://twitter.com/alexmoonpro">Alex Moon</a>.
+                software engineer <a target="_blank" href="https://twitter.com/ajmoonne">Alex Moon</a>.
             </p>
             <p>
                 Combining existing AI/machine learning technologies to create explorable dream worlds,
@@ -15,6 +15,12 @@
             <div class="actions">
                 <button class="close">Show me</button>
             </div>
+            <h3>Own a piece of <strong>vc</strong></h3>
+            <p>
+                Selected works from <strong>vc</strong> are available to purchase as NFTs on
+                <a target="_blank" href="https://www.hicetnunc.xyz/ajmoon">Hic et Nunc</a> and
+                <a target="_blank" href="https://objkt.com/profile/tz1gWYysa3oMinNNTaqw6LyeQ5kMAAFtCP5T">objkt.com</a>.
+            </p>
             <h3>Acknowledgements</h3>
             <p>
                 This app leans heavily on code from the following fellow hackers. We would
@@ -28,7 +34,7 @@
                     </a>
                 </li>
                 <li>
-                    <a target="_blank" href="https://www.patreon.com/sportsracer48/posts">
+                    <a target="_blank" href="https://github.com/sportsracer48/pytti">
                         <strong>Pytti</strong>
                         <span>Henry Rachootin</span>
                     </a>
