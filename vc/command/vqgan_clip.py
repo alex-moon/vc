@@ -19,7 +19,7 @@ class VqganClipCommand(BaseCommand):
             'dest': 'prompt',
             'type': str,
             'help': 'Text prompts with : and | as usual',
-            'default': 'an old telephone sitting on a glass table | mineral_ | Fernell Franco',
+            'default': 'two people embracing, friends who have not seen each other in a long time | animal_ | Bruce Davidson',
             'nargs': '?',
         },
         {
