@@ -252,40 +252,54 @@ class MakeCutouts(nn.Module):
             (paddingx, paddingx, paddingy, paddingy),
             mode='constant'  # 'reflect', 'replicate', 'circular', 'constant'
         )
+
+        master_offsetx_max = side_x - max_size + 1
+        master_offsety_max = side_y - max_size + 1
+        master_px = min(max_size, paddingx)
+        master_py = min(max_size, paddingy)
+        master_offsetx = int(0.5 * (master_offsetx_max + 2 * master_px) - master_px)
+        master_offsety = int(0.5 * (master_offsety_max + 2 * master_py) - master_py)
+        dh.debug('ClipHelper', 'master cutout', {
+            'x': master_offsetx / side_x,
+            'y': master_offsety / side_y,
+        })
+
         i = 0
         while i < self.cutn:
-            if i == 0:
+            if i % 2 == 0:
                 size = max_size
-                offsetx_max = side_x - size + 1
-                offsety_max = side_y - size + 1
-                px = min(size, paddingx)
-                py = min(size, paddingy)
-                offsetx = int(0.5 * (offsetx_max + 2 * px) - px)
-                offsety = int(0.5 * (offsety_max + 2 * py) - py)
-                dh.debug('ClipHelper', 'master cutout', {
-                    'x': offsetx / side_x,
-                    'y': offsety / side_y,
-                })
+                offsetx = master_offsetx
+                offsety = master_offsety
             else:
-                xrandc = torch.rand([])
-                yrandc = torch.rand([])
-                distance = math.hypot(xrandc - 0.5, yrandc - 0.5)
-                size = int(
-                    max_size * (
-                        torch
-                            .zeros(1, )
-                            .normal_(mean=.8, std=.3)
-                            .clip(self.cut_size / max_size, 1.)
-                                ** self.cut_pow
-                    ) * (1 - distance * 0.2)
-                )
-                offsetx_max = side_x - size + 1
-                offsety_max = side_y - size + 1
+                while True:
+                    xrandc = torch.rand([])
+                    yrandc = torch.rand([])
+                    size = int(
+                        max_size * (
+                            torch
+                                .zeros(1, )
+                                .normal_(mean=.8, std=.3)
+                                .clip(self.cut_size / max_size, 1.)
+                                    ** self.cut_pow
+                        )
+                    )
+                    offsetx_max = side_x - size + 1
+                    offsety_max = side_y - size + 1
 
-                px = min(size, paddingx)
-                py = min(size, paddingy)
-                offsetx = int(xrandc * (offsetx_max + 2 * px) - px)
-                offsety = int(yrandc * (offsety_max + 2 * py) - py)
+                    px = min(size, paddingx)
+                    py = min(size, paddingy)
+                    offsetx = int(xrandc * (offsetx_max + 2 * px) - px)
+                    offsety = int(yrandc * (offsety_max + 2 * py) - py)
+                    centerx = offsetx + size * 0.5
+                    centery = offsety + size * 0.5
+                    if (
+                        centerx <= master_offsetx
+                        or centerx >= master_offsetx + max_size
+                        or centery <= master_offsety
+                        or centery >= master_offsety + max_size
+                    ):
+                        # if center outside master cutout, let's use it
+                        break
 
             xfrom, xto = paddingx + offsetx, paddingx + offsetx + size
             yfrom, yto = paddingy + offsety, paddingy + offsety + size
