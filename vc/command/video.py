@@ -13,10 +13,6 @@ class VideoCommand(BaseCommand):
             'help': 'Steps dir',
             'default': 'steps',
             'nargs': '?',
-        },
-        {
-            'dest': 'interpolate',
-            'action': 'store_true',
         }
     ]
 
@@ -31,6 +27,6 @@ class VideoCommand(BaseCommand):
             'output.mp4',
             args.steps_dir,
             suffix='sofar',
-            fps_multiple=4 if not args.interpolate else 1,
-            interpolate=args.interpolate
+            interpolate=True,
+            fps_multiple=4,
         )
