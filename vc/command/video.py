@@ -27,6 +27,6 @@ class VideoCommand(BaseCommand):
             'output.mp4',
             args.steps_dir,
             suffix='sofar',
-            interpolate=True,
+            interpolate=False,
             fps_multiple=4,
         )
