@@ -295,7 +295,7 @@ class MakeCutouts(nn.Module):
             xfrom, xto = paddingx + offsetx, paddingx + offsetx + size
             yfrom, yto = paddingy + offsety, paddingy + offsety + size
 
-            if i == 0:
+            if False and i == 0:
                 dh.debug('ClipHelper', 'master cutout', {
                     'side_x': side_x,
                     'side_y': side_y,
@@ -310,6 +310,7 @@ class MakeCutouts(nn.Module):
                     'yfrom': yfrom,
                     'yto': yto,
                 })
+
             cutout = input[:, :, yfrom:yto, xfrom:xto]
 
             cutouts.append(self.av_pool(cutout))
