@@ -242,9 +242,8 @@ class MakeCutouts(nn.Module):
         cutouts = []
         offsets = []
         sizes = []
-        _, _, side_x, side_y = input.shape
+        _, _, side_y, side_x = input.shape
         max_size = min(side_x, side_y)
-
         paddingx = min(round(side_x * self.clip_helper.padding), side_x)
         paddingy = min(round(side_y * self.clip_helper.padding), side_y)
         input = F.pad(
@@ -255,14 +254,8 @@ class MakeCutouts(nn.Module):
 
         master_offsetx_max = side_x - max_size + 1
         master_offsety_max = side_y - max_size + 1
-        master_px = min(max_size, paddingx)
-        master_py = min(max_size, paddingy)
-        master_offsetx = int(0.5 * (master_offsetx_max + 2 * master_px) - master_px)
-        master_offsety = int(0.5 * (master_offsety_max + 2 * master_py) - master_py)
-        dh.debug('ClipHelper', 'master cutout', {
-            'x': master_offsetx / side_x,
-            'y': master_offsety / side_y,
-        })
+        master_offsetx = int(0.5 * (master_offsetx_max + 2 * paddingx) - paddingx)
+        master_offsety = int(0.5 * (master_offsety_max + 2 * paddingy) - paddingy)
 
         i = 0
         while i < self.cutn:
@@ -286,10 +279,8 @@ class MakeCutouts(nn.Module):
                     offsetx_max = side_x - size + 1
                     offsety_max = side_y - size + 1
 
-                    px = min(size, paddingx)
-                    py = min(size, paddingy)
-                    offsetx = int(xrandc * (offsetx_max + 2 * px) - px)
-                    offsety = int(yrandc * (offsety_max + 2 * py) - py)
+                    offsetx = int(xrandc * (offsetx_max + 2 * paddingx) - paddingx)
+                    offsety = int(yrandc * (offsety_max + 2 * paddingy) - paddingy)
                     centerx = offsetx + size * 0.5
                     centery = offsety + size * 0.5
                     if (
@@ -303,7 +294,23 @@ class MakeCutouts(nn.Module):
 
             xfrom, xto = paddingx + offsetx, paddingx + offsetx + size
             yfrom, yto = paddingy + offsety, paddingy + offsety + size
-            cutout = input[:, :, xfrom:xto, yfrom:yto]
+
+            if i == 0:
+                dh.debug('ClipHelper', 'master cutout', {
+                    'side_x': side_x,
+                    'side_y': side_y,
+                    'max_size': max_size,
+                    'paddingx': paddingx,
+                    'paddingy': paddingy,
+                    'input.shape': input.shape,
+                    'master_offsetx_max': master_offsetx_max,
+                    'master_offsety_max': master_offsety_max,
+                    'xfrom': xfrom,
+                    'xto': xto,
+                    'yfrom': yfrom,
+                    'yto': yto,
+                })
+            cutout = input[:, :, yfrom:yto, xfrom:xto]
 
             cutouts.append(self.av_pool(cutout))
             offsets.append(torch.as_tensor(
