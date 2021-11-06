@@ -317,7 +317,7 @@ class GenerationRunner:
             self.generation_name,
             'interim' if is_interim else 'result'
         )
-        interpolate = not is_interim and not step.interpolated
+        interpolate = False and not step.interpolated
         width = (
             DimensionsHelper.width_large()
             if step.upscaled

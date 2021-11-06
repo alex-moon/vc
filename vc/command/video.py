@@ -8,6 +8,12 @@ class VideoCommand(BaseCommand):
     description = 'Makes a video from steps files'
     args = [
         {
+            'dest': 'fps_multiple',
+            'type': int,
+            'help': 'FPS multiple (1 or 4)',
+            'default': 4,
+        },
+        {
             'dest': 'steps_dir',
             'type': str,
             'help': 'Steps dir',
@@ -28,5 +34,5 @@ class VideoCommand(BaseCommand):
             args.steps_dir,
             suffix='sofar',
             interpolate=False,
-            fps_multiple=4,
+            fps_multiple=args.fps_multiple,
         )
