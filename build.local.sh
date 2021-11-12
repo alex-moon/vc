@@ -76,21 +76,21 @@ if [[ ! -f "$file" ]]; then
   curl -L -o $file -C - https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth
 fi
 
-# ABME
-file=checkpoints/SBME_ckpt.pth
-if [[ ! -f "$file" ]]; then
-  curl -L -o $file -C - https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/models/SBME_ckpt.pth
-fi
-
-file=checkpoints/ABMR_ckpt.pth
-if [[ ! -f "$file" ]]; then
-  curl -L -o $file -C - https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/models/ABMR_ckpt.pth
-fi
-
-file=checkpoints/SynNet_ckpt.pth
-if [[ ! -f "$file" ]]; then
-  curl -L -o $file -C - https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/models/SynNet_ckpt.pth
-fi
+# ABME (not used)
+#file=checkpoints/SBME_ckpt.pth
+#if [[ ! -f "$file" ]]; then
+#  curl -L -o $file -C - https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/models/SBME_ckpt.pth
+#fi
+#
+#file=checkpoints/ABMR_ckpt.pth
+#if [[ ! -f "$file" ]]; then
+#  curl -L -o $file -C - https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/models/ABMR_ckpt.pth
+#fi
+#
+#file=checkpoints/SynNet_ckpt.pth
+#if [[ ! -f "$file" ]]; then
+#  curl -L -o $file -C - https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/models/SynNet_ckpt.pth
+#fi
 
 # RIFE
 file=checkpoints/flownet.pkl
