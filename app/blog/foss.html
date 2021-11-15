@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>vc: Virtual Content</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Slab" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    </head>
+    <body>
+        <div class="container">
+            <%= require('../partials/header.html?raw') %>
+            <div class="content">
+                <%= require('./partials/nav.html?raw') %>
+                <div class="scrollable">
+                    <h3><strong>vc</strong> is open source now!</h3>
+                    <p>
+                        My original intention with <strong>vc</strong> was to open
+                        source it. Before I did that, however, I wanted to see what
+                        potential there was to get rich off the finished products by
+                        doing NFTs. I have now had enough experience of what it would
+                        take to make a satisfactory conclusion, viz. that it sucks
+                        and I hate it.
+                    </p>
+                    <p>
+                        I am, therefore, effective immediately, open sourcing the
+                        <strong>vc</strong> codebase.
+                    </p>
+                </div>
+            </div>
+            <%= require('../partials/footer.html?raw') %>
+        </div>
+    </body>
+</html>

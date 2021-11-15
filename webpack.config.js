@@ -87,6 +87,10 @@ module.exports = {
         test: /\.inc$/,
         type: 'asset/source',
       },
+      {
+        resourceQuery: /raw/,
+        type: 'asset/source'
+      },
     ],
   },
   mode: 'development',
@@ -95,6 +99,16 @@ module.exports = {
       inject: "body",
       template: "./app/index.html",
       filename: "index.html"
+    }),
+    new HtmlWebpackPlugin({
+      inject: "body",
+      template: "./app/blog/index.html",
+      filename: "blog/index.html"
+    }),
+    new HtmlWebpackPlugin({
+      inject: "body",
+      template: "./app/blog/foss.html",
+      filename: "blog/foss.html"
     }),
     new CopyWebpackPlugin({
       patterns: [

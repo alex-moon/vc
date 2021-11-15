@@ -9,15 +9,16 @@
     </head>
     <body>
         <div class="container">
-            <%= require('./partials/header.html?raw') %>
+            <%= require('../partials/header.html?raw') %>
             <div class="content">
-                <vc-info></vc-info>
+                <%= require('./partials/nav.html?raw') %>
                 <div class="scrollable">
-                    <vc-login-form></vc-login-form>
-                    <vc-generation-requests></vc-generation-requests>
+                    <p>
+                        Welcome to the blog! Hit a link on the nav on the left.
+                    </p>
                 </div>
             </div>
-            <%= require('./partials/footer.html?raw') %>
+            <%= require('../partials/footer.html?raw') %>
         </div>
     </body>
 </html>
