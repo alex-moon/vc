@@ -29,9 +29,6 @@ function getEnv() {
 }
 
 module.exports = {
-  // experiments: {
-  //  asset: true
-  // },
   entry: {
     'vc': [
       './app/scss/vc.scss',
@@ -49,12 +46,10 @@ module.exports = {
       directory: path.resolve(__dirname, 'public'),
     },
     port: 8000,
-    proxy: {
-      '/api': {
-        target: 'https://vc.ajmoon.uk',
-        secure: false,
-        changeOrigin: true,
-      },
+    historyApiFallback: {
+      rewrites: [
+        { from: /^\/blog\/foss$/, to: "/blog/foss.html" },
+      ],
     },
   },
   resolve: {
