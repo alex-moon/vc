@@ -15,12 +15,14 @@
             <div class="actions">
                 <button class="close">Show me</button>
             </div>
-            <!-- h3>Own a piece of <strong>vc</strong></h3>
+            <h3>Support the project</h3>
             <p>
-                Selected works from <strong>vc</strong> are available to purchase as NFTs on
-                <a target="_blank" href="https://hicetnunc.art/ajmoon">Hic et Nunc</a> and
-                <a target="_blank" href="https://objkt.com/profile/tz1gWYysa3oMinNNTaqw6LyeQ5kMAAFtCP5T">objkt.com</a>.
-            </p -->
+                If you'd like to donate some cash toward the development of the
+                <strong>vc</strong> codebase, buy <strong>vc</strong> NFTs on
+                <a target="_blank" href="https://objkt.com/profile/ajmoon">objkt.com</a>
+                or sign up as a supporter on
+                <a target="_blank" href="https://patreon.com/ajmoonne">Patreon</a>.
+            </p>
             <h3>Acknowledgements</h3>
             <p>
                 This app leans heavily on code from the following fellow hackers. We would
