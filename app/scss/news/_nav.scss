@@ -1,0 +1,98 @@
+@import "../config";
+
+$nav-width: 400px;
+$nav-height: calc(100vh - 118px);
+$border-radius: 8px;
+$transition: 0.5s;
+$avatar-height: 64px;
+
+vc-nav {
+    .nav-container {
+        background-color: #63575b;
+
+        transition: $transition;
+        overflow-y: auto;
+        overflow-x: hidden;
+        width: 0;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        box-sizing: border-box;
+
+        height: 100%;
+
+        &.expanded {
+            width: $nav-width;
+        }
+
+        @include mobile {
+            width: 100% !important;
+            height: 0;
+
+            &.expanded {
+                height: $nav-height;
+            }
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+
+            width: $nav-width - 4px;
+            padding: 2px;
+
+            @include mobile {
+                width: calc(100% - 64px);
+                padding-bottom: 64px;
+            }
+
+            a {
+                padding: 16px;
+                background-color: #e6cfb9;
+                border-radius: $border-radius;
+                box-sizing: border-box;
+
+                height: $avatar-height + 32px;
+                display: flex;
+                justify-content: space-between;
+
+                &:hover, &.active {
+                    background: #f9f8ef;
+                }
+
+                .avatar {
+                    width: $avatar-height;
+                    height: $avatar-height;
+                    background: url('../assets/news/avatar.png');
+                }
+                .content {
+                    height: $avatar-height;
+                    flex-grow: 1;
+                    display: flex;
+                    flex-direction: column;
+                    padding-left: 16px;
+                    justify-content: center;
+
+                    h3 {
+                        font-weight: normal;
+                        margin: -8px 0 0;
+                        padding: 0;
+                        font-size: x-large;
+                    }
+                    .byline {
+                        display: flex;
+                        .author {
+
+                        }
+                        .published {
+                            margin-left: 0.5em;
+                            color: rgba(0, 0, 0, 0.5);
+                        }
+                    }
+        }
+            }
+        }
+    }
+}

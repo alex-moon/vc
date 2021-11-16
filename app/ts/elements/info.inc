@@ -1,6 +1,12 @@
 <div class="info-container">
     <div class="info">
         <div class="text">
+            <div class="actions">
+                <a class="button" href="/news/foss">
+                    <strong>News: vc is open source now!</strong>
+                    <span>Read more…</span>
+                </a>
+            </div>
             <h2><strong>vc</strong>: Virtual Content</h2>
             <p>
                 <strong>vc</strong> is a digital art project by North East England-based British/Australian
@@ -30,13 +36,13 @@
             </p>
             <ul>
                 <li>
-                    <a target="_blank" href="https://github.com/nerdyrodent/VQGAN-CLIP">
+                    <a class="button" target="_blank" href="https://github.com/nerdyrodent/VQGAN-CLIP">
                         <strong>VQGAN+CLIP</strong>
                         <span>Nerdy Rodent</span>
                     </a>
                 </li>
                 <li>
-                    <a target="_blank" href="https://github.com/sportsracer48/pytti">
+                    <a class="button" target="_blank" href="https://github.com/sportsracer48/pytti">
                         <strong>Pytti</strong>
                         <span>Henry Rachootin</span>
                     </a>
@@ -48,37 +54,37 @@
             </p>
             <ul>
                 <li>
-                    <a target="_blank" href="https://github.com/CompVis/taming-transformers">
+                    <a class="button" target="_blank" href="https://github.com/CompVis/taming-transformers">
                         <strong>VQGAN</strong>
                         <span>Patrick Esser, Robin Rombach, Björn Ommer</span>
                     </a>
                 </li>
                 <li>
-                    <a target="_blank" href="https://github.com/openai/CLIP">
+                    <a class="button" target="_blank" href="https://github.com/openai/CLIP">
                         <strong>CLIP</strong>
                         <span>Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, Gretchen Krueger, Ilya Sutskever</span>
                     </a>
                 </li>
                 <li>
-                    <a target="_blank" href="https://github.com/isl-org/DPT">
+                    <a class="button" target="_blank" href="https://github.com/isl-org/DPT">
                         <strong>DPT</strong>
                         <span>René Ranftl, Alexey Bochkovskiy, Vladlen Koltun</span>
                     </a>
                 </li>
                 <li>
-                    <a target="_blank" href="https://shihmengli.github.io/3D-Photo-Inpainting">
+                    <a class="button" target="_blank" href="https://shihmengli.github.io/3D-Photo-Inpainting">
                         <strong>3D Photo Inpainting</strong>
                         <span>Meng-Li Shih, Shih-Yang Su, Johannes Kopf, Jia-Bin Huang</span>
                     </a>
                 </li>
                 <li>
-                    <a target="_blank" href="https://github.com/xinntao/Real-ESRGAN">
+                    <a class="button" target="_blank" href="https://github.com/xinntao/Real-ESRGAN">
                         <strong>ESRGAN</strong>
                         <span>Xintao Wang, Liangbin Xie, Chao Dong, Ying Shan</span>
                     </a>
                 </li>
                 <li>
-                    <a target="_blank" href="https://github.com/hzwer/arXiv2020-RIFE">
+                    <a class="button" target="_blank" href="https://github.com/hzwer/arXiv2020-RIFE">
                         <strong>RIFE</strong>
                         <span>Zhewei Huang, Tianyuan Zhang, Wen Heng, Boxin Shi, Shuchang Zhou</span>
                     </a>
@@ -90,13 +96,13 @@
             </p>
             <ul>
                 <li>
-                    <a target="_blank" href="https://github.com/compphoto/BoostingMonocularDepth">
+                    <a class="button" target="_blank" href="https://github.com/compphoto/BoostingMonocularDepth">
                         <strong>BoostingMonocularDepth</strong>
                         <span>S. Mahdi H. Miangoleh, Sebastian Dille, Long Mai, Sylvain Paris, and Yağız Aksoy</span>
                     </a>
                 </li>
                 <li>
-                    <a target="_blank" href="https://idealo.github.io/image-super-resolution">
+                    <a class="button" target="_blank" href="https://idealo.github.io/image-super-resolution">
                         <strong>ISR</strong>
                         <span>Francesco Cardinale et al.</span>
                     </a>

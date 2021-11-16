@@ -60,6 +60,23 @@ vc-info {
                     margin: 0;
                 }
 
+                a.button {
+                    color: #535c69;
+                    background: #c5d9dd;
+                    padding: 8px;
+                    margin: 4px 0;
+                    border: solid 1px #535c69;
+                    border-radius: $border-radius;
+
+                    strong, span {
+                        display: block;
+                    }
+                }
+
+                a.button:hover {
+                    background: none;
+                }
+
                 ul {
                     list-style: none;
                     margin: 0;
@@ -69,23 +86,6 @@ vc-info {
                         margin: 0;
                         display: flex;
                         flex-direction: column;
-
-                        a {
-                            color: #535c69;
-                            background: #c5d9dd;
-                            padding: 8px;
-                            margin: 4px 0;
-                            border: solid 1px #535c69;
-                            border-radius: $border-radius;
-                        }
-
-                        a:hover {
-                            background: none;
-                        }
-
-                        strong, span {
-                            display: block;
-                        }
                     }
                 }
 
@@ -94,7 +94,7 @@ vc-info {
                     display: flex;
                     justify-content: flex-end;
 
-                    button {
+                    button, a {
                         width: auto;
                         flex-grow: 1;
                     }

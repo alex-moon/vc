@@ -1,0 +1,29 @@
+@import "config";
+
+$info-width: 400px;
+$info-height: calc(100vh - 118px);
+$border-radius: 8px;
+$transition: 0.5s;
+
+.content.news {
+    @import "news/nav";
+
+    .scrollable {
+        background: #f9f8ef;
+
+        .hero {
+            height: 232px;
+            width: 100%;
+            object-fit: cover;
+            object-position: top left;
+        }
+        .help {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        @import "news/text";
+    }
+}

@@ -5,10 +5,11 @@ import {ImageSpec} from "./models/image-spec";
 import {AuthHelper} from "./helpers/auth";
 import {GenerationRequest} from "./models/generation-request";
 import {Info} from "./elements/info";
+import {Nav} from "./elements/news/nav";
 import {EnvHelper} from "./helpers/env";
 
 export class Vc {
-    $info: Info;
+    $info: Info | Nav;
     $form: GenerationRequestForm;
     $requests: GenerationRequests;
 
@@ -20,8 +21,10 @@ export class Vc {
     constructor() {
         this.service = new Service();
         this.$requests = document.querySelector('vc-generation-requests');
-        this.refreshAndSetTimeout();
-        AuthHelper.listen(this.refresh.bind(this));
+        if (this.$requests) {
+            this.refreshAndSetTimeout();
+            AuthHelper.listen(this.refresh.bind(this));
+        }
         this.bindEvents();
         if (EnvHelper.useLocal) {
             setTimeout(this.toggleInfo.bind(this));
@@ -36,9 +39,9 @@ export class Vc {
         const info = document.querySelector('.info.header-button');
         info.addEventListener('click', this.toggleInfo.bind(this));
     }
-    
+
     toggleInfo() {
-        this.$info = document.querySelector('vc-info');
+        this.$info = document.querySelector('vc-info, vc-nav');
         this.$info.expand();
     }
 

@@ -48,7 +48,7 @@ module.exports = {
     port: 8000,
     historyApiFallback: {
       rewrites: [
-        { from: /^\/blog\/foss$/, to: "/blog/foss.html" },
+        { from: /^\/news\/foss$/, to: "/news/foss.html" },
       ],
     },
   },
@@ -97,13 +97,13 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       inject: "body",
-      template: "./app/blog/index.html",
-      filename: "blog/index.html"
+      template: "./app/news/index.html",
+      filename: "news/index.html"
     }),
     new HtmlWebpackPlugin({
       inject: "body",
-      template: "./app/blog/foss.html",
-      filename: "blog/foss.html"
+      template: "./app/news/foss.html",
+      filename: "news/foss.html"
     }),
     new CopyWebpackPlugin({
       patterns: [

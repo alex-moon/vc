@@ -1,23 +1,9 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <title>vc: Virtual Content</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://fonts.googleapis.com/css?family=Roboto+Slab" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    </head>
-    <body>
-        <div class="container">
-            <%= require('./partials/header.html?raw') %>
-            <div class="content">
-                <vc-info></vc-info>
-                <div class="scrollable">
-                    <vc-login-form></vc-login-form>
-                    <vc-generation-requests></vc-generation-requests>
-                </div>
-            </div>
-            <%= require('./partials/footer.html?raw') %>
-        </div>
-    </body>
-</html>
+<%= require('./partials/header.html?raw') %>
+<div class="content">
+    <vc-info></vc-info>
+    <div class="scrollable">
+        <vc-login-form></vc-login-form>
+        <vc-generation-requests></vc-generation-requests>
+    </div>
+</div>
+<%= require('./partials/footer.html?raw') %>

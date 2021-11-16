@@ -26,6 +26,7 @@ export class Info extends HTMLElement {
     }
 
     expand() {
+        console
         this.expanded = !this.expanded;
         if (this.expanded) {
             this.$root.classList.add('expanded');
