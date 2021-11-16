@@ -58,24 +58,31 @@ export class Nav extends HTMLElement {
         if (this.active === article.url) {
             a.classList.add('active');
         }
+
         const avatar = document.createElement('div');
         avatar.classList.add('avatar');
         a.appendChild(avatar);
+
         const content = document.createElement('div');
         content.classList.add('content');
+
         const title = document.createElement('h3');
         title.innerText = article.title;
         content.appendChild(title);
+
         const byline = document.createElement('div');
         byline.classList.add('byline');
+
         const author = document.createElement('div');
         author.classList.add('author');
         author.innerText = article.author;
         const published = document.createElement('div');
         published.classList.add('published');
         published.innerText = article.published;
+
         byline.appendChild(author);
         byline.appendChild(published);
+
         content.appendChild(byline);
         a.appendChild(content);
         console.log('appending link', a);
