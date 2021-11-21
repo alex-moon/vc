@@ -25,24 +25,10 @@ export class Vc {
             this.refreshAndSetTimeout();
             AuthHelper.listen(this.refresh.bind(this));
         }
-        this.bindEvents();
-        if (EnvHelper.useLocal) {
-            setTimeout(this.toggleInfo.bind(this));
-        }
     }
 
     static get instance() {
         return (global as any).vc;
-    }
-
-    bindEvents() {
-        const info = document.querySelector('.info.header-button');
-        info.addEventListener('click', this.toggleInfo.bind(this));
-    }
-
-    toggleInfo() {
-        this.$info = document.querySelector('vc-info, vc-nav');
-        this.$info.expand();
     }
 
     create(spec: ImageSpec) {

@@ -1,19 +1,17 @@
 @import "../config";
 
 $nav-width: 400px;
-$nav-height: calc(100vh - 118px);
 $border-radius: 8px;
-$transition: 0.5s;
 $avatar-height: 64px;
 
 vc-nav {
     .nav-container {
         background-color: #63575b;
 
-        transition: $transition;
         overflow-y: auto;
         overflow-x: hidden;
-        width: 0;
+        width: $nav-width;
+        height: 100%;
 
         display: flex;
         flex-direction: column;
@@ -21,19 +19,10 @@ vc-nav {
         align-items: flex-start;
         box-sizing: border-box;
 
-        height: 100%;
-
-        &.expanded {
-            width: $nav-width;
-        }
-
         @include mobile {
             width: 100% !important;
-            height: 0;
-
-            &.expanded {
-                height: $nav-height;
-            }
+            // height: calc(100vh - 128px);
+            height: $avatar-height + 32px + 4px;
         }
 
         .nav {
@@ -41,14 +30,14 @@ vc-nav {
             flex-direction: column;
 
             width: $nav-width - 4px;
-            padding: 2px;
+            padding: 2px 2px 0;
 
             @include mobile {
-                width: calc(100% - 64px);
-                padding-bottom: 64px;
+                width: calc(100% - 4px);
             }
 
             a {
+                margin-bottom: 2px;
                 padding: 16px;
                 background-color: #e6cfb9;
                 border-radius: $border-radius;
@@ -62,11 +51,21 @@ vc-nav {
                     background: #f9f8ef;
                 }
 
-                .avatar {
+                .hero {
                     width: $avatar-height;
                     height: $avatar-height;
-                    background: url('../assets/news/avatar.png');
+                    border-radius: $border-radius;
+                    border: solid 2px #535c69;
+                    background-color: #535c69;
+
+                    img {
+                        width: $avatar-height;
+                        height: $avatar-height;
+                        border-radius: $border-radius;
+                        object-fit: cover;
+                    }
                 }
+
                 .content {
                     height: $avatar-height;
                     flex-grow: 1;

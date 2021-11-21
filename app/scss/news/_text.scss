@@ -85,9 +85,20 @@ $avatar-height: 64px;
         display: flex;
         justify-content: flex-end;
 
-        button, a {
+        a.button {
             width: auto;
             flex-grow: 1;
+            background: #d7e6d6;
+            border: solid 1px #5c6267;
+            height: $button-height;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        a.button:hover {
+            background: none;
         }
     }
 }

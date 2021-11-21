@@ -1,9 +1,4 @@
-@import "config";
-
-$info-width: 400px;
-$info-height: calc(100vh - 118px);
-$border-radius: 8px;
-$transition: 0.5s;
+@import "theme";
 
 .content.news {
     @import "news/nav";

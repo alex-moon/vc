@@ -8,6 +8,10 @@
     box-sizing: border-box;
     padding: 16px;
 
+    @include mobile {
+        padding: 0;
+    }
+
     a {
         text-decoration: none;
         color: #c5d9dd;
@@ -16,6 +20,45 @@
         }
         &:active {
             color: #efedd4;
+        }
+    }
+
+    .buttons {
+        display: flex;
+        margin-left: 16px;
+
+        .footer-button {
+            cursor: pointer;
+            background-size: contain;
+            width: 28px;
+            height: 28px;
+            margin: 18px 8px;
+            padding: 0;
+            color: rgba(0, 0, 0, 0);
+
+            @include mobile {
+                margin: 18px 4px;
+            }
+        }
+
+        .footer-button:hover {
+            filter: brightness(200);
+        }
+
+        .github.footer-button {
+            background: url('../assets/github.png');
+        }
+
+        .tezos.footer-button {
+            background: url('../assets/tezos.png');
+        }
+
+        .patreon.footer-button {
+            background: url('../assets/patreon.png');
+        }
+
+        .twitter.footer-button {
+            background: url('../assets/twitter.png');
         }
     }
 }
