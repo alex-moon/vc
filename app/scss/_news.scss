@@ -14,8 +14,10 @@ $transition: 0.5s;
         .hero {
             height: 232px;
             width: 100%;
-            object-fit: cover;
-            object-position: top left;
+            img {
+                object-fit: cover;
+                object-position: top left;
+            }
         }
         .help {
             height: 100%;

@@ -4,7 +4,7 @@ $avatar-height: 64px;
 
 .text {
     max-width: 800px;
-    padding: 16px;
+    padding: 16px 16px 64px;
 
     .heading {
         height: $avatar-height;
@@ -12,7 +12,9 @@ $avatar-height: 64px;
         .avatar {
             width: $avatar-height;
             height: $avatar-height;
-            background: url('../assets/news/avatar.png');
+        }
+        .avatar.ajmoon {
+            background: url('../assets/news/ajmoon.png');
         }
         .content {
             flex-grow: 1;
@@ -37,6 +39,55 @@ $avatar-height: 64px;
                     color: rgba(0, 0, 0, 0.5);
                 }
             }
+        }
+    }
+
+    h2, h3, p {
+        font-weight: normal;
+        margin: 16px 0;
+    }
+
+    h2 {
+        margin: 0;
+    }
+
+    a.button {
+        color: #535c69;
+        background: #c5d9dd;
+        padding: 8px;
+        margin: 4px 0;
+        border: solid 1px #535c69;
+        border-radius: $border-radius;
+
+        strong, span {
+            display: block;
+        }
+    }
+
+    a.button:hover {
+        background: none;
+    }
+
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+    }
+
+    .actions {
+        margin: 4px 0;
+        display: flex;
+        justify-content: flex-end;
+
+        button, a {
+            width: auto;
+            flex-grow: 1;
         }
     }
 }
