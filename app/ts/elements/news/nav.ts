@@ -35,6 +35,7 @@ export class Nav extends HTMLElement {
         {
             url: '',
             title: 'Welcome to vc',
+            hero: 'index',
         },
     ];
 
