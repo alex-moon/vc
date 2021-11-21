@@ -17,7 +17,7 @@
         <div class="styles">
             <div class="text-input">
                 <h3>Add style</h3>
-                <input placeholder="e.g. Ansel Adams"/>
+                <input placeholder="e.g. unreal engine"/>
                 <button class="material-icons">
                     add_circle
                 </button>

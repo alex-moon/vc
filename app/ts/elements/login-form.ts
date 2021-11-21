@@ -1,5 +1,4 @@
 import {CustomElement} from 'custom-elements-ts';
-import {Vc} from "../vc";
 import {Login} from "./login";
 import {GenerationRequestForm} from "./generation-request-form";
 import {AuthHelper} from "../helpers/auth";
@@ -29,11 +28,7 @@ export class LoginForm extends HTMLElement {
     }
 
     draw() {
-        this.$root.innerHTML = '';
-        if (EnvHelper.useLocal) {
-            return;
-        }
-
+        this.$root.innerHTML = ''
         if (AuthHelper.hasToken()) {
             this.$form = document.createElement('vc-generation-request-form') as GenerationRequestForm;
             this.$root.appendChild(this.$form);

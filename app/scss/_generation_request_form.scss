@@ -11,6 +11,8 @@ vc-generation-request-form {
             display: flex;
             align-items: center;
             cursor: pointer;
+            height: 64px;
+            box-sizing: border-box;
 
             @include mobile {
                 font-size: large;
@@ -22,13 +24,12 @@ vc-generation-request-form {
         }
         form {
             padding: 0 16px;
-            overflow: hidden;
-            max-height: 0;
-            transition: $transition;
+            overflow: auto;
+            height: 0;
             box-sizing: border-box;
 
             &.expanded {
-                max-height: 500px;
+                height: calc(100vh - 192px);
                 padding: 0 16px 16px;
             }
 
