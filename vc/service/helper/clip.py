@@ -81,30 +81,17 @@ class MaskingPrompt(nn.Module):
             torch.maximum(dists, self.stop)
         )
         weight = mask.mul(self.weight.abs())
-        # dh.debug('ClipHelper', {
-        #     'text': self.text,
-        #     'position': position,
-        #     'size': size,
-        #     'mask': mask,
-        #     'weight': weight,
-        #     'dists': dists,
-        # })
         return weight.mul(dists).mean()
 
     def mask(self, pos, size, ground=False):
-        max = torch.as_tensor(0.707107)  # == hypot(0.5, 0.5)
-        x = (pos[..., 0] + size[..., 0] * 0.5) - 0.5
-        y = (pos[..., 1] + size[..., 1] * 0.5) - 0.5
-        distance = torch.hypot(x, y)
-        # dh.debug('ClipHelper', {
-        #     'text': self.text,
-        #     'distance': distance,
-        #     'x': x,
-        #     'y': y,
-        # })
+        absolute_max = 0.707107  # == hypot(0.5, 0.5) == length of diagonal
+        max = torch.as_tensor(0.5)  # == radius of inscribed circle
+        x = (pos[..., 0] + size[..., 0] * 0.5) - 0.5  # == centre point x
+        y = (pos[..., 1] + size[..., 1] * 0.5) - 0.5  # == centre point y
+        distance = torch.hypot(x, y)  # == distance of centre point
         if ground:
             return distance.div(max)
-        return torch.as_tensor(1.).sub(distance.div(max)).clamp(min=0)
+        return torch.as_tensor(absolute_max / max).sub(distance.div(max)).clamp(min=0)
 
 
 class Prompt(nn.Module):
@@ -135,6 +122,8 @@ class Prompt(nn.Module):
 
 
 class MakeCutouts(nn.Module):
+    USE_MASTER_CUTOUT = True
+
     def __init__(self, clip_helper, augments, cut_size, cutn, cut_pow=1.):
         super().__init__()
         self.cut_size = cut_size
@@ -259,7 +248,7 @@ class MakeCutouts(nn.Module):
 
         i = 0
         while i < self.cutn:
-            if i % 2 == 0:
+            if i % 2 == 0 and self.USE_MASTER_CUTOUT:
                 size = max_size
                 offsetx = master_offsetx
                 offsety = master_offsety
@@ -281,35 +270,15 @@ class MakeCutouts(nn.Module):
 
                     offsetx = int(xrandc * (offsetx_max + 2 * paddingx) - paddingx)
                     offsety = int(yrandc * (offsety_max + 2 * paddingy) - paddingy)
-                    centerx = offsetx + size * 0.5
-                    centery = offsety + size * 0.5
-                    if (
-                        centerx <= master_offsetx
-                        or centerx >= master_offsetx + max_size
-                        or centery <= master_offsety
-                        or centery >= master_offsety + max_size
-                    ):
-                        # if center outside master cutout, let's use it
+                    if not self.USE_MASTER_CUTOUT:
+                        break
+
+                    # if centre outside circle inscribed in master cutout, use it
+                    if math.hypot(offsetx, offsety) > size * 0.5:
                         break
 
             xfrom, xto = paddingx + offsetx, paddingx + offsetx + size
             yfrom, yto = paddingy + offsety, paddingy + offsety + size
-
-            if False and i == 0:
-                dh.debug('ClipHelper', 'master cutout', {
-                    'side_x': side_x,
-                    'side_y': side_y,
-                    'max_size': max_size,
-                    'paddingx': paddingx,
-                    'paddingy': paddingy,
-                    'input.shape': input.shape,
-                    'master_offsetx_max': master_offsetx_max,
-                    'master_offsety_max': master_offsety_max,
-                    'xfrom': xfrom,
-                    'xto': xto,
-                    'yfrom': yfrom,
-                    'yto': yto,
-                })
 
             cutout = input[:, :, yfrom:yto, xfrom:xto]
 
