@@ -29,3 +29,8 @@ a:active {
     @import "container";
     @import "footer";
 }
+
+// @todo why is this suddenly necessary?
+.material-icons {
+    font-family: 'Material Icons', serif !important;
+}
