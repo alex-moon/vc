@@ -91,7 +91,9 @@ class MaskingPrompt(nn.Module):
         distance = torch.hypot(x, y)  # == distance of centre point
         if ground:
             return distance.div(max)
-        return torch.as_tensor(absolute_max / max).sub(distance.div(max)).clamp(min=0)
+        return torch.as_tensor(
+            1  # or absolute_max / max
+        ).sub(distance.div(max)).clamp(min=0)
 
 
 class Prompt(nn.Module):
