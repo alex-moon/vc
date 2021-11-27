@@ -1,4 +1,4 @@
-Cython==0.29.24Flask==1.1.4
+Cython==0.29.24
 Flask==1.1.4
 Flask-Cors==3.0.10
 Flask-HTTPAuth==4.4.0

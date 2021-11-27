@@ -23,14 +23,15 @@ rm -rf ./CLIP/.git
 
 mkdir -p checkpoints
 
+
 # VQGAN
 file=checkpoints/vqgan_imagenet_f16_16384.yaml
 if [[ ! -f "$file" ]]; then
-  curl -L -o $file -C - 'http://mirror.io.community/blob/vqgan/vqgan_imagenet_f16_16384.yaml'
+  curl -L -o $file -C - 'https://heibox.uni-heidelberg.de/d/a7530b09fed84f80a887/files/?p=%2Fconfigs%2Fmodel.yaml&dl=1'
 fi
 file=checkpoints/vqgan_imagenet_f16_16384.ckpt
 if [[ ! -f "$file" ]]; then
-  curl -L -o $file -C - 'http://mirror.io.community/blob/vqgan/vqgan_imagenet_f16_16384.ckpt'
+  curl -L -o $file -C - 'https://heibox.uni-heidelberg.de/d/a7530b09fed84f80a887/files/?p=%2Fckpts%2Flast.ckpt&dl=1'
 fi
 
 # 3D Photo Inpainting
