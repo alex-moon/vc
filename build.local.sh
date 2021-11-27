@@ -25,6 +25,8 @@ mkdir -p checkpoints
 
 
 # VQGAN
+# NB: URLs have stop working recently, but there are replacements for all of these:
+# @see https://www.reddit.com/r/bigsleep/comments/p96pnh/a_site_that_hosts_some_vqgan_models_isnt_working/
 file=checkpoints/vqgan_imagenet_f16_16384.yaml
 if [[ ! -f "$file" ]]; then
   curl -L -o $file -C - 'https://heibox.uni-heidelberg.de/d/a7530b09fed84f80a887/files/?p=%2Fconfigs%2Fmodel.yaml&dl=1'
