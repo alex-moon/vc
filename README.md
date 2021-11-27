@@ -5,14 +5,26 @@ of the following machine vision libraries:
 
 * VQGAN: https://github.com/CompVis/taming-transformers
 * CLIP: https://github.com/openai/CLIP
-* MiDaS: https://github.com/isl-org/MiDaS
+* DPT (via MiDaS): https://github.com/isl-org/MiDaS
 * 3D Photo Inpainting: https://github.com/vt-vl-lab/3d-photo-inpainting
 * ESRGAN: https://github.com/xinntao/Real-ESRGAN
 * RIFE: https://github.com/hzwer/arXiv2020-RIFE
 
 ## Set-up
 
-1. Spin up a `g4dn.xlarge` EC2 instance from the Deep Learning Base AMI (Ubuntu 18):
+0. A few things you're going to need to install if you haven't yet:
+
+```bash
+sudo snap install aws-cli --classic
+sudo apt install jq postgresql-client redis-tools 
+curl -sL https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.0/install.sh -o install_nvm.sh
+bash install_nvm.sh
+source ~/.bash_profile
+nvm install 16.13.0 # (yes, not v17 - it has a problem with OpenSSL)
+npm install -g npx
+```
+
+2. Spin up a `g4dn.xlarge` EC2 instance from the Deep Learning Base AMI (Ubuntu 18):
 ```
 aws ec2 run-instances \
    --image-id ami-0bdd0109e841ac9fc \
