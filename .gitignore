@@ -38,3 +38,6 @@ venv.mac
 video
 weights
 *.xcf
+.env.beast
+venv.bak
+

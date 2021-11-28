@@ -12,7 +12,10 @@ sudo npm install -g n
 sudo n latest
 npm install
 
-./build.local.sh
+./build.api.sh
+if [[ ! -z "$(grep 'ROLE=.*worker' .env)" ]]; then
+  ./build.worker.sh
+fi
 
 sudo -u postgres createuser -d vc -P
 sudo -u postgres createdb -O vc vc

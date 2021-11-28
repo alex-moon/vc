@@ -10,7 +10,7 @@ function yellow() { echo "${yellow}${@}${reset}"; }
 
 service=$1
 if [[ -z "$service" ]]; then
-    service=worker
+    service=flask
 fi
 
 green "Stopping docker containers"

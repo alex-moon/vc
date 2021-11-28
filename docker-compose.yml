@@ -37,7 +37,7 @@ services:
     image: postgis/postgis:9.5-2.5-alpine
     container_name: pgsql
     environment:
-      POSTGRES_PASSWORD: vc
+      POSTGRES_PASSWORD: password
       POSTGRES_USER: vc
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
