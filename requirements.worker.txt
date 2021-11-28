@@ -1,6 +1,6 @@
-Cython==0.29.24
-Pillow==8.3.1
-Pygments==2.9.0
+cython==0.29.24
+pillow>=8.3.2
+pygments==2.9.0
 networkx==2.3
 numpy==1.19.5
 imageio-ffmpeg==0.4.4
