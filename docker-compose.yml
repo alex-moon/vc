@@ -9,15 +9,6 @@ services:
     expose:
       - 5000
       - 5001
-    ports:
-      - mode: host
-        protocol: tcp
-        published: 5000
-        target: 5000
-      - mode: host
-        protocol: tcp
-        published: 5001
-        target: 5001
     volumes:
       - .:/opt/vc
       - .bashrc:/root/.bashrc
@@ -27,8 +18,8 @@ services:
       - pgsql
     extra_hosts:
       - "laravel.local:192.168.99.198"
-    # command: sleep 999999999
-    command: ./docker.flask.sh
+    command: sleep 999999999
+    # command: ./docker.flask.sh
 
   nginx:
     build:
@@ -41,24 +32,13 @@ services:
       - .:/opt/vc
       - ./log/nginx/:/var/log/nginx
       - ./docker/local/nginx/conf/flask.conf:/etc/nginx/nginx.conf
-    ports:
-      - mode: host
-        protocol: tcp
-        published: 80
-        target: 80
-      - mode: host
-        protocol: tcp
-        published: 443
-        target: 443
 
   pgsql:
     image: postgis/postgis:9.5-2.5-alpine
     container_name: pgsql
-    ports:
-      - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: gonano
-      POSTGRES_USER: gonano
+      POSTGRES_PASSWORD: vc
+      POSTGRES_USER: vc
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - ~/pgsql:/var/lib/postgresql/data
@@ -82,5 +62,3 @@ services:
   redis:
     image: redis:6.2.4
     container_name: redis
-    ports:
-      - "6379:6379"

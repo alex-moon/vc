@@ -21,11 +21,6 @@ RUN apt install -y \
     zip \
     redis-tools \
     supervisor
-#    mesa-utils-extra \
-#    libegl1-mesa-dev \
-#    libgles2-mesa-dev \
-#    xvfb \
-#    nvidia-cuda-toolkit
 
 EXPOSE 5000
 EXPOSE 5001
