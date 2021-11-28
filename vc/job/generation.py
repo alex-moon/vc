@@ -1,13 +1,14 @@
-from dacite import from_dict
 from datetime import datetime
+
+from dacite import from_dict
 from injector import inject
 
-from vc.manager.generation_result import GenerationResultManager
-from vc.value_object import GenerationSpec
+from vc.job.base import Job
 from vc.manager.generation_request import GenerationRequestManager
+from vc.manager.generation_result import GenerationResultManager
 from vc.model.generation_request import GenerationRequest
 from vc.service.generation import GenerationService
-from vc.job.base import Job
+from vc.value_object import GenerationSpec
 from vc.value_object.generation_progress import GenerationProgress
 
 

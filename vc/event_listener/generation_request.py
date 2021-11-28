@@ -5,7 +5,6 @@ from vc.event import (
     GenerationRequestCancelledEvent,
 )
 from vc.event_listener.base import VcEventListener
-from vc.job.generation import GenerationJob
 from vc.service.job import JobService
 
 
@@ -18,7 +17,7 @@ class GenerationRequestCreatedEventListener(VcEventListener):
 
     def on(self, event: GenerationRequestCreatedEvent):
         event.generation_request.hash = self.job_service.enqueue(
-            GenerationJob,
+            'vc.job.generation.GenerationJob',
             event.generation_request.id
         )
 

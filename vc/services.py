@@ -15,15 +15,6 @@ def managers(binder: Binder):
     bind_singleton(binder, manager.UserManager)
 
 
-def services(binder: Binder):
-    # @todo none of this is necessary apparently...?
-    bind_singleton(binder, service.ApiProvider)
-    bind_singleton(binder, service.QueueService)
-    bind_singleton(binder, service.JobService)
-    bind_singleton(binder, service.JobSerializer)
-    bind_singleton(binder, service.FileService)
-
-
 def bind_event_listener(
     binder: Binder,
     vc_event: Type[event.VcEvent],
@@ -52,6 +43,5 @@ def events(binder: Binder):
 
 modules = [
     managers,
-    services,
     events,
 ]

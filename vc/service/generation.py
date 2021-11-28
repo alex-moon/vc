@@ -4,14 +4,13 @@ from typing import Callable
 
 from injector import inject
 
-from vc.service import (
-    VqganClipService,
-    InpaintingService,
-    EsrganService,
-    RifeService,
-    VideoService,
-    FileService,
-)
+from vc.service.vqgan_clip import VqganClipService
+from vc.service.inpainting import InpaintingService
+from vc.service.esrgan import EsrganService
+from vc.service.rife import RifeService
+from vc.service.video import VideoService
+from vc.service.file import FileService
+
 from vc.service.helper import DiagnosisHelper as dh
 from vc.service.helper.runner import GenerationRunner
 from vc.value_object import GenerationSpec

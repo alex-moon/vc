@@ -12,8 +12,8 @@ class JobService:
     def __init__(self, queue_service: QueueService):
         self.queue_service = queue_service
 
-    def enqueue(self, job: Type[Job], *args) -> str:
-        return self.queue_service.enqueue(job.handle, args=args)
+    def enqueue(self, job: str, *args) -> str:
+        return self.queue_service.enqueue(job + '.handle', args=args)
 
     def cancel(self, hash: str):
         self.queue_service.cancel_and_stop(hash)
