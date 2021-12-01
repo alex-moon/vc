@@ -100,7 +100,8 @@ sudo service nginx restart
 
 8. Move your supervisor conf into place:
 ```
-sudo cp supervisor.conf /etc/supervisor/conf.d/vc.conf
+sudo cp supervisor.api.conf /etc/supervisor/conf.d/vc.api.conf
+sudo cp supervisor.worker.conf /etc/supervisor/conf.d/vc.worker.conf # if you want to run the worker
 sudo service supervisor restart
 ```
 
