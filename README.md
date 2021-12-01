@@ -89,10 +89,16 @@ git clone https://github.com/alex-moon/vc.git .
 SQLALCHEMY_DATABASE_URI=postgresql://vc:5up3r53cr37@127.0.0.1:5432/vc
 ```
 
-7. Don't forget to update the rest of your `.env` appropriately with your AWS credentials and unique
+7. If you want to run a worker on this machine (which, presumedly, you do), then:
+```bash
+echo "ROLE=worker" >> .env
+./build.worker.sh
+```
+
+9. Don't forget to update the rest of your `.env` appropriately with your AWS credentials and unique
    bucket name.
 
-7. Move your nginx conf into place:
+10. Move your nginx conf into place:
 ```
 sudo cp nginx.unsecure.conf /etc/nginx/sites-enabled/vc.conf
 sudo service nginx restart

@@ -1,24 +1,20 @@
 import os
 from dataclasses import dataclass
 from datetime import datetime
-from shutil import copy
 from math import log2
+from shutil import copy
 
-from vc.service import (
-    VqganClipService,
-    InpaintingService,
-    VideoService,
-    FileService,
-)
+from vc.service.esrgan import EsrganService, EsrganOptions
+from vc.service.file import FileService
 from vc.service.helper import DiagnosisHelper as dh
 from vc.service.helper.acceleration import Translate
 from vc.service.helper.dimensions import DimensionsHelper
-from vc.service.helper.rotation import Rotate
-from vc.service.inpainting import InpaintingOptions
-from vc.service.esrgan import EsrganService, EsrganOptions
-from vc.service.rife import RifeService, RifeOptions
 from vc.service.helper.random_word import RandomWord
-from vc.service.vqgan_clip import VqganClipOptions
+from vc.service.helper.rotation import Rotate
+from vc.service.inpainting import InpaintingService, InpaintingOptions
+from vc.service.rife import RifeService, RifeOptions
+from vc.service.video import VideoService
+from vc.service.vqgan_clip import VqganClipService, VqganClipOptions
 from vc.value_object import ImageSpec, VideoStepSpec, GenerationSpec
 
 

@@ -1,7 +1,7 @@
 from typing import Type
 from injector import singleton, Binder
 
-from vc import manager, service, event, event_listener
+from vc import manager, event, event_listener
 
 
 def bind_singleton(binder: Binder, obj):

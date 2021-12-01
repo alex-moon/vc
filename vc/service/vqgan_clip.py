@@ -18,7 +18,7 @@ from torchvision.transforms import functional as TF
 from tqdm import tqdm
 
 from CLIP import clip
-from vc.service import FileService
+from vc.service.file import FileService
 from vc.service.helper.dimensions import DimensionsHelper
 from vc.service.helper.clip import ClipHelper
 from vc.service.helper.vqgan import VqganHelper

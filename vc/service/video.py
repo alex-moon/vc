@@ -6,7 +6,7 @@ from datetime import datetime
 
 from injector import inject
 
-from vc.service import FileService
+from vc.service.file import FileService
 from vc.service.helper.diagnosis import DiagnosisHelper as dh
 
 

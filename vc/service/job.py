@@ -1,7 +1,5 @@
-from typing import Type
 from injector import inject
 
-from vc.job import Job
 from vc.service.queue import QueueService
 
 
