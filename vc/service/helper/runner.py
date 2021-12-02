@@ -340,7 +340,7 @@ class GenerationRunner:
         if os.path.exists(self.output_filename):
             os.remove(self.output_filename)
         for filename in os.listdir(self.steps_dir):
-            if filename[-4:] != 'png':
+            if filename[-4:] != '.png':
                 continue
 
             filepath = os.path.join(self.steps_dir, filename)
