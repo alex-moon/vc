@@ -6,6 +6,7 @@ from vc.model.base import BaseModel
 
 
 class User(db.Model, BaseModel):
+    name = db.Column(db.String)
     email = db.Column(db.String, nullable=False)
     token = db.Column(db.String, nullable=False)
 

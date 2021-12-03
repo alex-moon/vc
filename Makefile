@@ -33,4 +33,7 @@ deploy.public:
 deploy: deploy.private deploy.public
 
 db:
-	ssh -t vc "/opt/vc/db.sh"
+	scripts/db.sh
+
+dump:
+	scripts/dump.sh
