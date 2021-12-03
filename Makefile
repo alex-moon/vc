@@ -37,3 +37,6 @@ db:
 
 dump:
 	scripts/dump.sh
+
+restore:
+	scripts/db.sh < backup.sql
