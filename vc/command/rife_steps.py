@@ -4,7 +4,7 @@ from shutil import copyfile
 from injector import inject
 
 from vc.command.base import BaseCommand
-from vc.service import VideoService
+from vc.service.video import VideoService
 from vc.service.rife import RifeService, RifeOptions
 
 

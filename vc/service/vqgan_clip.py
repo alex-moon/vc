@@ -71,7 +71,7 @@ class VqganClipService:
             torch.backends.cudnn.deterministic = True
 
         if args.augments is None:
-            args.augments = [['Af', 'Pe', 'Ji', 'Er']]
+            args.augments = ['Af', 'Pe', 'Ji', 'Er']
 
         if args.display_freq is None:
             args.display_freq = args.max_iterations - 1
@@ -90,10 +90,6 @@ class VqganClipService:
             args.image_prompts = [image.strip() for image in args.image_prompts]
         else:
             args.image_prompts = []
-
-        # Make video steps directory @todo do this elsewhere
-        if not os.path.exists('steps'):
-            os.mkdir('steps')
 
         if args.size is None:
             args.size = [

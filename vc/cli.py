@@ -7,6 +7,7 @@ from vc import command
 
 class CommandLoader:
     commands = {
+        'cgd': command.CgdCommand,
         'vqgan_clip': command.VqganClipCommand,
         'inpainting': command.InpaintingCommand,
         'esrgan': command.EsrganCommand,

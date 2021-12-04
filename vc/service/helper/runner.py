@@ -14,7 +14,7 @@ from vc.service.helper.rotation import Rotate
 from vc.service.inpainting import InpaintingService, InpaintingOptions
 from vc.service.rife import RifeService, RifeOptions
 from vc.service.video import VideoService
-from vc.service.vqgan_clip import VqganClipService, VqganClipOptions
+from vc.service.cgd import CgdService, CgdOptions
 from vc.value_object import ImageSpec, VideoStepSpec, GenerationSpec
 
 
@@ -60,7 +60,7 @@ class GenerationRunner:
     INTERIM_STEPS = 60
     INTERPOLATE_MULTIPLE = 4
 
-    vqgan_clip: VqganClipService
+    cgd: CgdService
     inpainting: InpaintingService
     esrgan: EsrganService
     rife: RifeService
@@ -85,7 +85,7 @@ class GenerationRunner:
 
     def __init__(
         self,
-        vqgan_clip: VqganClipService,
+        cgd: CgdService,
         inpainting: InpaintingService,
         esrgan: EsrganService,
         rife: RifeService,
@@ -95,7 +95,7 @@ class GenerationRunner:
         steps_dir: str,
         name: str = None
     ):
-        self.vqgan_clip = vqgan_clip
+        self.cgd = cgd
         self.inpainting = inpainting
         self.esrgan = esrgan
         self.rife = rife
@@ -227,24 +227,24 @@ class GenerationRunner:
 
             if step.spec.init_iterations and not os.path.isfile(self.output_filename):
                 dh.debug('GenerationRunner', 'init', step.spec.init_iterations)
-                self.vqgan_clip.handle(VqganClipOptions(**{
-                    'prompts': prompt,
-                    'max_iterations': step.spec.init_iterations,
-                    'output_filename': self.output_filename,
-                    'init_image': None
-                }))
+                self.cgd.handle(CgdOptions(
+                    prompts=prompt,
+                    max_iterations=step.spec.init_iterations,
+                    output_filename=self.output_filename,
+                    init_image=None,
+                ))
 
-        dh.debug('GenerationRunner', 'vqgan_clip', 'handle')
-        self.vqgan_clip.handle(VqganClipOptions(**{
-            'prompts': prompt,
-            'max_iterations': step.spec.iterations,
-            'init_image': (
+        dh.debug('GenerationRunner', 'cgd', 'handle')
+        self.cgd.handle(CgdOptions(
+            prompts=prompt,
+            max_iterations=step.spec.iterations,
+            init_image=(
                 self.output_filename
                 if os.path.isfile(self.output_filename)
                 else None
             ),
-            'output_filename': self.output_filename,
-        }))
+            output_filename=self.output_filename,
+        ))
 
         if moving or rotating:
             dh.debug('GenerationRunner', 'inpainting', 'handle')

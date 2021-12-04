@@ -136,7 +136,7 @@ class MakeCutouts(nn.Module):
 
         # Pick your own augments & their order
         augment_list = []
-        for item in augments[0]:
+        for item in augments:
             if item == 'Ji':
                 augment_list.append(
                     K.ColorJitter(

@@ -13,26 +13,48 @@ pip3 install --no-cache-dir -r requirements.worker.txt
 if [[ ! -d "CLIP" ]]; then
   git clone https://github.com/openai/CLIP
 fi
-if [[ ! -d "taming-transformers" ]]; then
-  git clone https://github.com/CompVis/taming-transformers.git
-fi
+#if [[ ! -d "taming-transformers" ]]; then
+#  git clone https://github.com/CompVis/taming-transformers.git
+#fi
 
-rm -rf ./taming-transformers/.git
 rm -rf ./CLIP/.git
+#rm -rf ./taming-transformers/.git
 
 mkdir -p checkpoints
 
-
-# VQGAN
-# NB: URLs have stop working recently, but there are replacements for all of these:
+# VQGAN (not used)
+# NB: URLs for other models can be found here:
 # @see https://www.reddit.com/r/bigsleep/comments/p96pnh/a_site_that_hosts_some_vqgan_models_isnt_working/
-file=checkpoints/vqgan_imagenet_f16_16384.yaml
+#file=checkpoints/vqgan_imagenet_f16_16384.yaml
+#if [[ ! -f "$file" ]]; then
+#  curl -L -o $file -C - 'https://heibox.uni-heidelberg.de/d/a7530b09fed84f80a887/files/?p=%2Fconfigs%2Fmodel.yaml&dl=1'
+#fi
+#file=checkpoints/vqgan_imagenet_f16_16384.ckpt
+#if [[ ! -f "$file" ]]; then
+#  curl -L -o $file -C - 'https://heibox.uni-heidelberg.de/d/a7530b09fed84f80a887/files/?p=%2Fckpts%2Flast.ckpt&dl=1'
+#fi
+
+# Guided Diffusion
+# @todo 512x512 (slower but higher quality...?)
+#file=checkpoints/512x512_diffusion_uncond_finetune_008100.pt
+#if [[ ! -f "$file" ]]; then
+#  curl -OL --http1.1 -o $file 'https://the-eye.eu/public/AI/models/512x512_diffusion_unconditional_ImageNet/512x512_diffusion_uncond_finetune_008100.pt'
+#fi
+
+file=checkpoints/256x256_diffusion_uncond.pt
 if [[ ! -f "$file" ]]; then
-  curl -L -o $file -C - 'https://heibox.uni-heidelberg.de/d/a7530b09fed84f80a887/files/?p=%2Fconfigs%2Fmodel.yaml&dl=1'
+  curl -L -o $file https://openaipublic.blob.core.windows.net/diffusion/jul-2021/256x256_diffusion_uncond.pt
 fi
-file=checkpoints/vqgan_imagenet_f16_16384.ckpt
-if [[ ! -f "$file" ]]; then
-  curl -L -o $file -C - 'https://heibox.uni-heidelberg.de/d/a7530b09fed84f80a887/files/?p=%2Fckpts%2Flast.ckpt&dl=1'
+
+# v1 not used
+#file=checkpoints/secondary_model_imagenet.pth
+#if [[ ! -f "$file" ]]; then
+#  curl -L -o $file https://v-diffusion.s3.us-west-2.amazonaws.com/secondary_model_imagenet.pth
+#fi
+
+file=checkpoints/seconday_model_imagenet_2.pth
+if [[ ! -f "$file" ]] ; then
+  curl -L -o $file https://v-diffusion.s3.us-west-2.amazonaws.com/secondary_model_imagenet_2.pth
 fi
 
 # 3D Photo Inpainting

@@ -4,7 +4,7 @@ from typing import Callable
 
 from injector import inject
 
-from vc.service.vqgan_clip import VqganClipService
+from vc.service.cgd import CgdService
 from vc.service.inpainting import InpaintingService
 from vc.service.esrgan import EsrganService
 from vc.service.rife import RifeService
@@ -21,7 +21,7 @@ class GenerationService:
     STEPS_DIR = 'steps'
     OUTPUT_FILENAME = 'output.png'
 
-    vqgan_clip: VqganClipService
+    cgd: CgdService
     inpainting: InpaintingService
     esrgan: EsrganService
     rife: RifeService
@@ -33,14 +33,14 @@ class GenerationService:
     @inject
     def __init__(
         self,
-        vqgan_clip: VqganClipService,
+        cgd: CgdService,
         inpainting: InpaintingService,
         esrgan: EsrganService,
         rife: RifeService,
         video: VideoService,
         file: FileService
     ):
-        self.vqgan_clip = vqgan_clip
+        self.cgd = cgd
         self.inpainting = inpainting
         self.esrgan = esrgan
         self.rife = rife
@@ -60,7 +60,7 @@ class GenerationService:
         steps_total = self.calculate_total_steps(spec)
 
         runner = GenerationRunner(
-            self.vqgan_clip,
+            self.cgd,
             self.inpainting,
             self.esrgan,
             self.rife,

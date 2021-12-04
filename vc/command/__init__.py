@@ -1,4 +1,5 @@
 from .base import BaseCommand
+from .cgd import CgdCommand
 from .inpainting import InpaintingCommand
 from .vqgan_clip import VqganClipCommand
 from .esrgan import EsrganCommand

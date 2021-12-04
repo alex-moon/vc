@@ -1,7 +1,7 @@
 from injector import inject
 
 from vc.command.base import BaseCommand
-from vc.service import VideoService
+from vc.service.video import VideoService
 
 
 class VideoCommand(BaseCommand):
