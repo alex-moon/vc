@@ -52,7 +52,6 @@ class UsersController(BaseController):
             raise InternalServerError(e.message)
 
 
-@auth.login_required(role=UserTier.God)
 @ns.route('/<int:id_>')
 class UserController(BaseController):
     manager: UserManager
@@ -68,6 +67,7 @@ class UserController(BaseController):
         super().__init__(user_manager, *args, **kwargs)
         self.manager = manager
 
+    @auth.login_required(role=UserTier.God)
     def get(self, id_):
         try:
             data = self.manager.find_or_throw(id_)
@@ -76,18 +76,19 @@ class UserController(BaseController):
 
         return ns.marshal(data, model)
 
+    @auth.login_required(role=UserTier.God)
     def delete(self, id_):
         self.manager.delete(id_)
         return {
             "status": True,
         }
 
+    @auth.login_required(role=UserTier.God)
     @ns.marshal_with(model)
     def put(self, id_):
         return self.manager.update(id_, request.json)
 
 
-@auth.login_required()
 @ns.route('/me')
 class MeController(BaseController):
     manager: UserManager
@@ -103,9 +104,11 @@ class MeController(BaseController):
         super().__init__(user_manager, *args, **kwargs)
         self.manager = manager
 
+    @auth.login_required()
     def get(self):
         return ns.marshal(self.current_user(), model)
 
+    @auth.login_required()
     @ns.marshal_with(model)
     def put(self):
         return self.manager.update(self.current_user().id, request.json)

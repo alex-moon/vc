@@ -79,26 +79,21 @@ echo >> ~/.bashrc
 
 cd /opt/vc
 git clone https://github.com/alex-moon/vc.git .
+```
+
+6. `cp .env.example .env` and add your AWS credentials and unique bucket name to `.env` 
+
+7. If you don't want to run a worker on this machine, remove the following line from your `.env`:
+```bash
+ROLE=worker
+```
+
+8. Build:
+```
 ./build.sh
 ```
 
-6. This will prompt you for a database password. You can make this whatever you'd like. Whatever you
-   choose, `cp .env.example .env` and then edit `.env` appropriately, e.g. if you chose
-   `5up3r53cr37` as your DB password, the relevant line in your `.env` would look like this:
-```bash
-SQLALCHEMY_DATABASE_URI=postgresql://vc:5up3r53cr37@127.0.0.1:5432/vc
-```
-
-7. If you want to run a worker on this machine (which, presumedly, you do), then:
-```bash
-echo "ROLE=worker" >> .env
-./build.worker.sh
-```
-
-9. Don't forget to update the rest of your `.env` appropriately with your AWS credentials and unique
-   bucket name.
-
-10. Move your nginx conf into place:
+12. Move your nginx conf into place:
 ```
 sudo cp nginx.unsecure.conf /etc/nginx/sites-enabled/vc.conf
 sudo service nginx restart
@@ -156,7 +151,8 @@ make serve
 
 And visit http://localhost:8000/ in your browser.
 
-The typescript file that interacts with the API is `app/ts/manager.ts` - you'll
-notice a variable `useDummyData` defined at the top. If this is `false`, you'll need use
-a local proxy. To do so, simply replace `vc.ajmoon.uk` with your own domain name (as above)
-in `webpack.config.js` in the project root.
+If you want to run the API on docker locally, create a copy of your .env without `ROLE=worker`
+in it and then simply:
+```
+make build run
+```

@@ -1,5 +1,5 @@
-from .generation_request import GenerationRequestController
-from .generation_request import GenerationRequestsController
+from .generation_request import *
+from .user import *
 
 
 def init_app(app):

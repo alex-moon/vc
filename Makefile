@@ -38,5 +38,8 @@ db:
 dump:
 	scripts/dump.sh
 
+migrate:
+	scripts/migrate.sh
+
 restore:
-	scripts/db.sh < backup.sql
+	scripts/restore.sh

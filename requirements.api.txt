@@ -16,6 +16,7 @@ antlr4-python3-runtime==4.8
 async-timeout==3.0.1
 attrs==21.2.0
 backcall==0.2.0
+bcrypt
 boto3
 cachetools==4.2.2
 certifi==2021.5.30

@@ -17,6 +17,13 @@ npm install
 if [[ ! -z "$(grep 'ROLE=.*worker' .env)" ]]; then
   ./build.worker.sh
 fi
+if [[ -z "$(grep SALT .env)" ]]; then
+  echo SALT=$(date | md5sum | base64 | head -c22) >> .env
+fi
+if [[ -z "$(grep SQLALCHEMY_DATABASE_URI .env)"]]; then
+  echo "SQLALCHEMY_DATABASE_URI=postgresql://vc:$(uuid | base64 | head -c16)@127.0.0.1:5432/vc"
+fi
 
-sudo -u postgres createuser -d vc -P
+pass=$(cat /opt/vc/.env | grep SQLALCHEMY_DATABASE_URI | awk -F':' '{ print $3 }' | awk -F'@' '{ print $1 }')
+sudo -u postgres psql -c "CREATE USER vc WITH ENCRYPTED PASSWORD '$pass'"
 sudo -u postgres createdb -O vc vc

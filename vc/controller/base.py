@@ -11,13 +11,13 @@ class BaseController(Resource):
     def __init__(self, user_manager: UserManager, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_manager = user_manager
-        auth.verify_token(self.verifyToken)
-        auth.get_user_roles(self.getUserRoles)
+        auth.verify_token(self.verify_token)
+        auth.get_user_roles(self.get_user_roles)
 
-    def verifyToken(self, token):
+    def verify_token(self, token):
         return self.user_manager.authenticate(token)
 
-    def getUserRoles(self, user):
+    def get_user_roles(self, user):
         result = []
         i = user.tier
         while i > 0:
@@ -25,20 +25,20 @@ class BaseController(Resource):
             i -= 1
         return result
 
-    def currentUser(self):
+    def current_user(self):
         return auth.current_user()
 
-    def isGod(self):
-        return self.isTier(UserTier.God)
+    def is_god(self):
+        return self.is_tier(UserTier.God)
 
-    def isArtist(self):
-        return self.isTier(UserTier.Artist)
+    def is_artist(self):
+        return self.is_tier(UserTier.Artist)
 
-    def isCoder(self):
-        return self.isTier(UserTier.Coder)
+    def is_coder(self):
+        return self.is_tier(UserTier.Coder)
 
-    def isSupporter(self):
-        return self.currentUser().tier is not None
+    def is_supporter(self):
+        return self.current_user().tier is not None
 
-    def isTier(self, value):
-        return value in self.getUserRoles(self.currentUser())
+    def is_tier(self, value):
+        return value in self.getUserRoles(self.current_user())
