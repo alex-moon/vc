@@ -1,10 +1,10 @@
 from typing import Type
+
 from injector import inject
 
 from vc.db import db
-from vc.exception import NotFoundException
 from vc.event import VcEventDispatcher
-from vc.model.base import BaseModel
+from vc.exception import NotFoundException
 from vc.model.user import User
 
 
@@ -40,13 +40,11 @@ class Manager:
             db.session.rollback()
             raise e
 
-    def create(self, raw, user: User = None):
+    def create(self, raw):
         try:
             # @todo ModelFactory.create here
 
             model = self.model_class(**self.fields(raw))
-            if user:
-                model.user_id = user.id
             self.save(model)
 
             # @todo ModelEventDispatcher.dispatchCreated here

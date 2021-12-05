@@ -23,7 +23,6 @@ post_model = ns.model('User', {
 })
 
 
-@auth.login_required(role=UserTier.God)
 @ns.route('/')
 class UsersController(BaseController):
     manager: UserManager
@@ -39,15 +38,16 @@ class UsersController(BaseController):
         super().__init__(user_manager, *args, **kwargs)
         self.manager = manager
 
+    @auth.login_required(role=UserTier.God)
     def get(self):
         return ns.marshal(self.manager.all(), model)
 
+    @auth.login_required(role=UserTier.God)
     @ns.marshal_with(model)
     @ns.expect(post_model, validate=True)
     def post(self):
         try:
-            user = auth.current_user()
-            return self.manager.create(request.json, user)
+            return self.manager.create(request.json)
         except VcException as e:
             raise InternalServerError(e.message)
 

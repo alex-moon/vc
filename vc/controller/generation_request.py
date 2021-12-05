@@ -1,7 +1,8 @@
 from flask import request
 from flask_restplus import fields
 from injector import inject
-from werkzeug.exceptions import NotFound, InternalServerError, BadRequest
+from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, \
+    Forbidden
 
 from vc.api import api
 from vc.auth import auth
@@ -40,8 +41,18 @@ class GenerationRequestsController(BaseController):
 
     @auth.login_required(optional=True)
     def get(self):
-        if auth.current_user():
+        if self.is_god():
             return ns.marshal(self.manager.all(), private_model)
+        if self.is_artist():
+            return ns.marshal(
+                self.manager.mine(self.current_user()),
+                private_model
+            )
+        if self.is_coder():
+            return ns.marshal(
+                self.manager.mine(self.current_user()),
+                public_model
+            )
         return ns.marshal(self.manager.published(), public_model)
 
     @auth.login_required()
@@ -49,8 +60,8 @@ class GenerationRequestsController(BaseController):
     @ns.expect(post_model, validate=True)
     def post(self):
         try:
-            user = auth.current_user()
-            return self.manager.create(request.json, user)
+            user = self.current_user()
+            return self.manager.create_mine(request.json, user)
         except VcException as e:
             raise InternalServerError(e.message)
 
@@ -70,20 +81,20 @@ class GenerationRequestController(BaseController):
         super().__init__(user_manager, *args, **kwargs)
         self.manager = manager
 
-    @auth.login_required(optional=True)
+    @auth.login_required()
     def get(self, id_):
         try:
-            data = self.manager.find_or_throw(id_)
+            data = self.manager.find_mine_or_throw(id_, self.current_user())
         except NotFoundException as e:
             raise NotFound(e.message)
 
-        if auth.current_user():
+        if self.is_artist():
             return ns.marshal(data, private_model)
         return ns.marshal(data, public_model)
 
     @auth.login_required()
     def delete(self, id_):
-        self.manager.delete(id_)
+        self.manager.delete_mine(id_, self.current_user())
         return {
             "status": True,
         }
@@ -91,7 +102,7 @@ class GenerationRequestController(BaseController):
     @auth.login_required()
     @ns.marshal_with(private_model)
     def put(self, id_):
-        return self.manager.update(id_, request.json)
+        return self.manager.update_mine(id_, request.json, self.current_user())
 
 
 @ns.route('/<int:id_>/<string:action>')
@@ -125,16 +136,20 @@ class GenerationRequestActionController(BaseController):
         raise BadRequest('Unrecognised action: %s' % action)
 
     def cancel(self, id_):
-        return self.manager.cancel(id_)
+        return self.manager.cancel(id_, self.current_user())
 
     def soft_delete(self, id_):
-        return self.manager.soft_delete(id_)
+        return self.manager.soft_delete(id_, self.current_user())
 
     def retry(self, id_):
-        return self.manager.retry(id_)
+        return self.manager.retry(id_, self.current_user())
 
     def publish(self, id_):
-        return self.manager.publish(id_)
+        if not self.is_god():
+            raise Forbidden()
+        return self.manager.publish(id_, self.current_user())
 
     def unpublish(self, id_):
-        return self.manager.unpublish(id_)
+        if not self.is_god():
+            raise Forbidden()
+        return self.manager.unpublish(id_, self.current_user())

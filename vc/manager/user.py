@@ -1,3 +1,4 @@
+from uuid import uuid4
 from vc.db import db
 from vc.manager.base import Manager
 from vc.model.user import User
@@ -14,6 +15,25 @@ class UserManager(Manager):
                 self.model_class.deleted.__eq__(None),
                 self.model_class.token.__eq__(hashed)
             ).first()
+        except Exception as e:
+            db.session.rollback()
+            raise e
+
+    def create(self, raw):
+        raw = self.fields(raw)
+        api_token = str(uuid4())
+        token = HashHelper.get(api_token)
+        raw.update({"token": token})
+        try:
+            # @todo ModelFactory.create here
+
+            user = self.model_class(**raw)
+            self.save(user)
+
+            # @todo ModelEventDispatcher.dispatchCreated here
+
+            user.api_token = api_token
+            return user
         except Exception as e:
             db.session.rollback()
             raise e

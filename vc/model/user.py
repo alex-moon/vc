@@ -18,6 +18,8 @@ class User(db.Model, BaseModel):
         'email',
     ]
 
+    api_token: str = None
+
     name = db.Column(db.String)
     email = db.Column(db.String, nullable=False)
     token = db.Column(db.String, nullable=False)
@@ -29,6 +31,7 @@ class User(db.Model, BaseModel):
         'id': fields.Integer,
         'email': fields.String,
         'name': fields.String,
+        'api_token': fields.String,
         'created': fields.DateTime(),
         'updated': fields.DateTime(),
         'deleted': fields.DateTime(),
