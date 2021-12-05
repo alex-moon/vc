@@ -1,14 +1,14 @@
 from flask import request
 from flask_restplus import fields
+from werkzeug.exceptions import NotFound, InternalServerError
 from injector import inject
-from werkzeug.exceptions import NotFound, InternalServerError, Forbidden
 
 from vc.api import api
 from vc.auth import auth
 from vc.exception import NotFoundException, VcException
-from vc.manager import UserManager
 from vc.model.user import User, UserTier
 from .base import BaseController
+from ..manager import UserManager
 
 ns = api.namespace(
     'user',
@@ -25,52 +25,34 @@ post_model = ns.model('User', {
 
 @ns.route('/')
 class UsersController(BaseController):
-    manager: UserManager
-
     @inject
-    def __init__(
-        self,
-        user_manager: UserManager,
-        manager: UserManager,
-        *args,
-        **kwargs
-    ):
+    def __init__(self, user_manager: UserManager, *args, **kwargs):
         super().__init__(user_manager, *args, **kwargs)
-        self.manager = manager
 
     @auth.login_required(role=UserTier.God)
     def get(self):
-        return ns.marshal(self.manager.all(), model)
+        return ns.marshal(self.user_manager.all(), model)
 
     @auth.login_required(role=UserTier.God)
     @ns.marshal_with(model)
     @ns.expect(post_model, validate=True)
     def post(self):
         try:
-            return self.manager.create(request.json)
+            return self.user_manager.create(request.json)
         except VcException as e:
             raise InternalServerError(e.message)
 
 
 @ns.route('/<int:id_>')
 class UserController(BaseController):
-    manager: UserManager
-
     @inject
-    def __init__(
-        self,
-        user_manager: UserManager,
-        manager: UserManager,
-        *args,
-        **kwargs
-    ):
+    def __init__(self, user_manager: UserManager, *args, **kwargs):
         super().__init__(user_manager, *args, **kwargs)
-        self.manager = manager
 
     @auth.login_required(role=UserTier.God)
     def get(self, id_):
         try:
-            data = self.manager.find_or_throw(id_)
+            data = self.user_manager.find_or_throw(id_)
         except NotFoundException as e:
             raise NotFound(e.message)
 
@@ -78,7 +60,7 @@ class UserController(BaseController):
 
     @auth.login_required(role=UserTier.God)
     def delete(self, id_):
-        self.manager.delete(id_)
+        self.user_manager.delete(id_)
         return {
             "status": True,
         }
@@ -86,23 +68,26 @@ class UserController(BaseController):
     @auth.login_required(role=UserTier.God)
     @ns.marshal_with(model)
     def put(self, id_):
-        return self.manager.update(id_, request.json)
+        return self.user_manager.update(id_, request.json)
+
+
+@ns.route('/<int:id_>/token')
+class UserTokenController(BaseController):
+    @inject
+    def __init__(self, user_manager: UserManager, *args, **kwargs):
+        super().__init__(user_manager, *args, **kwargs)
+
+    @auth.login_required(role=UserTier.God)
+    @ns.marshal_with(model)
+    def put(self, id_):
+        return self.user_manager.regenerate_token(id_)
 
 
 @ns.route('/me')
 class MeController(BaseController):
-    manager: UserManager
-
     @inject
-    def __init__(
-        self,
-        user_manager: UserManager,
-        manager: UserManager,
-        *args,
-        **kwargs
-    ):
+    def __init__(self, user_manager: UserManager, *args, **kwargs):
         super().__init__(user_manager, *args, **kwargs)
-        self.manager = manager
 
     @auth.login_required()
     def get(self):
@@ -111,4 +96,16 @@ class MeController(BaseController):
     @auth.login_required()
     @ns.marshal_with(model)
     def put(self):
-        return self.manager.update(self.current_user().id, request.json)
+        return self.user_manager.update(self.current_user().id, request.json)
+
+
+@ns.route('/me/token')
+class MeTokenController(BaseController):
+    @inject
+    def __init__(self, user_manager: UserManager, *args, **kwargs):
+        super().__init__(user_manager, *args, **kwargs)
+
+    @auth.login_required()
+    @ns.marshal_with(model)
+    def put(self):
+        return self.user_manager.regenerate_token(self.current_user().id)

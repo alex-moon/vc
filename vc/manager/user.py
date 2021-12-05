@@ -37,3 +37,19 @@ class UserManager(Manager):
         except Exception as e:
             db.session.rollback()
             raise e
+
+    def regenerate_token(self, id_):
+        api_token = str(uuid4())
+        token = HashHelper.get(api_token)
+        try:
+            user = self.find_or_throw(id_)
+            user.token = token
+            self.save(user)
+
+            # @todo ModelEventDispatcher.dispatchUpdated here
+
+            user.api_token = api_token
+            return user
+        except Exception as e:
+            db.session.rollback()
+            raise e
