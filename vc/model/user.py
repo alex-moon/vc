@@ -13,6 +13,11 @@ class UserTier:
 
 
 class User(db.Model, BaseModel):
+    FIELDS = [
+        'name',
+        'email',
+    ]
+
     name = db.Column(db.String)
     email = db.Column(db.String, nullable=False)
     token = db.Column(db.String, nullable=False)

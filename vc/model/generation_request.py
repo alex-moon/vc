@@ -8,6 +8,10 @@ from vc.value_object.generation_spec import GenerationSpec
 
 
 class GenerationRequest(db.Model, BaseModel):
+    FIELDS = [
+        'spec',
+    ]
+
     spec = db.Column(db.JSON, nullable=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

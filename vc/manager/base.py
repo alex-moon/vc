@@ -4,6 +4,7 @@ from injector import inject
 from vc.db import db
 from vc.exception import NotFoundException
 from vc.event import VcEventDispatcher
+from vc.model.base import BaseModel
 from vc.model.user import User
 
 
@@ -43,7 +44,7 @@ class Manager:
         try:
             # @todo ModelFactory.create here
 
-            model = self.model_class(**raw)
+            model = self.model_class(**self.fields(raw))
             if user:
                 model.user_id = user.id
             self.save(model)
@@ -58,7 +59,7 @@ class Manager:
     def update(self, id_, raw):
         try:
             model = self.find_or_throw(id_)
-            model.__init__(**raw)
+            model.__init__(**self.fields(raw))
             self.save(model)
 
             # @todo ModelEventDispatcher.dispatchUpdated here
@@ -87,3 +88,6 @@ class Manager:
 
     def commit(self):
         db.session.commit()
+
+    def fields(self, raw):
+        return {k: raw[k] for k in raw.keys() & self.model_class.FIELDS}
