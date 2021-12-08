@@ -72,7 +72,7 @@ class GenerationRequestsController(BaseController):
             raise Forbidden(e.message)
 
         try:
-            return self.manager.create_mine(request.json, user)
+            return self.manager.create(request.json, user)
         except VcException as e:
             raise InternalServerError(e.message)
 
@@ -116,7 +116,7 @@ class GenerationRequestController(BaseController):
     @auth.login_required()
     @ns.marshal_with(private_model)
     def put(self, id_):
-        return self.manager.update_mine(id_, request.json, self.current_user())
+        return self.manager.update(id_, request.json, self.current_user())
 
 
 @ns.route('/<int:id_>/<string:action>')
@@ -162,7 +162,7 @@ class GenerationRequestActionController(BaseController):
         user = self.current_user()
 
         try:
-            self.validator.create(request.json, user)
+            self.validator.queued(user)
         except TierException as e:
             raise Forbidden(e.message)
 

@@ -11,6 +11,9 @@ class GenerationRequest(db.Model, BaseModel):
     FIELDS = [
         'spec',
     ]
+    GOD_FIELDS = [
+        'steps_completed',
+    ]
 
     spec = db.Column(db.JSON, nullable=False)
 

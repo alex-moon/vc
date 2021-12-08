@@ -2,6 +2,7 @@ from typing import Type
 from injector import singleton, Binder
 
 from vc import manager, event, event_listener
+from vc.event_listener import generation_request
 
 
 def bind_singleton(binder: Binder, obj):
@@ -32,12 +33,12 @@ def events(binder: Binder):
     bind_event_listener(
         binder,
         event.GenerationRequestCreatedEvent,
-        event_listener.GenerationRequestCreatedEventListener
+        event_listener.generation_request.GenerationRequestCreatedEventListener
     )
     bind_event_listener(
         binder,
         event.GenerationRequestCancelledEvent,
-        event_listener.GenerationRequestCancelledEventListener
+        event_listener.generation_request.GenerationRequestCancelledEventListener
     )
 
 

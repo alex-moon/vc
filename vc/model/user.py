@@ -17,6 +17,9 @@ class User(db.Model, BaseModel):
         'name',
         'email',
     ]
+    GOD_FIELDS = [
+        'tier',
+    ]
 
     api_token: str = None
 

@@ -5,6 +5,8 @@ from injector import inject
 from vc.db import db
 from vc.event import VcEventDispatcher
 from vc.exception import NotFoundException
+from vc.model.user import User
+from vc.service.helper.tier import TierHelper
 
 
 class Manager:
@@ -29,7 +31,7 @@ class Manager:
             db.session.rollback()
             raise e
 
-    def find_or_throw(self, id_):
+    def find_or_throw(self, id_, user: User):
         try:
             model = self.model_class.query.get(id_)
             if model is None:
@@ -39,11 +41,11 @@ class Manager:
             db.session.rollback()
             raise e
 
-    def create(self, raw):
+    def create(self, raw, user: User):
         try:
             # @todo ModelFactory.create here
 
-            model = self.model_class(**self.fields(raw))
+            model = self.model_class(**self.fields(raw, user))
             self.save(model)
 
             # @todo ModelEventDispatcher.dispatchCreated here
@@ -53,10 +55,10 @@ class Manager:
             db.session.rollback()
             raise e
 
-    def update(self, id_, raw):
+    def update(self, id_, raw, user: User):
         try:
-            model = self.find_or_throw(id_)
-            model.__init__(**self.fields(raw))
+            model = self.find_or_throw(id_, user)
+            model.__init__(**self.fields(raw, user))
             self.save(model)
 
             # @todo ModelEventDispatcher.dispatchUpdated here
@@ -66,9 +68,9 @@ class Manager:
             db.session.rollback()
             raise e
 
-    def delete(self, id_):
+    def delete(self, id_, user: User):
         try:
-            model = self.find_or_throw(id_)
+            model = self.find_or_throw(id_, user)
             db.session.delete(model)
             self.commit()
         except Exception as e:
@@ -86,5 +88,8 @@ class Manager:
     def commit(self):
         db.session.commit()
 
-    def fields(self, raw):
-        return {k: raw[k] for k in raw.keys() & self.model_class.FIELDS}
+    def fields(self, raw, user: User):
+        fields = self.model_class.FIELDS
+        if TierHelper.is_god(user):
+            fields += self.model_class.GOD_FIELDS
+        return {k: raw[k] for k in raw.keys() & fields}

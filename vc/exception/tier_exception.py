@@ -7,5 +7,5 @@ class TierException(VcException):
     def __init__(self, tier: str, info: str = None):
         message = "Minimum tier required: [%s]" % tier
         if info is not None:
-            message += ' %s' % info
+            message += ': %s' % info
         super().__init__(message)

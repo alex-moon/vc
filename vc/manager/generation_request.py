@@ -1,4 +1,5 @@
 from datetime import datetime
+from sqlalchemy import or_
 
 from vc.db import db
 from vc.event import (
@@ -9,6 +10,7 @@ from vc.exception import NotFoundException
 from vc.manager.base import Manager
 from vc.model.generation_request import GenerationRequest
 from vc.model.user import User
+from vc.service.helper.tier import TierHelper
 
 
 class GenerationRequestManager(Manager):
@@ -42,16 +44,27 @@ class GenerationRequestManager(Manager):
         try:
             return self.mine_query(user).filter(
                 self.model_class.completed.__eq__(None),
-                self.model_class.cancelled.__eq__(None),
+                or_(
+                    self.model_class.cancelled.__eq__(None),
+                    self.model_class.cancelled.__lt__(
+                        self.model_class.retried
+                    )
+                ),
                 self.model_class.deleted.__eq__(None),
             ).all()
         except Exception as e:
             db.session.rollback()
             raise e
 
-    def find_mine_or_throw(self, id_, user: User):
+    def find_or_throw(self, id_, user: User):
         try:
-            model = self.mine_query(user).get(id_)
+            model = (
+                self.all_query()
+                if TierHelper.is_god(user)
+                else self.mine_query(user)
+            ).filter(
+                self.model_class.id.__eq__(id_)
+            ).first()
             if model is None:
                 raise NotFoundException(self.model_class.__name__, id_)
             return model
@@ -59,42 +72,25 @@ class GenerationRequestManager(Manager):
             db.session.rollback()
             raise e
 
-    def create_mine(self, request, user: User):
-        model = super().create(request)
-        model.user_id = user.id
-
-        self.dispatcher.dispatch(
-            GenerationRequestCreatedEvent(model, user)
-        )
-
-        self.save(model)
-
-        return model
-
-    def update_mine(self, id_, raw, user: User):
+    def create(self, raw, user: User):
         try:
-            model = self.find_mine_or_throw(id_, user)
-            model.__init__(**self.fields(raw))
+            # @todo ModelFactory.create here
+
+            model = self.model_class(**self.fields(raw, user))
+            model.user_id = user.id
             self.save(model)
 
-            # @todo ModelEventDispatcher.dispatchUpdated here
+            self.dispatcher.dispatch(
+                GenerationRequestCreatedEvent(model, user)
+            )
 
             return model
         except Exception as e:
             db.session.rollback()
             raise e
 
-    def delete_mine(self, id_, user: User):
-        try:
-            model = self.find_mine_or_throw(id_, user)
-            db.session.delete(model)
-            self.commit()
-        except Exception as e:
-            db.session.rollback()
-            raise e
-
     def cancel(self, id_, user: User):
-        model = self.find_mine_or_throw(id_, user)
+        model = self.find_or_throw(id_, user)
         model.cancelled = datetime.now()
 
         self.dispatcher.dispatch(
@@ -106,7 +102,7 @@ class GenerationRequestManager(Manager):
         return model
 
     def soft_delete(self, id_, user: User):
-        model = self.find_mine_or_throw(id_, user)
+        model = self.find_or_throw(id_, user)
         model.deleted = datetime.now()
 
         self.save(model)
@@ -114,7 +110,7 @@ class GenerationRequestManager(Manager):
         return model
 
     def retry(self, id_, user: User):
-        model = self.find_mine_or_throw(id_, user)
+        model = self.find_or_throw(id_, user)
         model.retried = datetime.now()
 
         # @todo technically should be a different event
@@ -127,7 +123,7 @@ class GenerationRequestManager(Manager):
         return model
 
     def publish(self, id_, user: User):
-        model = self.find_mine_or_throw(id_, user)
+        model = self.find_or_throw(id_, user)
         model.published = datetime.now()
 
         self.save(model)
@@ -135,7 +131,7 @@ class GenerationRequestManager(Manager):
         return model
 
     def unpublish(self, id_, user: User):
-        model = self.find_mine_or_throw(id_, user)
+        model = self.find_or_throw(id_, user)
         model.published = None
 
         self.save(model)

@@ -34,19 +34,21 @@ class GenerationRequestValidator:
                 'to 800 steps max' % steps
             )
 
-        if not TierHelper.is_god(user):
-            if steps > 1600:
-                raise TierException(
-                    'God',
-                    'That spec would have %s steps - your tier is limited '
-                    'to 1600 steps max' % steps
-                )
+        if not TierHelper.is_god(user) and steps > 1600:
+            raise TierException(
+                'God',
+                'That spec would have %s steps - your tier is limited '
+                'to 1600 steps max' % steps
+            )
 
+        self.queued(user)
+
+    def queued(self, user: User):
+        if not TierHelper.is_god(user):
             queued = self.manager.mine_queued(user)
             if len(queued) > 0:
                 raise TierException(
                     'God',
-                    'Your tier is limited to one (uncompleted/uncancelled) '
-                    'request at a time - try cancelling an existing '
-                    'request first'
+                    'Your tier is limited to one request at a time - '
+                    'try cancelling an existing request first'
                 )

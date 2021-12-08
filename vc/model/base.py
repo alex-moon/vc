@@ -5,6 +5,7 @@ from vc.db import db
 
 class BaseModel:
     FIELDS = []
+    GOD_FIELDS = []
 
     id = db.Column(db.Integer, primary_key=True)
     created = db.Column(
