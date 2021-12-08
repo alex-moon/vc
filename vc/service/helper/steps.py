@@ -18,8 +18,8 @@ class ImageGenerationStep(GenerationStep):
 
 @dataclass
 class VideoGenerationStep(GenerationStep):
-    upscaled: bool
     interpolated: bool
+    upscaled: bool
 
 
 @dataclass

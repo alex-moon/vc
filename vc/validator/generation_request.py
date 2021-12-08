@@ -4,7 +4,11 @@ from injector import inject
 from vc.exception.tier_exception import TierException
 from vc.manager import GenerationRequestManager
 from vc.model.user import User
-from vc.service.helper.steps import Steps
+from vc.service.helper.steps import (
+    Steps,
+    ImageGenerationStep,
+    VideoGenerationStep,
+)
 from vc.service.helper.tier import TierHelper
 from vc.value_object import GenerationSpec
 
@@ -56,18 +60,21 @@ class GenerationRequestValidator:
 
     def spec(self, spec: GenerationSpec, user: User):
         if not TierHelper.is_artist(user):
-            for image in spec.images:
-                if image.upscale:
-                    raise TierException(
-                        'Artist',
-                        'Your tier is restricted from upscaling or '
-                        'interpolating'
-                    )
-            for video in spec.videos:
-                for step in video.steps:
-                    if step.upscale or step.interpolate:
+            for step in Steps.iterate_steps(spec):
+                if isinstance(step, ImageGenerationStep):
+                    if step.spec.upscale:
                         raise TierException(
                             'Artist',
-                            'Your tier is restricted from upscaling or '
-                            'interpolating'
+                            'Your tier is restricted from upscaling'
+                        )
+                if isinstance(step, VideoGenerationStep):
+                    if step.upscaled:
+                        raise TierException(
+                            'Artist',
+                            'Your tier is restricted from upscaling'
+                        )
+                    if step.interpolated:
+                        raise TierException(
+                            'Artist',
+                            'Your tier is restricted from interpolation'
                         )
