@@ -38,7 +38,7 @@ class UsersController(BaseController):
     @ns.expect(post_model, validate=True)
     def post(self):
         try:
-            return self.user_manager.create(request.json)
+            return self.user_manager.create(request.json, self.current_user())
         except VcException as e:
             raise InternalServerError(e.message)
 
@@ -52,7 +52,7 @@ class UserController(BaseController):
     @auth.login_required(role=UserTier.God)
     def get(self, id_):
         try:
-            data = self.user_manager.find_or_throw(id_)
+            data = self.user_manager.find_or_throw(id_, self.current_user())
         except NotFoundException as e:
             raise NotFound(e.message)
 
@@ -60,7 +60,7 @@ class UserController(BaseController):
 
     @auth.login_required(role=UserTier.God)
     def delete(self, id_):
-        self.user_manager.delete(id_)
+        self.user_manager.delete(id_, self.current_user())
         return {
             "status": True,
         }
@@ -68,7 +68,7 @@ class UserController(BaseController):
     @auth.login_required(role=UserTier.God)
     @ns.marshal_with(model)
     def put(self, id_):
-        return self.user_manager.update(id_, request.json)
+        return self.user_manager.update(id_, request.json, self.current_user())
 
 
 @ns.route('/<int:id_>/token')
@@ -96,7 +96,11 @@ class MeController(BaseController):
     @auth.login_required()
     @ns.marshal_with(model)
     def put(self):
-        return self.user_manager.update(self.current_user().id, request.json)
+        return self.user_manager.update(
+            self.current_user().id,
+            request.json,
+            self.current_user()
+        )
 
 
 @ns.route('/me/token')
