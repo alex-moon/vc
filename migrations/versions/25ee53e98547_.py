@@ -33,12 +33,10 @@ def upgrade():
         sa.column('id', sa.Integer()),
         sa.column('tier', sa.Integer()),
         sa.column('name', sa.String()),
-        sa.column('token', sa.String())
     )
     connection.execute(table.update().values(
         tier=3,
         name='AJ Moon',
-        token='$2b$12$2o3CS88trnMm9jO7YNRkU.FK8K6BUlFH0S3Eb0O.OB8CVMNRwQm7i'
     ))
     op.alter_column('user', 'tier', nullable=False)
     # ### end Alembic commands ###
