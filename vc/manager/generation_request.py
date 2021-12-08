@@ -38,6 +38,17 @@ class GenerationRequestManager(Manager):
             db.session.rollback()
             raise e
 
+    def mine_queued(self, user: User):
+        try:
+            return self.mine_query(user).filter(
+                self.model_class.completed.__eq__(None),
+                self.model_class.cancelled.__eq__(None),
+                self.model_class.deleted.__eq__(None),
+            ).all()
+        except Exception as e:
+            db.session.rollback()
+            raise e
+
     def find_mine_or_throw(self, id_, user: User):
         try:
             model = self.mine_query(user).get(id_)
@@ -53,7 +64,7 @@ class GenerationRequestManager(Manager):
         model.user_id = user.id
 
         self.dispatcher.dispatch(
-            GenerationRequestCreatedEvent(model)
+            GenerationRequestCreatedEvent(model, user)
         )
 
         self.save(model)
@@ -87,7 +98,7 @@ class GenerationRequestManager(Manager):
         model.cancelled = datetime.now()
 
         self.dispatcher.dispatch(
-            GenerationRequestCancelledEvent(model)
+            GenerationRequestCancelledEvent(model, user)
         )
 
         self.save(model)
@@ -108,7 +119,7 @@ class GenerationRequestManager(Manager):
 
         # @todo technically should be a different event
         self.dispatcher.dispatch(
-            GenerationRequestCreatedEvent(model)
+            GenerationRequestCreatedEvent(model, user)
         )
 
         self.save(model)

@@ -5,7 +5,6 @@ from injector import inject
 from vc.db import db
 from vc.event import VcEventDispatcher
 from vc.exception import NotFoundException
-from vc.model.user import User
 
 
 class Manager:

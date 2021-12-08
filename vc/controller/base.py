@@ -1,8 +1,8 @@
 from flask_restplus import Resource
 
-from vc.manager.user import UserManager
 from vc.auth import auth
-from vc.model.user import UserTier
+from vc.manager.user import UserManager
+from vc.service.helper.tier import TierHelper
 
 
 class BaseController(Resource):
@@ -12,33 +12,22 @@ class BaseController(Resource):
         super().__init__(*args, **kwargs)
         self.user_manager = user_manager
         auth.verify_token(self.verify_token)
-        auth.get_user_roles(self.get_user_roles)
+        auth.get_user_roles(TierHelper.get_user_roles)
 
     def verify_token(self, token):
         return self.user_manager.authenticate(token)
-
-    def get_user_roles(self, user):
-        result = []
-        i = user.tier
-        while i > 0:
-            result.append(i)
-            i -= 1
-        return result
 
     def current_user(self):
         return auth.current_user()
 
     def is_god(self):
-        return self.is_tier(UserTier.God)
+        return TierHelper.is_god(self.current_user())
 
     def is_artist(self):
-        return self.is_tier(UserTier.Artist)
+        return TierHelper.is_artist(self.current_user())
 
     def is_coder(self):
-        return self.is_tier(UserTier.Coder)
+        return TierHelper.is_coder(self.current_user())
 
     def is_supporter(self):
-        return self.current_user().tier is not None
-
-    def is_tier(self, value):
-        return value in self.getUserRoles(self.current_user())
+        return TierHelper.is_supporter(self.current_user())

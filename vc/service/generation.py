@@ -4,6 +4,7 @@ from typing import Callable
 
 from injector import inject
 
+from vc.service.helper.steps import Steps
 from vc.service.vqgan_clip import VqganClipService
 from vc.service.inpainting import InpaintingService
 from vc.service.esrgan import EsrganService
@@ -57,7 +58,7 @@ class GenerationService:
         dh.debug('GenerationService', 'starting')
         start = time()
 
-        steps_total = self.calculate_total_steps(spec)
+        steps_total = Steps.total_steps(spec)
 
         runner = GenerationRunner(
             self.vqgan_clip,
@@ -71,7 +72,7 @@ class GenerationService:
             name=name
         )
 
-        for step in GenerationRunner.iterate_steps(spec):
+        for step in Steps.iterate_steps(spec):
             if step.step <= steps_completed:
                 continue
 
@@ -96,9 +97,3 @@ class GenerationService:
             ))
 
         dh.debug('GenerationService', 'done in', timedelta(seconds=time() - start))
-
-    def calculate_total_steps(self, spec):
-        steps_total = 0
-        for _ in GenerationRunner.iterate_steps(spec):
-            steps_total += 1
-        return steps_total

@@ -11,6 +11,8 @@ from vc.manager import GenerationRequestManager, UserManager
 from vc.model.generation_request import GenerationRequest
 from vc.value_object.generation_spec import GenerationSpec
 from .base import BaseController
+from ..exception.tier_exception import TierException
+from ..validator.generation_request import GenerationRequestValidator
 
 ns = api.namespace(
     'generation-request',
@@ -26,6 +28,7 @@ post_model = ns.model('Generation Request', {
 
 @ns.route('/')
 class GenerationRequestsController(BaseController):
+    validator: GenerationRequestValidator
     manager: GenerationRequestManager
 
     @inject
@@ -33,11 +36,13 @@ class GenerationRequestsController(BaseController):
         self,
         user_manager: UserManager,
         manager: GenerationRequestManager,
+        validator: GenerationRequestValidator,
         *args,
         **kwargs
     ):
         super().__init__(user_manager, *args, **kwargs)
         self.manager = manager
+        self.validator = validator
 
     @auth.login_required(optional=True)
     def get(self):
@@ -59,8 +64,14 @@ class GenerationRequestsController(BaseController):
     @ns.marshal_with(private_model)
     @ns.expect(post_model, validate=True)
     def post(self):
+        user = self.current_user()
+
         try:
-            user = self.current_user()
+            self.validator.create(request.json, user)
+        except TierException as e:
+            raise Forbidden(e.message)
+
+        try:
             return self.manager.create_mine(request.json, user)
         except VcException as e:
             raise InternalServerError(e.message)
@@ -68,6 +79,7 @@ class GenerationRequestsController(BaseController):
 
 @ns.route('/<int:id_>')
 class GenerationRequestController(BaseController):
+    validator: GenerationRequestValidator
     manager: GenerationRequestManager
 
     @inject
@@ -75,11 +87,13 @@ class GenerationRequestController(BaseController):
         self,
         user_manager: UserManager,
         manager: GenerationRequestManager,
+        validator: GenerationRequestValidator,
         *args,
         **kwargs
     ):
         super().__init__(user_manager, *args, **kwargs)
         self.manager = manager
+        self.validator = validator
 
     @auth.login_required()
     def get(self, id_):
@@ -107,6 +121,7 @@ class GenerationRequestController(BaseController):
 
 @ns.route('/<int:id_>/<string:action>')
 class GenerationRequestActionController(BaseController):
+    validator: GenerationRequestValidator
     manager: GenerationRequestManager
 
     @inject
@@ -114,11 +129,13 @@ class GenerationRequestActionController(BaseController):
         self,
         user_manager: UserManager,
         manager: GenerationRequestManager,
+        validator: GenerationRequestValidator,
         *args,
         **kwargs
     ):
         super().__init__(user_manager, *args, **kwargs)
         self.manager = manager
+        self.validator = validator
 
     @auth.login_required()
     @ns.marshal_with(private_model)
@@ -142,6 +159,13 @@ class GenerationRequestActionController(BaseController):
         return self.manager.soft_delete(id_, self.current_user())
 
     def retry(self, id_):
+        user = self.current_user()
+
+        try:
+            self.validator.create(request.json, user)
+        except TierException as e:
+            raise Forbidden(e.message)
+
         return self.manager.retry(id_, self.current_user())
 
     def publish(self, id_):
