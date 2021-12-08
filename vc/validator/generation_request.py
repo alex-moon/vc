@@ -27,7 +27,7 @@ class GenerationRequestValidator:
         if not TierHelper.is_coder(user):
             raise TierException('Coder')
 
-        if steps > 800 and not TierHelper.is_artist(user):
+        if not TierHelper.is_artist(user) and steps > 800:
             raise TierException(
                 'Artist',
                 'That spec would have %s steps - your tier is limited '
@@ -42,6 +42,7 @@ class GenerationRequestValidator:
             )
 
         self.queued(user)
+        self.spec(spec, user)
 
     def queued(self, user: User):
         if not TierHelper.is_god(user):
@@ -52,3 +53,21 @@ class GenerationRequestValidator:
                     'Your tier is limited to one request at a time - '
                     'try cancelling an existing request first'
                 )
+
+    def spec(self, spec: GenerationSpec, user: User):
+        if not TierHelper.is_artist(user):
+            for image in spec.images:
+                if image.upscale:
+                    raise TierException(
+                        'Artist',
+                        'Your tier is restricted from upscaling or '
+                        'interpolating'
+                    )
+            for video in spec.videos:
+                for step in video.steps:
+                    if step.upscale or step.interpolate:
+                        raise TierException(
+                            'Artist',
+                            'Your tier is restricted from upscaling or '
+                            'interpolating'
+                        )
