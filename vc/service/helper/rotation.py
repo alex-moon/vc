@@ -70,6 +70,7 @@ class Rotate:
     pan = 0.
     roll = 0.
     transition = 20
+    reset_threshold = 0.02
 
     def __init__(
         self,
@@ -117,3 +118,10 @@ class Rotate:
         self.tilt = 0.
         self.pan = 0.
         self.roll = 0.
+
+    def should_reset(self):
+        return (
+            abs(self.tilt) > self.reset_threshold
+            or abs(self.pan) > self.reset_threshold
+            or abs(self.roll) > self.reset_threshold
+        )

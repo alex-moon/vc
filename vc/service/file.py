@@ -30,13 +30,16 @@ class FileService:
             filename=filename
         )
         dh.debug("FileService", "put", os.path.abspath(local_file), url)
-        self.client.upload_file(
-            local_file,
-            self.bucket,
-            filename,
-            ExtraArgs={'ACL': 'public-read'}
-        )
-        return url
+        try:
+            self.client.upload_file(
+                local_file,
+                self.bucket,
+                filename,
+                ExtraArgs={'ACL': 'public-read'}
+            )
+            return url
+        except Exception:
+            return None
 
     def get_filename(self, filename, now: datetime = None):
         if now is None:

@@ -123,14 +123,16 @@ class InpaintingService:
 
         image = imageio.imread(sample['ref_img_fi'], pilmode="RGB")
 
-        midas_model_ckpt = self.model_paths[args.midas_model_type]
-        dh.debug('InpaintingService', 'Running depth extraction')
-        run_depth(
-            sample['ref_img_fi'],
-            args.depth_folder,
-            midas_model_ckpt,
-            args.midas_model_type
-        )
+        use_existing_ply = args.load_ply and os.path.exists(mesh_fi)
+        if not use_existing_ply:
+            midas_model_ckpt = self.model_paths[args.midas_model_type]
+            dh.debug('InpaintingService', 'Running depth extraction')
+            run_depth(
+                sample['ref_img_fi'],
+                args.depth_folder,
+                midas_model_ckpt,
+                args.midas_model_type
+            )
 
         if 'npy' in args.depth_format:
             depth_file = np.load(sample['depth_fi'])
@@ -171,7 +173,7 @@ class InpaintingService:
         mean_loc_depth = depth[depth.shape[0] // 2, depth.shape[1] // 2]
 
         rt_info = False
-        if not (args.load_ply is True and os.path.exists(mesh_fi)):
+        if not use_existing_ply:
             vis_photos, vis_depths = sparse_bilateral_filtering(
                 depth,
                 image,

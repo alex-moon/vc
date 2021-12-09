@@ -91,10 +91,6 @@ class VqganClipService:
         else:
             args.image_prompts = []
 
-        # Make video steps directory @todo do this elsewhere
-        if not os.path.exists('steps'):
-            os.mkdir('steps')
-
         if args.size is None:
             args.size = [
                 DimensionsHelper.width_small(),

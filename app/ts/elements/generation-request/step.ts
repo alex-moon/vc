@@ -73,6 +73,7 @@ export class GenerationRequestDetailsStep extends HTMLElement {
             'init_iterations',
             'upscale',
             'interpolate',
+            'random_walk',
             'epochs',
             'transition',
         ]) {

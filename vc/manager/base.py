@@ -31,7 +31,7 @@ class Manager:
             db.session.rollback()
             raise e
 
-    def find_or_throw(self, id_, user: User):
+    def find_or_throw(self, id_, user: User = None):
         try:
             model = self.model_class.query.get(id_)
             if model is None:
@@ -41,7 +41,7 @@ class Manager:
             db.session.rollback()
             raise e
 
-    def create(self, raw, user: User):
+    def create(self, raw, user: User = None):
         try:
             # @todo ModelFactory.create here
 
@@ -88,8 +88,8 @@ class Manager:
     def commit(self):
         db.session.commit()
 
-    def fields(self, raw, user: User):
+    def fields(self, raw, user: User = None):
         fields = self.model_class.FIELDS
-        if TierHelper.is_god(user):
+        if user is None or TierHelper.is_god(user):
             fields += self.model_class.GOD_FIELDS
         return {k: raw[k] for k in raw.keys() & fields}

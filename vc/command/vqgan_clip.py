@@ -1,4 +1,3 @@
-from math import pi
 from injector import inject
 
 from vc.command.base import BaseCommand

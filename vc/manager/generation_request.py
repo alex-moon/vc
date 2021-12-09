@@ -56,11 +56,11 @@ class GenerationRequestManager(Manager):
             db.session.rollback()
             raise e
 
-    def find_or_throw(self, id_, user: User):
+    def find_or_throw(self, id_, user: User = None):
         try:
             model = (
                 self.all_query()
-                if TierHelper.is_god(user)
+                if user is None or TierHelper.is_god(user)
                 else self.mine_query(user)
             ).filter(
                 self.model_class.id.__eq__(id_)
@@ -72,7 +72,7 @@ class GenerationRequestManager(Manager):
             db.session.rollback()
             raise e
 
-    def create(self, raw, user: User):
+    def create(self, raw, user: User = None):
         try:
             # @todo ModelFactory.create here
 

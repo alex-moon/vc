@@ -25,7 +25,7 @@ class ImageSpec:
 
 @dataclass
 class VideoStepSpec(ImageSpec):
-    iterations: int = 75
+    iterations: int = 20
     interpolate: bool = False
     init_iterations: int = 200
     epochs: int = 42
@@ -36,12 +36,13 @@ class VideoStepSpec(ImageSpec):
     pan_velocity: float = 0.
     tilt_velocity: float = 0.
     roll_velocity: float = 0.
+    random_walk: bool = False
 
     schema = api.model('Video Step Spec', {
         'texts': fields.List(fields.String, default_factory=list),
         'styles': fields.List(fields.String, default_factory=list),
         'ground': fields.String,
-        'iterations': fields.Integer(default=75),
+        'iterations': fields.Integer(default=20),
         'upscale': fields.Boolean(default=False),
         'interpolate': fields.Boolean(default=False),
         'init_iterations': fields.Integer(default=200),
@@ -53,6 +54,7 @@ class VideoStepSpec(ImageSpec):
         'pan_velocity': fields.Float(default=0.),
         'tilt_velocity': fields.Float(default=0.),
         'roll_velocity': fields.Float(default=0.),
+        'random_walk': fields.Boolean(default=False),
     })
 
 

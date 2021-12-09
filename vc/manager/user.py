@@ -19,7 +19,7 @@ class UserManager(Manager):
             db.session.rollback()
             raise e
 
-    def create(self, raw, user: User):
+    def create(self, raw, user: User = None):
         raw = self.fields(raw, user)
         api_token = str(uuid4())
         token = HashHelper.get(api_token)

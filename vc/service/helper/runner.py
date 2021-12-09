@@ -11,6 +11,7 @@ from vc.service.helper.acceleration import Translate
 from vc.service.helper.dimensions import DimensionsHelper
 from vc.service.helper.random_word import RandomWord
 from vc.service.helper.rotation import Rotate
+from vc.service.helper.walk import Walk
 from vc.service.inpainting import InpaintingService, InpaintingOptions
 from vc.service.rife import RifeService, RifeOptions
 from vc.service.video import VideoService
@@ -35,6 +36,8 @@ class GenerationResult:
 
 
 class GenerationRunner:
+    MESH_DIR = 'mesh'
+    DEPTH_DIR = 'depth'
     INTERPOLATE_MULTIPLE = 4
 
     vqgan_clip: VqganClipService
@@ -138,6 +141,22 @@ class GenerationRunner:
                     transition=step.spec.transition
                 )
 
+        if step.spec.random_walk:
+            self.translate = Translate(
+                Walk.target().x,
+                Walk.target().y,
+                Walk.target().z,
+                previous=self.translate,
+                transition=2
+            )
+            self.rotate = Rotate(
+                step.spec.tilt_velocity,
+                Walk.target().pan,
+                step.spec.roll_velocity,
+                previous=self.rotate,
+                transition=2
+            )
+
         text = step.text
         style = step.style
 
@@ -147,6 +166,7 @@ class GenerationRunner:
         pan, tilt, roll = 0., 0., 0.
         prompt = text if style is None else '%s | %s' % (text, style)
 
+        reset = True
         if isinstance(step.spec, VideoStepSpec):
             if self.last_text is None:
                 self.last_text = text
@@ -189,10 +209,18 @@ class GenerationRunner:
 
                 prompt = '%s | %s' % (prompt, styles)
 
+            reset = (
+                self.translate.should_reset()
+                or self.rotate.should_reset()
+            )
+            if reset:
+                self.translate.reset()
+                self.rotate.reset()
+
             moving = self.translate.move()
             rotating = self.rotate.rotate()
-            x_shift, y_shift, z_shift = self.translate.velocity.to_tuple()
-            tilt, pan, roll = self.rotate.velocity.to_tuple()
+            x_shift, y_shift, z_shift = self.translate.to_tuple()
+            tilt, pan, roll = self.rotate.to_tuple()
 
             dh.debug('GenerationRunner', 'prompt', prompt)
             dh.debug('GenerationRunner', 'x_shift', x_shift)
@@ -204,37 +232,42 @@ class GenerationRunner:
 
             if step.spec.init_iterations and not os.path.isfile(self.output_filename):
                 dh.debug('GenerationRunner', 'init', step.spec.init_iterations)
-                self.vqgan_clip.handle(VqganClipOptions(**{
-                    'prompts': prompt,
-                    'max_iterations': step.spec.init_iterations,
-                    'output_filename': self.output_filename,
-                    'init_image': None
-                }))
+                self.vqgan_clip.handle(VqganClipOptions(
+                    prompts=prompt,
+                    max_iterations=step.spec.init_iterations,
+                    output_filename=self.output_filename,
+                    init_image=None
+                ))
 
-        dh.debug('GenerationRunner', 'vqgan_clip', 'handle')
-        self.vqgan_clip.handle(VqganClipOptions(**{
-            'prompts': prompt,
-            'max_iterations': step.spec.iterations,
-            'init_image': (
-                self.output_filename
-                if os.path.isfile(self.output_filename)
-                else None
-            ),
-            'output_filename': self.output_filename,
-        }))
-
-        if moving or rotating:
-            dh.debug('GenerationRunner', 'inpainting', 'handle')
-            self.inpainting.handle(InpaintingOptions(**{
-                'input_file': self.output_filename,
-                'x_shift': x_shift,
-                'y_shift': y_shift,
-                'z_shift': z_shift,
-                'tilt': tilt,
-                'pan': pan,
-                'roll': roll,
+        if reset:
+            dh.debug('GenerationRunner', 'vqgan_clip', 'handle')
+            self.vqgan_clip.handle(VqganClipOptions(**{
+                'prompts': prompt,
+                'max_iterations': step.spec.iterations,
+                'init_image': (
+                    self.output_filename
+                    if os.path.isfile(self.output_filename)
+                    else None
+                ),
                 'output_filename': self.output_filename,
             }))
+
+        if moving or rotating or reset:
+            dh.debug('GenerationRunner', 'inpainting', 'handle')
+            dh.debug('GenerationRunner', 'inpainting', 'load_ply', not reset)
+            self.inpainting.handle(InpaintingOptions(
+                input_file=self.output_filename,
+                x_shift=x_shift,
+                y_shift=y_shift,
+                z_shift=z_shift,
+                tilt=tilt,
+                pan=pan,
+                roll=roll,
+                output_filename=self.output_filename,
+                load_ply=not reset,
+                mesh_folder=self.MESH_DIR,
+                depth_folder=self.DEPTH_DIR
+            ))
         else:
             dh.debug('GenerationRunner', 'inpainting', 'skipped (not moving)')
 
@@ -316,6 +349,23 @@ class GenerationRunner:
     def clean_files(self, step: CleanFilesStep):
         if os.path.exists(self.output_filename):
             os.remove(self.output_filename)
+
+        for filename in os.listdir(self.MESH_DIR):
+            if filename[-4:] != '.ply':
+                continue
+
+            filepath = os.path.join(self.MESH_DIR, filename)
+            if os.path.isfile(filepath):
+                os.remove(filepath)
+
+        for filename in os.listdir(self.DEPTH_DIR):
+            if filename[-4:] != '.pfm' and filename[-4:] != 'png':
+                continue
+
+            filepath = os.path.join(self.DEPTH_DIR, filename)
+            if os.path.isfile(filepath):
+                os.remove(filepath)
+
         for filename in os.listdir(self.steps_dir):
             if filename[-4:] != '.png':
                 continue

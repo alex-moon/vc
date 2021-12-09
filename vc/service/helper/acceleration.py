@@ -70,6 +70,7 @@ class Translate:
     y = 0.
     z = 0.
     transition = 20
+    reset_threshold = 0.02
 
     def __init__(
         self,
@@ -117,3 +118,10 @@ class Translate:
         self.x = 0.
         self.y = 0.
         self.z = 0.
+
+    def should_reset(self):
+        return (
+            abs(self.x) > self.reset_threshold
+            or abs(self.y) > self.reset_threshold
+            or abs(self.z) > self.reset_threshold
+        )

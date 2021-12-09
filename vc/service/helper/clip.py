@@ -240,7 +240,7 @@ class MakeCutouts(nn.Module):
         input = F.pad(
             input,
             (paddingx, paddingx, paddingy, paddingy),
-            mode='constant'  # 'reflect', 'replicate', 'circular', 'constant'
+            mode='replicate'  # 'reflect', 'replicate', 'circular', 'constant'
         )
 
         master_offsetx_max = side_x - max_size + 1
