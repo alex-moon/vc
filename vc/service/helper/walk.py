@@ -11,7 +11,7 @@ class WalkTarget:
 
 
 class Walk:
-    BOBBLE_TIME = 25
+    BOBBLE_TIME = 50
     x = 0.
     z = 0.
     pan = 0.
@@ -33,16 +33,30 @@ class Walk:
 
         cls.current_epoch += 1
         return WalkTarget(
-            x=cls.x,
+            x=cls.x + cls.bobble_x(),
             z=cls.z,
             pan=cls.pan,
-            y=cls.get_y()
+            y=cls.y + cls.bobble_y()
         )
 
     @classmethod
-    def get_y(cls):
+    def bobble_y(cls):
         if cls.field == 2:
             return 0.
 
         y_step = cls.current_epoch % cls.BOBBLE_TIME - 1
         return (cls.BOBBLE_TIME - y_step) / cls.BOBBLE_TIME - 0.5
+
+    @classmethod
+    def bobble_x(cls):
+        if cls.field == 2:
+            return 0.
+
+        double_bobble = cls.BOBBLE_TIME * 2
+        double_x = cls.current_epoch % double_bobble - 1
+        x_step = double_x % cls.BOBBLE_TIME
+        return (
+            x_step
+            if x_step == double_x
+            else cls.BOBBLE_TIME - x_step
+        ) / cls.BOBBLE_TIME - 0.5
