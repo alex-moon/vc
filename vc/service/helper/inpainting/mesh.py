@@ -54,6 +54,7 @@ from vc.service.helper.inpainting.mesh_tools import (
     dilate_valid_size,
     size_operation,
 )
+from vc.service.helper.diagnosis import DiagnosisHelper as dh
 
 
 # @todo put all in class and clean up
@@ -2844,7 +2845,7 @@ def DL_inpaint_edge(
             cur_disp = 1. / node[2]
             if not (mesh.has_node(node)):
                 if not mesh.has_node((node[0], node[1])):
-                    print("2D node not found.")
+                    dh.log("2D node not found.")
                     pass
                 if inpaint_iter == 1:
                     paint = (rgb_dict['output'][hx, hy] * 255).astype(np.uint8)
@@ -3377,7 +3378,7 @@ def write_ply(
 
     str_faces = generate_face(input_mesh, info_on_pix, args)
     if args.save_ply:
-        print("Writing mesh file %s ..." % ply_name)
+        dh.log("Writing mesh file %s ..." % ply_name)
         with open(ply_name, 'w') as ply_fi:
             ply_fi.write('ply\n' + 'format ascii 1.0\n')
             ply_fi.write('comment H ' + str(int(input_mesh.graph['H'])) + '\n')
@@ -3594,7 +3595,7 @@ def output_3d_photo_dynamic(
 
     fov_in_rad = max(cam_mesh.graph['vFov'], cam_mesh.graph['hFov'])
     fov = (fov_in_rad * 180 / np.pi)
-    print("fov: " + str(fov))
+    dh.log("fov: " + str(fov))
     init_factor = 1
     if args.anti_flickering:
         init_factor = 3
@@ -3747,7 +3748,7 @@ def output_3d_photo_dynamic(
     path = args.output_filename
     if output_dir:
         path = os.path.join(output_dir, path)
-    print("mesh.py", "Writing Inpainting output frame:", os.path.abspath(path))
+    dh.log("mesh.py", "Writing Inpainting output frame:", os.path.abspath(path))
 
     write_png(path, img)
 
@@ -3870,6 +3871,6 @@ def output_3d_photo(
     path = args.output_filename
     if output_dir:
         path = os.path.join(output_dir, path)
-    print("mesh.py:", "Writing Inpainting output frame:", os.path.abspath(path))
+    dh.log("mesh.py:", "Writing Inpainting output frame:", os.path.abspath(path))
 
     write_png(path, img)

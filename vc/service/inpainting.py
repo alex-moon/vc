@@ -1,5 +1,6 @@
 import gc
 import os
+from datetime import datetime
 from dataclasses import dataclass, field
 from typing import List
 
@@ -27,6 +28,7 @@ from vc.service.helper.inpainting.networks import (
 from .helper.dimensions import DimensionsHelper
 from .helper.midas import run_depth
 from .helper.midas.utils import read_pfm
+from .helper.string import StringHelper
 from .helper.utils import get_midas_sample, read_midas_depth
 
 
@@ -100,6 +102,7 @@ class InpaintingService:
         self.file_service = file_service
 
     def handle(self, args: InpaintingOptions):
+        start = datetime.now()
         if args.offscreen_rendering is True:
             vispy.use(app='egl')
 
@@ -288,6 +291,9 @@ class InpaintingService:
             border=border,
             mean_loc_depth=mean_loc_depth
         )
+
+        end = datetime.now()
+        dh.debug('Inpainting took', StringHelper.timedelta(end - start))
 
         if os.getenv('DEBUG_FILES'):
             return self.file_service.put(
