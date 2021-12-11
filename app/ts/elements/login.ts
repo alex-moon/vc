@@ -1,5 +1,4 @@
-import {CustomElement, Listen} from 'custom-elements-ts';
-import {AuthHelper} from "../helpers/auth";
+import {CustomElement} from 'custom-elements-ts';
 import {BaseElement} from "./base-element";
 
 @CustomElement({
@@ -31,7 +30,7 @@ export class Login extends BaseElement {
     }
 
     submit(event: Event) {
-        event.preventDefault(); // @todo so annoying! Why do I have to do this?
+        event.preventDefault();
         this.vc.authenticate(this.$input.value);
     }
 }

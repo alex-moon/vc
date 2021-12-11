@@ -9,8 +9,11 @@ import {BaseElement} from "./base-element";
     template: `
 <div class="request-form">
     <h2>
-        Create virtual content
-        <span class="material-icons">expand_more</span>
+        <span class="greeting"></span>
+        <span class="expand">
+            Create
+            <span class="material-icons">expand_more</span>
+        </span>
     </h2>
     <form>
         <div class="steps"></div>
@@ -24,6 +27,7 @@ import {BaseElement} from "./base-element";
 export class GenerationRequestForm extends BaseElement {
     $root: HTMLElement;
     $header: HTMLElement;
+    $greeting: HTMLElement;
     $form: HTMLElement;
     $steps: HTMLElement;
 
@@ -41,26 +45,25 @@ export class GenerationRequestForm extends BaseElement {
         this.$header.addEventListener('click', (e) => {
             if (this.expanded) {
                 this.$form.classList.remove('expanded');
-                this.$header.querySelector('span').innerHTML = 'expand_more';
+                this.$header.querySelector('.expand span').innerHTML = 'expand_more';
                 this.expanded = false;
             } else {
                 this.$form.classList.add('expanded');
-                this.$header.querySelector('span').innerHTML = 'expand_less';
+                this.$header.querySelector('.expand span').innerHTML = 'expand_less';
                 this.expanded = true;
             }
         });
+        this.$greeting = this.$header.querySelector('.greeting');
 
         this.$form = this.$root.querySelector('form');
         this.$steps = this.$form.querySelector('.steps');
         this.spec = new GenerationSpec();
+        this.draw();
     }
 
     protected draw() {
-        if (!this.spec) {
-            return;
-        }
+        this.$greeting.innerText = 'Hello, ' + this.vc.userManager.user.name + '!';
         this.$steps.innerHTML = '';
-
     }
 
     @Listen('click', '.actions button')

@@ -10,6 +10,7 @@ vc-generation-request-form {
             padding: 16px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             cursor: pointer;
             height: 64px;
             box-sizing: border-box;
@@ -20,6 +21,16 @@ vc-generation-request-form {
 
             span {
                 margin-left: 2px;
+            }
+
+            .greeting {
+                font-weight: bold;
+            }
+
+            .expand {
+                font-weight: normal;
+                display: flex;
+                align-items: center;
             }
         }
         form {

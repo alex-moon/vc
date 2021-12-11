@@ -88,7 +88,6 @@ export class Nav extends HTMLElement {
 
         content.appendChild(byline);
         a.appendChild(content);
-        console.log('appending link', a);
         this.$nav.appendChild(a);
     }
 }

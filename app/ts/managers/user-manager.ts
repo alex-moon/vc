@@ -5,7 +5,13 @@ import {BaseManager} from "./base-manager";
 export class UserManager extends BaseManager<User> {
     base_url = '/api/user/me'
 
+    public user: User;
+
     get(): Promise<User> {
-        return this.fetch() as Promise<User>;
+        return this.fetch().then((user) => {
+            user = user as User;
+            this.user = user;
+            return user;
+        });
     }
 }
