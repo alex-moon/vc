@@ -1,6 +1,7 @@
 import {CustomElement} from 'custom-elements-ts';
 import {GenerationRequest as Model} from "../models/generation-request";
 import {GenerationRequest} from "./generation-request";
+import {BaseElement} from "./base-element";
 
 @CustomElement({
     tag: 'vc-generation-requests',
@@ -11,10 +12,10 @@ import {GenerationRequest} from "./generation-request";
 <div class="requests"></div>
 `
 })
-export class GenerationRequests extends HTMLElement {
+export class GenerationRequests extends BaseElement {
     $root: HTMLElement;
 
-    _requests: Model[]
+    requests: Model[]
 
     constructor() {
         super();
@@ -25,10 +26,10 @@ export class GenerationRequests extends HTMLElement {
     }
 
     update(requests: Model[]) {
-        this._requests = requests;
+        this.requests = requests;
 
         this.$root.innerHTML = '';
-        this._requests.forEach((request: Model) => {
+        this.requests.forEach((request: Model) => {
             const $request = document.createElement('vc-generation-request') as GenerationRequest;
             this.$root.appendChild($request);
             $request.update(request);

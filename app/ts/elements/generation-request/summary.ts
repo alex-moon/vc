@@ -69,7 +69,7 @@ export class GenerationRequestSummary extends HTMLElement {
 
         this.updateStatus();
         this.updateBar();
-        if (AuthHelper.hasToken() || DetailsHelper.hasDetails(this.request)) {
+        if (AuthHelper.isAuthenticated() || DetailsHelper.hasDetails(this.request)) {
             this.addExpand();
         }
 

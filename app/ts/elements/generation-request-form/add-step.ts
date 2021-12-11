@@ -8,7 +8,7 @@ import {CustomElement, Listen} from 'custom-elements-ts';
 </div>
 `,
 })
-export class GenerationRequestForm extends HTMLElement {
+export class AddStep extends HTMLElement {
     $root: HTMLElement
 
     constructor() {

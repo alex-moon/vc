@@ -3,6 +3,7 @@ import {Login} from "./login";
 import {GenerationRequestForm} from "./generation-request-form";
 import {AuthHelper} from "../helpers/auth";
 import {EnvHelper} from "../helpers/env";
+import {BaseElement} from "./base-element";
 
 @CustomElement({
     tag: 'vc-login-form',
@@ -12,7 +13,7 @@ import {EnvHelper} from "../helpers/env";
 <div class="login-form"></div>
 `
 })
-export class LoginForm extends HTMLElement {
+export class LoginForm extends BaseElement {
     $root: HTMLElement
     $login: Login
     $form: GenerationRequestForm
@@ -34,7 +35,7 @@ export class LoginForm extends HTMLElement {
             return;
         }
 
-        if (AuthHelper.hasToken()) {
+        if (AuthHelper.isAuthenticated()) {
             this.$form = document.createElement('vc-generation-request-form') as GenerationRequestForm;
             this.$root.appendChild(this.$form);
         } else {

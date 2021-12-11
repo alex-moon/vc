@@ -34,15 +34,8 @@ export class GenerationRequestDetails extends HTMLElement {
         super();
     }
 
-    inject() {
-        // @todo injector of some kind?
-        // https://nehalist.io/dependency-injection-in-typescript/
-        // or https://www.npmjs.com/package/bottlejs
-        this.vc = Vc.instance;
-    }
-
     connectedCallback() {
-        this.inject();
+        this.vc = Vc.instance;
         this.$root = this.querySelector('.details');
         this.$steps = this.$root.querySelector('.steps');
         this.$preview = this.$root.querySelector('.preview');
@@ -147,7 +140,7 @@ export class GenerationRequestDetails extends HTMLElement {
     }
 
     addActions() {
-        if (AuthHelper.hasToken()) {
+        if (AuthHelper.isAuthenticated()) {
             this.$actions = document.createElement('div');
             this.$actions.classList.add('actions');
             this.$root.insertBefore(this.$actions, this.$root.firstChild);

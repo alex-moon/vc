@@ -32,8 +32,8 @@ module.exports = {
   entry: {
     'vc': [
       './app/scss/vc.scss',
+      './app/ts/vc.ts',
       './app/ts/elements.ts',
-      './app/ts/vc.ts'
     ],
   },
   devtool: 'inline-source-map',

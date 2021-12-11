@@ -1,5 +1,6 @@
 import {CustomElement} from 'custom-elements-ts';
 import {AuthHelper} from "../helpers/auth";
+import {BaseElement} from "./base-element";
 
 @CustomElement({
     tag: 'vc-login',
@@ -13,10 +14,10 @@ import {AuthHelper} from "../helpers/auth";
 </div>
 `
 })
-export class Login extends HTMLElement {
-    $root: HTMLElement
-    $form: HTMLElement
-    $input: HTMLInputElement
+export class Login extends BaseElement {
+    $root: HTMLElement;
+    $form: HTMLElement;
+    $input: HTMLInputElement;
 
     constructor() {
         super();
@@ -29,7 +30,13 @@ export class Login extends HTMLElement {
         this.$input = this.$form.querySelector('input');
     }
 
-    submit() {
+    submit(event: Event) {
+        event.preventDefault(); // @todo so annoying! Why do I have to do this?
         AuthHelper.setToken(this.$input.value);
+        this.vc.authenticate().then(() => {
+            AuthHelper.authenticate();
+        }).catch((error) => {
+            AuthHelper.clearToken();
+        });
     }
 }

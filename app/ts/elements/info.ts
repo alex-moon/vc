@@ -1,4 +1,5 @@
 import {CustomElement} from 'custom-elements-ts';
+import {BaseElement} from "./base-element";
 
 @CustomElement({
     tag: 'vc-info',
@@ -6,7 +7,7 @@ import {CustomElement} from 'custom-elements-ts';
     style: ``,
     template: require('./info.inc')
 })
-export class Info extends HTMLElement {
+export class Info extends BaseElement {
     $root: HTMLElement;
     $info: HTMLElement;
     $close: HTMLButtonElement;

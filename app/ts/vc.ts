@@ -1,24 +1,23 @@
-import {Service} from './service'
+import {GenerationRequestManager} from './managers/generation-request-manager'
 import {GenerationRequests} from './elements/generation-requests'
-import {GenerationRequestForm} from "./elements/generation-request-form";
-import {ImageSpec} from "./models/image-spec";
 import {AuthHelper} from "./helpers/auth";
 import {GenerationRequest} from "./models/generation-request";
-import {Info} from "./elements/info";
-import {Nav} from "./elements/news/nav";
+import {GenerationSpec} from "./models/generation-spec";
+import {UserManager} from "./managers/user-manager";
+import {Notification} from "./helpers/notification";
 
 export class Vc {
-    $info: Info | Nav;
-    $form: GenerationRequestForm;
     $requests: GenerationRequests;
 
     refreshInterval = 10000
     autoRefresh = false
     timeout: any
-    service: Service
 
-    constructor() {
-        this.service = new Service();
+    constructor(
+        public generationRequestManager: GenerationRequestManager,
+        public userManager: UserManager,
+        public notification: Notification,
+    ) {
         this.$requests = document.querySelector('vc-generation-requests');
         if (this.$requests) {
             this.refreshAndSetTimeout();
@@ -30,8 +29,8 @@ export class Vc {
         return (global as any).vc;
     }
 
-    create(spec: ImageSpec) {
-        this.service.create(spec, this.draw.bind(this));
+    create(spec: GenerationSpec) {
+        this.generationRequestManager.create({spec}).then(this.draw.bind(this));
     }
 
     clearTimeout() {
@@ -61,28 +60,50 @@ export class Vc {
         }
     }
 
+    private error(error: Error) {
+        this.notification.error(error);
+        throw error;
+    }
+
+    authenticate() {
+        return this.userManager.get()
+            .catch(this.error.bind(this));
+    }
+
     refresh() {
-        this.service.refresh(this.draw.bind(this));
+        this.generationRequestManager.index()
+            .then(this.draw.bind(this))
+            .catch(this.error.bind(this));
     }
 
     cancel(request: GenerationRequest) {
-        this.service.cancel(request, this.refresh.bind(this));
+        this.generationRequestManager.cancel(request.id)
+            .then(this.refresh.bind(this))
+            .catch(this.error.bind(this));
     }
 
     retry(request: GenerationRequest) {
-        this.service.retry(request, this.refresh.bind(this));
+        this.generationRequestManager.retry(request.id)
+            .then(this.refresh.bind(this))
+            .catch(this.error.bind(this));
     }
 
     delete(request: GenerationRequest) {
-        this.service.delete(request, this.refresh.bind(this));
+        this.generationRequestManager.delete(request.id)
+            .then(this.refresh.bind(this))
+            .catch(this.error.bind(this));
     }
 
     publish(request: GenerationRequest) {
-        this.service.publish(request, this.refresh.bind(this));
+        this.generationRequestManager.publish(request.id)
+            .then(this.refresh.bind(this))
+            .catch(this.error.bind(this));
     }
 
     unpublish(request: GenerationRequest) {
-        this.service.unpublish(request, this.refresh.bind(this));
+        this.generationRequestManager.unpublish(request.id)
+            .then(this.refresh.bind(this))
+            .catch(this.error.bind(this));
     }
 
     draw(requests: any) {
@@ -90,4 +111,9 @@ export class Vc {
     }
 }
 
-(global as any).vc = new Vc();
+// @todo do we need a container? Surely not...
+(global as any).vc = new Vc(
+    new GenerationRequestManager(),
+    new UserManager(),
+    new Notification(),
+);

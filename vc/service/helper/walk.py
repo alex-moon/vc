@@ -11,7 +11,7 @@ class WalkTarget:
 
 
 class Walk:
-    BOBBLE_TIME = 50
+    BOBBLE_TIME = 30
     x = 0.
     z = 0.
     pan = 0.
@@ -20,10 +20,12 @@ class Walk:
     target_epoch = None
     field = None
 
+    # @todo probabilities: walk forward, turn left, turn right, strafe left, strafe right, walk backward
+
     @classmethod
     def target(cls):
         if cls.current_epoch == cls.target_epoch:
-            cls.target_epoch = random.randint(25, 100)
+            cls.target_epoch = random.randint(30, 200)
             cls.current_epoch = 0
             cls.field = random.randint(0, 2)
             value = (
