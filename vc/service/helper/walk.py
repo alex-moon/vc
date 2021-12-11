@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import random
+from typing import List
 
 
 @dataclass
@@ -10,30 +11,96 @@ class WalkTarget:
     y: float
 
 
+@dataclass
+class Movement:
+    key: str
+    field: str
+    sign: int
+    p: float
+
+
 class Walk:
     BOBBLE_TIME = 30
+
+    MOVEMENTS: List[Movement] = [
+        Movement(
+            key='forward',
+            field='z',
+            sign=1,
+            p=0.3,
+        ),
+        Movement(
+            key='turn left',
+            field='pan',
+            sign=-1,
+            p=0.2,
+        ),
+        Movement(
+            key='turn right',
+            field='pan',
+            sign=1,
+            p=0.2,
+        ),
+        Movement(
+            key='strafe left',
+            field='x',
+            sign=-1,
+            p=0.1,
+        ),
+        Movement(
+            key='strafe right',
+            field='x',
+            sign=1,
+            p=0.1,
+        ),
+        Movement(
+            key='backward',
+            field='z',
+            sign=-1,
+            p=0.1,
+        ),
+    ]
+
     x = 0.
     z = 0.
     pan = 0.
     y = 0.
+
     current_epoch = None
     target_epoch = None
-    field = None
-
-    # @todo probabilities: walk forward, turn left, turn right, strafe left, strafe right, walk backward
+    movement: Movement
 
     @classmethod
     def target(cls):
         if cls.current_epoch == cls.target_epoch:
-            cls.target_epoch = random.randint(30, 200)
+            cls.target_epoch = random.randint(60, 200)
             cls.current_epoch = 0
-            cls.field = random.randint(0, 2)
-            value = (
-                1 if random.random() < 0.5 else -1
-            ) * random.gauss(0.7, 0.5)
-            cls.x = value if cls.field == 0 else 0.
-            cls.z = value if cls.field == 1 else 0.
-            cls.pan = value if cls.field == 2 else 0.
+
+            p = 0.
+            choice = random.random()
+            for movement in cls.MOVEMENTS:
+                if choice < movement.p + p:
+                    cls.movement = movement
+                    break
+                p += movement.p
+
+            value = random.gauss(0.7, 0.5)
+
+            cls.x = (
+                cls.movement.sign * value
+                if cls.movement.field == 'x'
+                else 0.
+            )
+            cls.z = (
+                cls.movement.sign * value
+                if cls.movement.field == 'z'
+                else 0.
+            )
+            cls.pan = (
+                cls.movement.sign * value
+                if cls.movement.field == 'pan'
+                else 0.
+            )
 
         cls.current_epoch += 1
         return WalkTarget(
@@ -45,7 +112,7 @@ class Walk:
 
     @classmethod
     def bobble_y(cls):
-        if cls.field == 2:
+        if cls.movement.field == 'pan':
             return 0.
 
         y_step = cls.current_epoch % cls.BOBBLE_TIME - 1
@@ -53,7 +120,7 @@ class Walk:
 
     @classmethod
     def bobble_x(cls):
-        if cls.field == 2:
+        if cls.movement.field == 'pan':
             return 0.
 
         double_bobble = cls.BOBBLE_TIME * 2
