@@ -1,4 +1,4 @@
-import {CustomElement} from 'custom-elements-ts';
+import {CustomElement, Listen} from 'custom-elements-ts';
 import {AuthHelper} from "../helpers/auth";
 import {BaseElement} from "./base-element";
 
@@ -32,11 +32,6 @@ export class Login extends BaseElement {
 
     submit(event: Event) {
         event.preventDefault(); // @todo so annoying! Why do I have to do this?
-        AuthHelper.setToken(this.$input.value);
-        this.vc.authenticate().then(() => {
-            AuthHelper.authenticate();
-        }).catch((error) => {
-            AuthHelper.clearToken();
-        });
+        this.vc.authenticate(this.$input.value);
     }
 }

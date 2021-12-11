@@ -30,6 +30,10 @@ a:active {
     @import "footer";
 }
 
+button.unnotify-button {
+    color: white;
+}
+
 // @todo why is this suddenly necessary?
 .material-icons {
     font-family: 'Material Icons', serif !important;

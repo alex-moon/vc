@@ -1,10 +1,10 @@
-import {Unnotify} from '@unaxiom/unnotify';
+import {Unnotify} from "../lib/unnotify";
 
 export class Notification {
     private un: Unnotify = null;
 
     public constructor() {
-        this.un = new Unnotify();
+        this.un = new Unnotify('right', true);
     }
 
     public error(error: Error, message: string = null, title: string = null) {
@@ -19,6 +19,6 @@ export class Notification {
     }
 
     private show(title: string, content: string, type: string) {
-        this.un.show(title, content, {type,});
+        this.un.show(title, content, {type});
     }
 }

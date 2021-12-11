@@ -1,5 +1,5 @@
 export class AuthHelper {
-    private static token: string = (new URLSearchParams(window.location.search)).get('token');
+    private static token: string = null;
     private static callbacks: CallableFunction[] = [];
     private static authenticated = false;
 
@@ -8,7 +8,9 @@ export class AuthHelper {
     }
 
     static setToken(token: string) {
-        AuthHelper.token = token;
+        AuthHelper.token = token
+            || (new URLSearchParams(window.location.search)).get('token')
+            || localStorage.getItem('vc-token');
     }
 
     static clearToken() {
@@ -18,6 +20,7 @@ export class AuthHelper {
 
     static authenticate() {
         AuthHelper.authenticated = true;
+        localStorage.setItem('vc-token', AuthHelper.token);
         for (const callback of AuthHelper.callbacks) {
             callback(AuthHelper.token);
         }

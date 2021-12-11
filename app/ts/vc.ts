@@ -20,7 +20,7 @@ export class Vc {
     ) {
         this.$requests = document.querySelector('vc-generation-requests');
         if (this.$requests) {
-            this.refreshAndSetTimeout();
+            this.authenticate();
             AuthHelper.listen(this.refresh.bind(this));
         }
     }
@@ -62,12 +62,20 @@ export class Vc {
 
     private error(error: Error) {
         this.notification.error(error);
-        throw error;
     }
 
-    authenticate() {
-        return this.userManager.get()
-            .catch(this.error.bind(this));
+    authenticate(token: string = null) {
+        AuthHelper.setToken(token);
+        this.userManager.get().then(() => {
+            AuthHelper.authenticate();
+        }).catch((error) => {
+            AuthHelper.clearToken();
+            if (token !== null) {
+                this.error(error);
+            } else {
+                this.refreshAndSetTimeout();
+            }
+        });
     }
 
     refresh() {
