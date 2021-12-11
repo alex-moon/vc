@@ -6,7 +6,6 @@ import {AuthHelper} from "./helpers/auth";
 import {GenerationRequest} from "./models/generation-request";
 import {Info} from "./elements/info";
 import {Nav} from "./elements/news/nav";
-import {EnvHelper} from "./helpers/env";
 
 export class Vc {
     $info: Info | Nav;

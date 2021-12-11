@@ -15,6 +15,8 @@ class TierHelper:
 
     @classmethod
     def is_tier(cls, user: User, value):
+        if user is None:
+            return False
         return value in cls.get_user_roles(user)
 
     @classmethod
