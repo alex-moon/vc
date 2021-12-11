@@ -26,7 +26,9 @@ class Walk:
             cls.target_epoch = random.randint(25, 100)
             cls.current_epoch = 0
             cls.field = random.randint(0, 2)
-            value = random.uniform(-2.0, 2.0)
+            value = (
+                1 if random.random() < 0.5 else -1
+            ) * random.gauss(0.7, 0.5)
             cls.x = value if cls.field == 0 else 0.
             cls.z = value if cls.field == 1 else 0.
             cls.pan = value if cls.field == 2 else 0.
