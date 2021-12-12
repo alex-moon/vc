@@ -64,6 +64,8 @@ export class GenerationRequestForm extends BaseElement {
     protected draw() {
         this.$greeting.innerText = 'Hello, ' + this.vc.userManager.user.name + '!';
         this.$steps.innerHTML = '';
+        const addStep = this.el('vc-add-step');
+        this.$steps.appendChild(addStep);
     }
 
     @Listen('click', '.actions button')

@@ -5,6 +5,7 @@ import {CustomElement, Listen} from 'custom-elements-ts';
     style: ``,
     template: `
 <div class="add-step">
+    
 </div>
 `,
 })
@@ -16,6 +17,7 @@ export class AddStep extends HTMLElement {
     }
 
     connectedCallback() {
+        this.$root = this.querySelector('.add-step');
 
     }
 }

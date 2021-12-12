@@ -7,4 +7,12 @@ export abstract class BaseElement extends HTMLElement {
         super();
         this.vc = Vc.instance;
     }
+
+    protected el(tag: string, cssClass: string = null) {
+        const result = document.createElement(tag);
+        if (cssClass) {
+            result.classList.add(cssClass);
+        }
+        return result;
+    }
 }

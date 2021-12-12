@@ -44,6 +44,8 @@ vc-generation-request-form {
                 padding: 0 16px 16px;
             }
 
+            @import "generation_request_form/add_step";
+            /*
             h3 {
                 font-size: medium;
                 margin: 0;
@@ -74,6 +76,8 @@ vc-generation-request-form {
                     right: 8px;
                 }
             }
+            */
+
             .actions {
                 display: flex;
                 justify-content: flex-end;
