@@ -125,5 +125,8 @@ export class GenerationRequestForm extends BaseElement {
         this.vc.create(this.spec);
         this.spec = new GenerationSpec();
         this.draw();
+        this.$form.classList.remove('expanded');
+        this.$header.querySelector('.expand span').innerHTML = 'expand_more';
+        this.expanded = false;
     }
 }

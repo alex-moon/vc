@@ -1,9 +1,9 @@
 import {
     CustomElement,
-    Dispatch, DispatchEmitter,
-    Listen,
+    Dispatch,
+    DispatchEmitter,
     Prop,
-    Toggle, Watch
+    Watch
 } from 'custom-elements-ts';
 import {BaseElement} from "../base-element";
 
@@ -33,23 +33,54 @@ export class ImageSpecOption extends BaseElement {
 
     @Watch('value')
     protected update() {
-        console.log('update called', this.value);
         this.$root.innerHTML = '';
         const label = this.el('label', {innerText: this.label});
-        const input = this.type === 'number'
-            ? this.el('input', {type: 'number', value: this.value})
-            : this.el('input', {type: 'checkbox', checked: this.value === 'true'});
+        let input;
+        switch (this.type) {
+            case 'int':
+                input = this.el('input', {
+                    type: 'number',
+                    value: this.value,
+                    attr: {step: '1'}
+                })
+                break;
+            case 'float':
+                input = this.el('input', {
+                    type: 'number',
+                    value: this.value,
+                    attr: {step: '0.1'}
+                })
+                break;
+            case 'boolean':
+                input = this.el('input', {
+                    type: 'checkbox',
+                    checked: this.value === 'true'
+                });
+                break;
+            default:
+                throw new Error('Invalid type for image spec option: ' + this.type);
+        }
         input.addEventListener('change', this.onChange.bind(this));
         label.appendChild(input);
         this.$root.appendChild(label);
     }
 
     protected onChange(e: any) {
-        console.log(e);
         e.preventDefault();
-        const value = this.type === 'number'
-            ? e.currentTarget.value
-            : e.currentTarget.checked;
-        this.change.emit({detail: value})
+        let value;
+        switch (this.type) {
+            case 'int':
+                value = parseInt(e.currentTarget.value, 10);
+                break;
+            case 'float':
+                value = parseFloat(e.currentTarget.value);
+                break;
+            case 'boolean':
+                value = e.currentTarget.checked;
+                break;
+            default:
+                throw new Error('Invalid type for image spec option: ' + this.type);
+        }
+        this.change.emit({detail: value});
     }
 }

@@ -121,16 +121,16 @@ export class ImageSpecForm extends BaseElement {
         this.onRemove.emit();
     }
 
-    @Listen('keyup', '.texts textarea')
-    protected onTextsKeyup(e: KeyboardEvent) {
+    @Listen('keydown', '.texts textarea')
+    protected onTextsKeydown(e: KeyboardEvent) {
         if (e.key === 'Enter') {
             e.preventDefault();
             this.addText()
         }
     }
 
-    @Listen('keyup', '.styles input')
-    protected onStylesKeyup(e: KeyboardEvent) {
+    @Listen('keydown', '.styles input')
+    protected onStylesKeydown(e: KeyboardEvent) {
         if (e.key === 'Enter') {
             e.preventDefault();
             this.addStyle()

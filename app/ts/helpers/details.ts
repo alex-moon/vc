@@ -43,13 +43,18 @@ export class ImageCounter {
 export class Field {
     field: string;
     label: string;
-    type: 'number'|'boolean';
+    type: 'boolean'|'int'|'float';
     default: number|boolean;
-    constructor(field: string, label: string, _default: number|boolean) {
+    constructor(
+        field: string,
+        label: string,
+        _default: number|boolean,
+        type: 'boolean'|'int'|'float' = 'boolean',
+    ) {
         this.field = field;
         this.label = label;
         this.default = _default;
-        this.type = typeof _default === 'boolean' ? 'boolean' : 'number';
+        this.type = type;
     }
 }
 
@@ -83,21 +88,21 @@ export class DetailsHelper {
 
     static getFields(video: boolean = false): Field[] {
         return video ? [
-            new Field('init_iterations', 'init', 200.),
-            new Field('iterations', 'iterations', 20),
-            new Field('epochs', 'epochs', 42),
-            new Field('transition', 'transition', 20),
+            new Field('init_iterations', 'init', 200, 'int'),
+            new Field('iterations', 'iterations', 20, 'int'),
+            new Field('epochs', 'epochs', 42, 'int'),
+            new Field('transition', 'transition', 20, 'int'),
             new Field('upscale', 'upscale', false),
             new Field('interpolate', 'interpolate', false),
             new Field('random_walk', 'walk', false),
-            new Field('x_velocity', 'x', 0.),
-            new Field('y_velocity', 'y', 0.),
-            new Field('z_velocity', 'z', 0.),
-            new Field('pan_velocity', 'pan', 0.),
-            new Field('tilt_velocity', 'tilt', 0.),
-            new Field('roll_velocity', 'roll', 0.),
+            new Field('x_velocity', 'x', 0., 'float'),
+            new Field('y_velocity', 'y', 0., 'float'),
+            new Field('z_velocity', 'z', 0., 'float'),
+            new Field('pan_velocity', 'pan', 0., 'float'),
+            new Field('tilt_velocity', 'tilt', 0., 'float'),
+            new Field('roll_velocity', 'roll', 0., 'float'),
         ] : [
-            new Field('iterations', 'iterations', 200),
+            new Field('iterations', 'iterations', 200, 'int'),
             new Field('upscale', 'upscale', false),
         ];
     }
