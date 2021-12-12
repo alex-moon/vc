@@ -1,4 +1,9 @@
-import {CustomElement} from 'custom-elements-ts';
+import {
+    CustomElement,
+    Dispatch,
+    DispatchEmitter,
+    Listen
+} from 'custom-elements-ts';
 import {VideoSpec} from "../../models/video-spec";
 import {ImageSpec} from "../../models/image-spec";
 import {ImageSpecForm} from "./image-spec-form";
@@ -11,7 +16,12 @@ import {AddVideoStep} from "./add-video-step";
     style: ``,
     template: `
 <div class="video-spec-form">
-    <h3>Video</h3>
+    <div class="spec-header">
+        <h3>Video</h3>
+        <button class="material-icons">
+            highlight_off
+        </button>
+    </div>
     <div class="steps">
 </div>
 `,
@@ -22,6 +32,8 @@ export class VideoSpecForm extends BaseElement {
 
     spec: VideoSpec;
     expanded = false;
+
+    @Dispatch('spec.remove') onRemove: DispatchEmitter;
 
     constructor() {
         super();
@@ -50,10 +62,19 @@ export class VideoSpecForm extends BaseElement {
         this.addAddSpec();
     }
 
+    @Listen('click', '.spec-header button')
+    protected onRemoveClicked(e: any) {
+        this.onRemove.emit();
+    }
+
     protected addImageSpecForm(spec: ImageSpec) {
         const form = this.el('vc-image-spec-form', {
             attr: {video: true},
         }) as ImageSpecForm;
+        form.addEventListener('spec.remove', () => {
+            this.spec.steps.splice(this.spec.steps.indexOf(spec), 1);
+            this.draw();
+        });
         this.$steps.appendChild(form);
         form.update(spec);
     }

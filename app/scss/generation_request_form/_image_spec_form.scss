@@ -10,9 +10,20 @@ vc-image-spec-form {
     width: 100%;
     margin-bottom: 16px;
 
-    h3 {
-      margin: 0;
-      padding: 0;
+    button {
+      width: 32px !important;
+      height: 32px !important;
+      font-size: 32px !important;
+      line-height: 32px !important;
+    }
+
+    .spec-header {
+      display: flex;
+      justify-content: space-between;
+      h3 {
+        margin: 0;
+        padding: 0;
+      }
     }
 
     .texts, .styles {

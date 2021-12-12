@@ -84,12 +84,20 @@ export class GenerationRequestForm extends BaseElement {
     protected addImageSpecForm(spec: ImageSpec) {
         const form = this.el('vc-image-spec-form') as ImageSpecForm;
         this.$steps.appendChild(form);
+        form.addEventListener('spec.remove', () => {
+            this.spec.images.splice(this.spec.images.indexOf(spec), 1);
+            this.draw();
+        });
         form.update(spec);
     }
 
     protected addVideoSpecForm(spec: VideoSpec) {
         const form = this.el('vc-video-spec-form') as VideoSpecForm;
         this.$steps.appendChild(form);
+        form.addEventListener('spec.remove', () => {
+            this.spec.videos.splice(this.spec.videos.indexOf(spec), 1);
+            this.draw();
+        });
         form.update(spec);
     }
 

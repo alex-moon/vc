@@ -1,4 +1,10 @@
-import {CustomElement, Listen, Toggle} from 'custom-elements-ts';
+import {
+    CustomElement,
+    Dispatch,
+    DispatchEmitter,
+    Listen,
+    Toggle
+} from 'custom-elements-ts';
 import {Chipset} from "../chipset";
 import {ImageSpec} from "../../models/image-spec";
 import {DetailsHelper} from "../../helpers/details";
@@ -11,7 +17,12 @@ import {ImageSpecOption} from "./image-spec-option";
     style: ``,
     template: `
 <div class="image-spec-form">
-    <h3></h3>
+    <div class="spec-header">
+        <h3></h3>
+        <button class="material-icons">
+            highlight_off
+        </button>
+    </div>
     <div class="texts">
         <div class="text-input">
             <label>
@@ -51,6 +62,8 @@ export class ImageSpecForm extends BaseElement {
 
     spec: ImageSpec;
     expanded = false;
+
+    @Dispatch('spec.remove') onRemove: DispatchEmitter;
 
     @Toggle() video: boolean = false;
     constructor() {
@@ -101,6 +114,11 @@ export class ImageSpecForm extends BaseElement {
         const spec = (this.spec as any);
         spec[field] = value;
         this.draw();
+    }
+
+    @Listen('click', '.spec-header button')
+    protected onRemoveClicked(e: any) {
+        this.onRemove.emit();
     }
 
     @Listen('keyup', '.texts textarea')
