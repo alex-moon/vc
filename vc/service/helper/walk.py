@@ -84,7 +84,7 @@ class Walk:
                     break
                 p += movement.p
 
-            value = random.gauss(0.7, 0.5)
+            value = cls.clamp(random.gauss(1., 0.3), 0.2, 2.0)
 
             cls.x = (
                 cls.movement.sign * value
@@ -131,3 +131,7 @@ class Walk:
             if x_step == double_x
             else cls.BOBBLE_TIME - x_step
         ) / cls.BOBBLE_TIME - 0.5
+
+    @classmethod
+    def clamp(cls, value, min_value, max_value):
+        return max(min(value, max_value), min_value)
