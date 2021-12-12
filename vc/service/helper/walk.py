@@ -27,37 +27,37 @@ class Walk:
             key='forward',
             field='z',
             sign=1,
-            p=0.3,
+            p=0.325,
         ),
         Movement(
             key='turn left',
             field='pan',
             sign=-1,
-            p=0.2,
+            p=0.225,
         ),
         Movement(
             key='turn right',
             field='pan',
             sign=1,
-            p=0.2,
+            p=0.225,
         ),
         Movement(
             key='strafe left',
             field='x',
             sign=-1,
-            p=0.1,
+            p=0.075,
         ),
         Movement(
             key='strafe right',
             field='x',
             sign=1,
-            p=0.1,
+            p=0.075,
         ),
         Movement(
             key='backward',
             field='z',
             sign=-1,
-            p=0.1,
+            p=0.075,
         ),
     ]
 
