@@ -1,6 +1,11 @@
 import {CustomElement, Listen} from 'custom-elements-ts';
 import {GenerationSpec} from "../models/generation-spec";
 import {BaseElement} from "./base-element";
+import {AddSpec} from "./generation-request-form/add-spec";
+import {ImageSpec} from "../models/image-spec";
+import {VideoSpec} from "../models/video-spec";
+import {ImageSpecForm} from "./generation-request-form/image-spec-form";
+import {VideoSpecForm} from "./generation-request-form/video-spec-form";
 
 @CustomElement({
     tag: 'vc-generation-request-form',
@@ -64,8 +69,48 @@ export class GenerationRequestForm extends BaseElement {
     protected draw() {
         this.$greeting.innerText = 'Hello, ' + this.vc.userManager.user.name + '!';
         this.$steps.innerHTML = '';
-        const addStep = this.el('vc-add-step');
-        this.$steps.appendChild(addStep);
+
+        for (const spec of this.spec.images || []) {
+            this.addImageSpecForm(spec);
+        }
+
+        for (const spec of this.spec.videos || []) {
+            this.addVideoSpecForm(spec);
+        }
+
+        this.addAddSpec();
+    }
+
+    protected addImageSpecForm(spec: ImageSpec) {
+        const form = this.el('vc-image-spec-form') as ImageSpecForm;
+        this.$steps.appendChild(form);
+        form.update(spec);
+        // @todo bind listeners
+    }
+
+    protected addVideoSpecForm(spec: VideoSpec) {
+        const form = this.el('vc-video-spec-form') as VideoSpecForm;
+        this.$steps.appendChild(form);
+        form.update(spec);
+        // @todo bind listeners
+    }
+
+    protected addAddSpec() {
+        const addSpec = this.el('vc-add-spec') as AddSpec;
+        this.$steps.appendChild(addSpec);
+        addSpec.update(this.spec);
+        addSpec.addEventListener('added.image', (event) => {
+            this.spec.images = this.spec.images || [];
+            this.spec.images.push(new ImageSpec());
+            addSpec.update(this.spec);
+            this.draw();
+        });
+        addSpec.addEventListener('added.video', (event) => {
+            this.spec.videos = this.spec.videos || [];
+            this.spec.videos.push(new VideoSpec());
+            addSpec.update(this.spec);
+            this.draw();
+        });
     }
 
     @Listen('click', '.actions button')

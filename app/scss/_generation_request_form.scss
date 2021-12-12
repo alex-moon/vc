@@ -44,7 +44,12 @@ vc-generation-request-form {
                 padding: 0 16px 16px;
             }
 
-            @import "generation_request_form/add_step";
+            .steps {
+                display: flex;
+                flex-direction: column;
+
+                @import "generation_request_form/add_spec";
+            }
             /*
             h3 {
                 font-size: medium;
@@ -79,8 +84,17 @@ vc-generation-request-form {
             */
 
             .actions {
+                margin-top: 16px;
                 display: flex;
                 justify-content: flex-end;
+
+                button {
+                    background-color: #eaf1f2;
+
+                    &:hover {
+                        background-color: #f0f5f0;
+                    }
+                }
             }
         }
     }
