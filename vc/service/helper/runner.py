@@ -141,7 +141,7 @@ class GenerationRunner:
                     transition=step.spec.transition
                 )
 
-        if step.spec.random_walk:
+        if isinstance(step.spec, VideoStepSpec) and step.spec.random_walk:
             self.translate = Translate(
                 Walk.target().x,
                 Walk.target().y,

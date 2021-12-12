@@ -9,8 +9,11 @@ from functools import reduce
 import cv2
 import copy
 import torch
-from vc.service.helper.utils import refine_depth_around_edge, smooth_cntsyn_gap
-from vc.service.helper.utils import open_small_mask
+from vc.service.helper.inpainting.utils import (
+    refine_depth_around_edge,
+    smooth_cntsyn_gap,
+    open_small_mask
+)
 
 
 # @todo put all in class and clean up

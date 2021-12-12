@@ -29,7 +29,7 @@ from .helper.dimensions import DimensionsHelper
 from .helper.midas import run_depth
 from .helper.midas.utils import read_pfm
 from .helper.string import StringHelper
-from .helper.utils import get_midas_sample, read_midas_depth
+from vc.service.helper.inpainting.utils import get_midas_sample, read_midas_depth
 
 
 @dataclass
