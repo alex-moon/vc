@@ -29,10 +29,6 @@ export class Vc {
         return (global as any).vc;
     }
 
-    create(spec: GenerationSpec) {
-        this.generationRequestManager.create({spec}).then(this.draw.bind(this));
-    }
-
     clearTimeout() {
         window.clearTimeout(this.timeout);
     }
@@ -81,6 +77,12 @@ export class Vc {
     refresh() {
         this.generationRequestManager.index()
             .then(this.draw.bind(this))
+            .catch(this.error.bind(this));
+    }
+
+    create(spec: GenerationSpec) {
+        this.generationRequestManager.create({spec})
+            .then(this.refresh.bind(this))
             .catch(this.error.bind(this));
     }
 

@@ -13,13 +13,7 @@ export class GenerationRequestManager extends BaseManager<GenerationRequest> {
     }
 
     public create(request: GenerationRequest) {
-        return new Promise((resolve, reject) => {
-            this.post(request)
-                .then(this.index.bind(this))
-                .then((result) => {
-                    resolve(result);
-                });
-        });
+        return this.post(request);
     }
 
     public cancel(id: number) {

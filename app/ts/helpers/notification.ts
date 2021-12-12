@@ -8,6 +8,7 @@ export class Notification {
     }
 
     public error(error: Error, message: string = null, title: string = null) {
+        console.log('fuck shit piss', error);
         let content = error.message;
         if (message !== null) {
             content += ': ' + message;

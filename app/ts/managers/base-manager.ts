@@ -23,32 +23,42 @@ export abstract class BaseManager<M extends BaseModel> {
 
     protected async post(data: M, url = ''): Promise<M> {
         url = this.host + this.base_url + url;
-        return new Promise((resolve, reject) => {
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + AuthHelper.getToken(),
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            }).then((response) => {
-                resolve(response.json());
-            });
-        })
+        let status: number;
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + AuthHelper.getToken(),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        }).then((response) => {
+            status = response.status;
+            return response.json();
+        }).then((json) => {
+            if (status > 200) {
+                throw json;
+            }
+            return json;
+        });
     }
 
     protected async put(url: string, data ?: M): Promise<M> {
         url =  this.host + this.base_url + url;
-        return new Promise((resolve, reject) => {
-            fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': 'Bearer ' + AuthHelper.getToken(),
-                    'Content-Type': 'application/json',
-                },
-            }).then((response) => {
-                resolve(response.json());
-            });
+        let status: number;
+        return fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Authorization': 'Bearer ' + AuthHelper.getToken(),
+                'Content-Type': 'application/json',
+            },
+        }).then((response) => {
+            status = response.status;
+            return response.json();
+        }).then((json) => {
+            if (status > 200) {
+                throw json;
+            }
+            return json;
         });
     }
 }
