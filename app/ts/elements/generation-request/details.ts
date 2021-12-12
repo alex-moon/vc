@@ -7,6 +7,7 @@ import {AuthHelper} from "../../helpers/auth";
 import {Vc} from "../../vc";
 import {EnvHelper} from "../../helpers/env";
 import {StatusField, StatusHelper} from "../../helpers/status";
+import {BaseElement} from "../base-element";
 
 @CustomElement({
     tag: 'vc-generation-request-details',
@@ -19,13 +20,12 @@ import {StatusField, StatusHelper} from "../../helpers/status";
 </div>
 `
 })
-export class GenerationRequestDetails extends HTMLElement {
+export class GenerationRequestDetails extends BaseElement {
     $root: HTMLElement
     $actions: HTMLElement
     $steps: HTMLElement
     $preview: HTMLElement
 
-    private vc: Vc
     private request: Model
 
     @Toggle() expanded = false
@@ -35,7 +35,6 @@ export class GenerationRequestDetails extends HTMLElement {
     }
 
     connectedCallback() {
-        this.vc = Vc.instance;
         this.$root = this.querySelector('.details');
         this.$steps = this.$root.querySelector('.steps');
         this.$preview = this.$root.querySelector('.preview');
@@ -59,7 +58,7 @@ export class GenerationRequestDetails extends HTMLElement {
             const images = this.request.spec.images;
             if (images && images.length) {
                 for (let i = 0; i < images.length; i++) {
-                    const element = document.createElement(
+                    const element = this.el(
                         'vc-generation-request-details-step'
                     ) as GenerationRequestDetailsStep;
                     this.$steps.appendChild(element);
@@ -72,8 +71,9 @@ export class GenerationRequestDetails extends HTMLElement {
                 for (const video of videos) {
                     const steps = video.steps;
                     for (let i = 0; i < steps.length; i++) {
-                        const element = document.createElement(
-                            'vc-generation-request-details-step'
+                        const element = this.el(
+                            'vc-generation-request-details-step',
+                            {attr: {video: true}}
                         ) as GenerationRequestDetailsStep;
                         this.$steps.appendChild(element);
                         element.update(i + 1, steps[i]);

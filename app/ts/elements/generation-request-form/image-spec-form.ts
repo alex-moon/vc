@@ -129,9 +129,27 @@ export class ImageSpecForm extends BaseElement {
         }
     }
 
+    @Listen('blur', '.texts textarea')
+    protected onTextsBlur(e: FocusEvent) {
+        const target = e.target as HTMLTextAreaElement;
+        if (target.value) {
+            e.preventDefault();
+            this.addText()
+        }
+    }
+
     @Listen('keydown', '.styles input')
     protected onStylesKeydown(e: KeyboardEvent) {
         if (e.key === 'Enter') {
+            e.preventDefault();
+            this.addStyle()
+        }
+    }
+
+    @Listen('blur', '.styles input')
+    protected onStylesBlur(e: FocusEvent) {
+        const target = e.target as HTMLInputElement;
+        if (target.value) {
             e.preventDefault();
             this.addStyle()
         }

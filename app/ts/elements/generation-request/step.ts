@@ -36,6 +36,7 @@ export class GenerationRequestDetailsStep extends BaseElement {
     number: number;
     spec: ImageSpec
     @Toggle() expanded = false
+    @Toggle() video = false;
 
     constructor() {
         super();
@@ -64,7 +65,7 @@ export class GenerationRequestDetailsStep extends BaseElement {
     }
 
     drawFields() {
-        for (const field of DetailsHelper.getFields()) {
+        for (const field of DetailsHelper.getFields(this.video)) {
             if (field.field in this.spec) {
                 const fieldValue = (this.spec as any)[field.field];
                 if (fieldValue) {
