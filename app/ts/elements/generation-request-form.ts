@@ -85,14 +85,12 @@ export class GenerationRequestForm extends BaseElement {
         const form = this.el('vc-image-spec-form') as ImageSpecForm;
         this.$steps.appendChild(form);
         form.update(spec);
-        // @todo bind listeners
     }
 
     protected addVideoSpecForm(spec: VideoSpec) {
         const form = this.el('vc-video-spec-form') as VideoSpecForm;
         this.$steps.appendChild(form);
         form.update(spec);
-        // @todo bind listeners
     }
 
     protected addAddSpec() {

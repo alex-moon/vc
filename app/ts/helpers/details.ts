@@ -40,6 +40,19 @@ export class ImageCounter {
     }
 }
 
+export class Field {
+    field: string;
+    label: string;
+    type: 'number'|'boolean';
+    default: number|boolean;
+    constructor(field: string, label: string, _default: number|boolean) {
+        this.field = field;
+        this.label = label;
+        this.default = _default;
+        this.type = typeof _default === 'boolean' ? 'boolean' : 'number';
+    }
+}
+
 export class DetailsHelper {
     static getResultUrls(request: GenerationRequest) {
         const urls = [];
@@ -66,5 +79,26 @@ export class DetailsHelper {
 
     static getImageCounter(images: ImageSpec[]) {
         return new ImageCounter(images);
+    }
+
+    static getFields(video: boolean = false): Field[] {
+        return video ? [
+            new Field('init_iterations', 'init', 200.),
+            new Field('iterations', 'iterations', 20),
+            new Field('epochs', 'epochs', 42),
+            new Field('transition', 'transition', 20),
+            new Field('upscale', 'upscale', false),
+            new Field('interpolate', 'interpolate', false),
+            new Field('random_walk', 'walk', false),
+            new Field('x_velocity', 'x', 0.),
+            new Field('y_velocity', 'y', 0.),
+            new Field('z_velocity', 'z', 0.),
+            new Field('pan_velocity', 'pan', 0.),
+            new Field('tilt_velocity', 'tilt', 0.),
+            new Field('roll_velocity', 'roll', 0.),
+        ] : [
+            new Field('iterations', 'iterations', 200),
+            new Field('upscale', 'upscale', false),
+        ];
     }
 }

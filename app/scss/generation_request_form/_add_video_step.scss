@@ -1,0 +1,39 @@
+@import "../theme";
+
+vc-add-video-step {
+  .add-video-step {
+    display: flex;
+    background-color: #c5d9dd;
+    padding: 8px;
+    border-radius: $border-radius;
+    border: solid $border-width #5c6267;
+    box-sizing: border-box;
+    width: 100%;
+
+    .add-image {
+      height: 128px;
+      background-color: #eaf1f2;
+      padding: 8px;
+      border-radius: $border-radius;
+      border: solid 1px #5c6267;
+      margin: 8px;
+      flex-grow: 1;
+      cursor: pointer;
+      position: relative;
+
+      &:hover {
+        background-color: #f0f5f0;
+
+        img {
+          opacity: 1;
+        }
+      }
+
+      img {
+        position: absolute;
+        left: calc(50% - 60px);
+        opacity: 0.3;
+      }
+    }
+  }
+}

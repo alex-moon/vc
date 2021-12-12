@@ -1,4 +1,5 @@
 import {CustomElement, Dispatch, DispatchEmitter, Toggle} from 'custom-elements-ts';
+import {BaseElement} from "./base-element";
 
 @CustomElement({
     tag: 'vc-chipset',
@@ -8,7 +9,7 @@ import {CustomElement, Dispatch, DispatchEmitter, Toggle} from 'custom-elements-
 <div class="chipset"></div>
 `
 })
-export class Chipset extends HTMLElement {
+export class Chipset extends BaseElement {
     texts: string[];
 
     $root: HTMLElement;
@@ -40,8 +41,7 @@ export class Chipset extends HTMLElement {
         this.$root.innerHTML = '';
 
         for (const text of this.texts) {
-            const chip = document.createElement('vc-chip');
-            chip.setAttribute('text', text);
+            const chip = this.el('vc-chip', {attr: {text}});
             if (this.removable) {
                 chip.setAttribute('removable', '');
                 chip.addEventListener('chip.remove', this.onChipRemove.bind(this));

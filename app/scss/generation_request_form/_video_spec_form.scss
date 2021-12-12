@@ -1,0 +1,23 @@
+@import "../theme";
+
+vc-video-spec-form {
+  .video-spec-form {
+    background-color: #ebdeca;
+    padding: 8px;
+    border-radius: $border-radius;
+    border: solid $border-width #5c6267;
+    box-sizing: border-box;
+    width: 100%;
+    margin-bottom: 16px;
+
+    h3 {
+      margin: 0;
+      padding: 0;
+    }
+
+    .steps {
+      margin: 8px;
+      @import 'add_video_step';
+    }
+  }
+}

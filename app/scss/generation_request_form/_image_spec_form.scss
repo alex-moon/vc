@@ -10,13 +10,21 @@ vc-image-spec-form {
     width: 100%;
     margin-bottom: 16px;
 
+    h3 {
+      margin: 0;
+      padding: 0;
+    }
+
+    .texts, .styles {
+      margin: 8px;
+    }
+
     .text-input {
       cursor: text;
       background: #eaf1f2;
       border: solid 1px #5c6267;
       border-radius: $border-radius;
       padding: 8px;
-      margin: 8px;
       position: relative;
 
       &:hover {
@@ -50,6 +58,18 @@ vc-image-spec-form {
         bottom: 8px;
         right: 8px;
       }
+    }
+
+    .options {
+      padding: 8px;
+      display: flex;
+      flex-flow: row wrap;
+
+      @include mobile {
+        flex-flow: nowrap;
+        flex-direction: column;
+      }
+      @import 'image_spec_option';
     }
   }
 }

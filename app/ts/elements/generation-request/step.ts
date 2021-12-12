@@ -1,6 +1,8 @@
 import {CustomElement, Toggle} from 'custom-elements-ts';
 import {Chipset} from "../chipset";
 import {ImageSpec} from "../../models/image-spec";
+import {DetailsHelper} from "../../helpers/details";
+import {BaseElement} from "../base-element";
 
 @CustomElement({
     tag: 'vc-generation-request-details-step',
@@ -23,7 +25,7 @@ import {ImageSpec} from "../../models/image-spec";
 </div>
 `
 })
-export class GenerationRequestDetailsStep extends HTMLElement {
+export class GenerationRequestDetailsStep extends BaseElement {
     $root: HTMLElement
     $number: HTMLElement
     $spec: HTMLElement
@@ -62,33 +64,20 @@ export class GenerationRequestDetailsStep extends HTMLElement {
     }
 
     drawFields() {
-        for (const fieldName of [
-            'x_velocity',
-            'y_velocity',
-            'z_velocity',
-            'pan_velocity',
-            'tilt_velocity',
-            'roll_velocity',
-            'iterations',
-            'init_iterations',
-            'upscale',
-            'interpolate',
-            'random_walk',
-            'epochs',
-            'transition',
-        ]) {
-            if (fieldName in this.spec) {
-                const fieldValue = (this.spec as any)[fieldName];
+        for (const field of DetailsHelper.getFields()) {
+            if (field.field in this.spec) {
+                const fieldValue = (this.spec as any)[field.field];
                 if (fieldValue) {
-                    const field = document.createElement('div');
-                    field.classList.add('field');
-                    const label = document.createElement('label');
-                    label.innerText = fieldName.split('_')[0];
-                    const span = document.createElement('span');
-                    span.innerText = '' + fieldValue;
-                    field.appendChild(label);
-                    field.appendChild(span);
-                    this.$fields.appendChild(field);
+                    const div = this.el('div', {class: 'field'});
+                    const label = this.el('label', {
+                        innerText: field.label,
+                    });
+                    const span = this.el('span', {
+                        innerText: '' + fieldValue,
+                    });
+                    div.appendChild(label);
+                    div.appendChild(span);
+                    this.$fields.appendChild(div);
                 }
             }
         }

@@ -1,6 +1,9 @@
-import {CustomElement, Listen} from 'custom-elements-ts';
+import {CustomElement, Listen, Toggle} from 'custom-elements-ts';
 import {Chipset} from "../chipset";
 import {ImageSpec} from "../../models/image-spec";
+import {DetailsHelper} from "../../helpers/details";
+import {BaseElement} from "../base-element";
+import {ImageSpecOption} from "./image-spec-option";
 
 @CustomElement({
     tag: 'vc-image-spec-form',
@@ -8,6 +11,7 @@ import {ImageSpec} from "../../models/image-spec";
     style: ``,
     template: `
 <div class="image-spec-form">
+    <h3></h3>
     <div class="texts">
         <div class="text-input">
             <label>
@@ -32,25 +36,31 @@ import {ImageSpec} from "../../models/image-spec";
         </div>
         <vc-chipset removable></vc-chipset>
     </div>
+    <div class="options"></div>
 </div>
 `,
 })
-export class ImageSpecForm extends HTMLElement {
-    $root: HTMLElement
-    $textInput: HTMLTextAreaElement
-    $textChips: Chipset
-    $styleInput: HTMLInputElement
-    $styleChips: Chipset
+export class ImageSpecForm extends BaseElement {
+    $root: HTMLElement;
+    $h3: HTMLElement;
+    $options: HTMLElement;
+    $textInput: HTMLTextAreaElement;
+    $textChips: Chipset;
+    $styleInput: HTMLInputElement;
+    $styleChips: Chipset;
 
     spec: ImageSpec;
     expanded = false;
 
+    @Toggle() video: boolean = false;
     constructor() {
         super();
     }
 
     connectedCallback() {
         this.$root = this.querySelector('.image-spec-form');
+        this.$h3 = this.$root.querySelector('h3');
+        this.$options = this.$root.querySelector('.options');
 
         this.$textInput = this.$root.querySelector('.texts .text-input textarea');
         this.$textChips = this.$root.querySelector('.texts vc-chipset');
@@ -67,9 +77,30 @@ export class ImageSpecForm extends HTMLElement {
         if (!this.spec) {
             return;
         }
-
+        this.$h3.innerText = this.video ? 'Step' : 'Image';
         this.$textChips.update(this.spec.texts);
         this.$styleChips.update(this.spec.styles);
+
+        this.$options.innerHTML = '';
+        for (const field of DetailsHelper.getFields(this.video)) {
+            const option = this.el('vc-image-spec-option', {
+                attr: {
+                    label: field.label,
+                    type: field.type,
+                    value: (this.spec as any)[field.field] || field.default,
+                },
+            }) as ImageSpecOption;
+            option.addEventListener('change.value', (e: any) => {
+                this.onOptionChange(field.field, e.detail);
+            });
+            this.$options.appendChild(option);
+        }
+    }
+
+    protected onOptionChange(field: string, value: boolean|number) {
+        const spec = (this.spec as any);
+        spec[field] = value;
+        this.draw();
     }
 
     @Listen('keyup', '.texts textarea')
