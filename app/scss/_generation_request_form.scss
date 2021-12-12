@@ -49,38 +49,11 @@ vc-generation-request-form {
                 flex-direction: column;
 
                 @import "generation_request_form/add_spec";
+                @import "generation_request_form/image_spec_form";
+                @import "generation_request_form/video_spec_form";
             }
             /*
-            h3 {
-                font-size: medium;
-                margin: 0;
-            }
-            .text-input {
-                background: #f9f8ef;
-                border: solid 1px #5c6267;
-                border-radius: $border-radius;
-                padding: 8px;
-                margin: 8px 0;
-                position: relative;
 
-                textarea, input {
-                    border: none;
-                    background: none;
-                    resize: none;
-                    outline: none;
-                    width: calc(100% - 32px);
-                    margin-top: 4px;
-                }
-                textarea {
-                    height: 5em;
-                }
-
-                button {
-                    position: absolute;
-                    bottom: 8px;
-                    right: 8px;
-                }
-            }
             */
 
             .actions {

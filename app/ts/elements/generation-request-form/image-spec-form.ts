@@ -10,8 +10,10 @@ import {ImageSpec} from "../../models/image-spec";
 <div class="image-spec-form">
     <div class="texts">
         <div class="text-input">
-            <h3>Add text</h3>
-            <textarea placeholder="e.g. A medieval cathedral interior"></textarea>
+            <label>
+                Add text
+                <textarea id="texts-input" placeholder="e.g. A medieval cathedral interior"></textarea>
+            </label>
             <button class="material-icons">
                 add_circle
             </button>
@@ -20,8 +22,10 @@ import {ImageSpec} from "../../models/image-spec";
     </div>
     <div class="styles">
         <div class="text-input">
-            <h3>Add style</h3>
-            <input placeholder="e.g. reuters"/>
+            <label>
+                Add style
+                <input placeholder="e.g. reuters"/>
+            </label>
             <button class="material-icons">
                 add_circle
             </button>

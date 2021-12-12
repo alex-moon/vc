@@ -1,0 +1,55 @@
+@import "../theme";
+
+vc-image-spec-form {
+  .image-spec-form {
+    background-color: #c5d9dd;
+    padding: 8px;
+    border-radius: $border-radius;
+    border: solid $border-width #5c6267;
+    box-sizing: border-box;
+    width: 100%;
+    margin-bottom: 16px;
+
+    .text-input {
+      cursor: text;
+      background: #eaf1f2;
+      border: solid 1px #5c6267;
+      border-radius: $border-radius;
+      padding: 8px;
+      margin: 8px;
+      position: relative;
+
+      &:hover {
+        background-color: #f0f5f0;
+      }
+
+      label {
+        cursor: text;
+        font-size: medium;
+        font-weight: bold;
+        margin: 0;
+        display: block;
+        width: 100%;
+      }
+
+      textarea, input {
+        border: none;
+        background: none;
+        resize: none;
+        outline: none;
+        width: calc(100% - 32px);
+        margin-top: 4px;
+      }
+
+      textarea {
+        height: 5em;
+      }
+
+      button {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+      }
+    }
+  }
+}
