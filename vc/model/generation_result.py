@@ -6,6 +6,12 @@ from vc.model.base import BaseModel
 
 
 class GenerationResult(db.Model, BaseModel):
+    FIELDS = [
+        'request_id',
+        'url',
+        'url_watermarked',
+    ]
+
     request_id = db.Column(
         db.Integer,
         db.ForeignKey('generation_request.id'),
