@@ -8,7 +8,7 @@ export abstract class BaseManager<M extends BaseModel> {
     protected base_url: string;
 
     protected async fetch(url = ''): Promise<M | M[]> {
-        url = this.host + this.base_url + url;
+        url = url[0] === '/' ? url : this.host + this.base_url + url;
         return new Promise((resolve, reject) => {
             fetch(url, {
                 headers: {
