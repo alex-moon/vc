@@ -41,13 +41,13 @@ class VqganClipOptions:
     vqgan_checkpoint: str = f'checkpoints/vqgan_imagenet_f16_16384.ckpt'
     noise_prompt_seeds: List[int] = field(default_factory=list)
     noise_prompt_weights: List[float] = field(default_factory=list)
-    step_size: float = 0.1
+    step_size: float = 0.01
     cutn: int = 48
     cut_pow: float = 1.
     seed: int = None
     optimiser: str = 'Adam'
     cudnn_determinism: bool = False
-    augments: str = None
+    augments: List[List[str]] = None
 
 
 class VqganClipService:
@@ -72,6 +72,7 @@ class VqganClipService:
 
         if args.augments is None:
             args.augments = [['Af', 'Pe', 'Ji', 'Er']]
+            # args.augments = [[]]
 
         if args.display_freq is None:
             args.display_freq = args.max_iterations - 1

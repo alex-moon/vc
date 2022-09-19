@@ -212,6 +212,7 @@ class GenerationRunner:
             reset = (
                 self.translate.should_reset()
                 or self.rotate.should_reset()
+                or True
             )
             if reset:
                 self.translate.reset()
