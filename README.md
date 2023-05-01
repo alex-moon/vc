@@ -24,7 +24,7 @@ nvm install 16.13.0 # (yes, not v17 - it has a problem with OpenSSL)
 npm install -g npx
 ```
 
-2. Spin up a `g4dn.xlarge` EC2 instance from the Deep Learning Base AMI (Ubuntu 18):
+1. Spin up a `g4dn.xlarge` EC2 instance from the Deep Learning Base AMI (Ubuntu 18):
 ```
 aws ec2 run-instances \
    --image-id ami-0bdd0109e841ac9fc \
