@@ -22,6 +22,18 @@ def create_app():
     app = Flask(__name__)
     app.config.update(os.environ)
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%s:%s@%s:%s/%s' % (
+        app.config['DB_USER'],
+        app.config['DB_PASS'],
+        app.config['DB_HOST'],
+        app.config['DB_PORT'],
+        app.config['DB_NAME'],
+    )
+    app.config['RQ_DEFAULT_URL'] = 'redis://:%s@%s:%s/1' % (
+        app.config['REDIS_PASS'],
+        app.config['REDIS_HOST'],
+        app.config['REDIS_PORT'],
+    )
 
     # CORS
     CORS(app, resources={r"/*": {"origins": "*"}})

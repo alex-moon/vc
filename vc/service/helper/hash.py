@@ -5,6 +5,7 @@ import dotenv
 class HashHelper:
     @classmethod
     def get(cls, value: str):
+        # @todo this is failing
         return bcrypt.hashpw(
             value.encode('utf-8'),
             cls.get_salt(value)

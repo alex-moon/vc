@@ -9,13 +9,13 @@ function getEnv() {
     case 'private':
       return {
         useLocal: false,
-        host: '"https://vc-api.ajmoon.uk"',
+        host: '"https://vc.ajmoon.com"',
         env: 'private',
       }
     case 'local':
       return {
         useLocal: false,
-        host: '"https://vc-api.ajmoon.uk"',
+        host: '"https://vc.ajmoon.com"',
         env: 'local',
       }
     case 'public':

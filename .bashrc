@@ -17,7 +17,7 @@ run() {
 }
 
 
-# needed for inpainting - see docker/local/flask/Dockerfile
+# needed for inpainting - see docker/flask/Dockerfile
 # Xvfb :0 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &
 # export DISPLAY=:0
 

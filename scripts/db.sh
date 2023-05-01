@@ -1,8 +1,7 @@
 #!/bin/bash
 
-pass=$(cat /opt/vc/.env | grep SQLALCHEMY_DATABASE_URI | awk -F':' '{ print $3 }' | awk -F'@' '{ print $1 }')
-host=$(cat /opt/vc/.env | grep SQLALCHEMY_DATABASE_URI | awk -F'@' '{ print $2 }' | awk -F':' '{ print $1 }')
+source /opt/vc/.env
 
-echo "Connecting to $host"
+echo "Connecting to $DB_HOST"
 
-PGPASSWORD=$pass psql --user=vc --host=$host vc
+PGPASSWORD=$DB_PASS psql --user=$DB_USER --host=$DB_HOST --port=$DB_PORT $DB_NAME

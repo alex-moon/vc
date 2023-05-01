@@ -3,12 +3,8 @@ services:
   flask:
     build:
       context: ./
-      dockerfile: docker/local/flask/Dockerfile
-    container_name: flask
-    image: vc.ajmoon.uk/flask:local
-    expose:
-      - 5000
-      - 5001
+      dockerfile: docker/flask/Dockerfile
+    image: vc.ajmoon.com/flask
     volumes:
       - .:/opt/vc
       - .bashrc:/root/.bashrc
@@ -18,47 +14,52 @@ services:
       - pgsql
     extra_hosts:
       - "laravel.local:192.168.99.198"
-    command: sleep 999999999
-    # command: ./docker.flask.sh
+    command: ./docker.flask.sh
 
   nginx:
     build:
       context: .
-      dockerfile: docker/local/nginx/Dockerfile
-    container_name: nginx
+      dockerfile: docker/nginx/Dockerfile
+    image: vc.ajmoon.com/nginx
     links:
       - flask
     volumes:
       - .:/opt/vc
       - ./log/nginx/:/var/log/nginx
-      - ./docker/local/nginx/conf/flask.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/conf/flask.conf:/etc/nginx/nginx.conf
+    ports:
+      - "10001:80"
 
   pgsql:
     image: postgis/postgis:9.5-2.5-alpine
-    container_name: pgsql
     environment:
-      POSTGRES_PASSWORD: password
-      POSTGRES_USER: vc
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_USER: ${DB_USER}
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ~/pgsql:/var/lib/postgresql/data
+      - ./pgsql:/var/lib/postgresql/data
+    ports:
+      - "15433:5432"
 
-  worker:
-    container_name: worker
-    image: vc.ajmoon.uk/flask:local
-    volumes:
-      - .:/opt/vc
-      - .bashrc:/root/.bashrc
-    links:
-      - pgsql
-      - redis
-    depends_on:
-      - pgsql
-    environment:
-      SERVICE: worker
-    command: sleep 999999999
+#  worker:
+#    image: vc.ajmoon.com/flask
+#    volumes:
+#      - .:/opt/vc
+#      - .bashrc:/root/.bashrc
+#    links:
+#      - pgsql
+#      - redis
+#    depends_on:
+#      - pgsql
+#    environment:
+#      SERVICE: worker
+#    command: sleep 999999999
     # command: ./docker.worker.sh
 
   redis:
-    image: redis:6.2.4
-    container_name: redis
+    build:
+      context: .
+      dockerfile: docker/redis/Dockerfile
+    image: vc.ajmoon.com/redis
+    ports:
+      - "16380:6379"

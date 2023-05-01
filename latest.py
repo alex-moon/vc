@@ -6,7 +6,7 @@ from datetime import datetime
 print("Running latest %s" % datetime.now())
 
 response = requests.get(
-    'https://vc-api.ajmoon.uk/api/generation-request/',
+    'https://vc.ajmoon.com/api/generation-request/',
     headers={
         "Authorization": "Bearer %s" % dotenv.get_key('.env', 'APP_KEY')
     }

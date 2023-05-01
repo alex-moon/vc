@@ -81,23 +81,23 @@ fi
 # ABME (not used)
 #file=checkpoints/SBME_ckpt.pth
 #if [[ ! -f "$file" ]]; then
-#  curl -L -o $file -C - https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/models/SBME_ckpt.pth
+#  curl -L -o $file -C - https://vc-ajmoon.com.s3.eu-west-1.amazonaws.com/models/SBME_ckpt.pth
 #fi
 #
 #file=checkpoints/ABMR_ckpt.pth
 #if [[ ! -f "$file" ]]; then
-#  curl -L -o $file -C - https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/models/ABMR_ckpt.pth
+#  curl -L -o $file -C - https://vc-ajmoon.com.s3.eu-west-1.amazonaws.com/models/ABMR_ckpt.pth
 #fi
 #
 #file=checkpoints/SynNet_ckpt.pth
 #if [[ ! -f "$file" ]]; then
-#  curl -L -o $file -C - https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/models/SynNet_ckpt.pth
+#  curl -L -o $file -C - https://vc-ajmoon.com.s3.eu-west-1.amazonaws.com/models/SynNet_ckpt.pth
 #fi
 
 # RIFE
 file=checkpoints/flownet.pkl
 if [[ ! -f "$file" ]]; then
-  curl -L -o $file -C - https://vc-ajmoon-uk.s3.eu-west-1.amazonaws.com/models/flownet.pkl
+  curl -L -o $file -C - https://vc-ajmoon.com.s3.eu-west-1.amazonaws.com/models/flownet.pkl
 fi
 
 echo "Done [worker]"

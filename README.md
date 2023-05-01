@@ -128,7 +128,7 @@ sudo cp nginx.conf /etc/nginx/sites-enabled/vc.conf
 ```
 
 3. Modify `/etc/nginx/sites-enabled/vc.conf` to match your hostname and certificate filepaths.
-This should be as straightforward as replacing `vc.ajmoon.uk` with your domain name.
+This should be as straightforward as replacing `vc.ajmoon.com` with your domain name.
 
 4. Restart nginx:
 ```

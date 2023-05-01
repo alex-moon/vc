@@ -19,8 +19,9 @@ RUN apt install -y \
     curl \
     ffmpeg \
     zip \
-    redis-tools \
-    supervisor
+    redis-tools
+
+RUN pip3 install uwsgi
 
 EXPOSE 5000
 EXPOSE 5001

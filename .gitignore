@@ -41,4 +41,5 @@ weights
 .env.local
 .env.live
 venv.bak
-
+redis.conf
+pgsql/
