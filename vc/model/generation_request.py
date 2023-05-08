@@ -1,6 +1,5 @@
-from flask_restplus import fields
+from flask_restful import fields
 
-from vc.api import api
 from vc.db import db
 from vc.model.base import BaseModel
 from vc.model.generation_result import GenerationResult
@@ -38,7 +37,7 @@ class GenerationRequest(db.Model, BaseModel):
 
     results = db.relationship('GenerationResult', backref='request')
 
-    private_schema = api.model('Generation Request', {
+    private_schema = {
         'id': fields.Integer,
         'spec': fields.Nested(GenerationSpec.schema),
         'created': fields.DateTime(),
@@ -57,9 +56,9 @@ class GenerationRequest(db.Model, BaseModel):
         'interim': fields.String,
         'interim_watermarked': fields.String,
         'results': fields.List(fields.Nested(GenerationResult.public_schema)),
-    })
+    }
 
-    public_schema = api.model('Generation Request', {
+    public_schema = {
         'id': fields.Integer,
         'created': fields.DateTime(),
         'updated': fields.DateTime(),
@@ -75,4 +74,4 @@ class GenerationRequest(db.Model, BaseModel):
         'preview': fields.String,
         'interim_watermarked': fields.String,
         'results': fields.List(fields.Nested(GenerationResult.private_schema)),
-    })
+    }

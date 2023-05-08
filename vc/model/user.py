@@ -1,6 +1,5 @@
-from flask_restplus import fields
+from flask_restful import fields
 
-from vc.api import api
 from vc.db import db
 from vc.model.base import BaseModel
 
@@ -30,7 +29,7 @@ class User(db.Model, BaseModel):
 
     requests = db.relationship('GenerationRequest', backref='user')
 
-    schema = api.model('User', {
+    schema = {
         'id': fields.Integer,
         'email': fields.String,
         'name': fields.String,
@@ -38,4 +37,4 @@ class User(db.Model, BaseModel):
         'created': fields.DateTime(),
         'updated': fields.DateTime(),
         'deleted': fields.DateTime(),
-    })
+    }

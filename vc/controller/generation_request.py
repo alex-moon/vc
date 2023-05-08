@@ -1,10 +1,9 @@
 from flask import request
-from flask_restplus import fields
+from flask_restful import marshal, marshal_with, fields
 from injector import inject
 from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, \
     Forbidden
 
-from vc.api import api
 from vc.auth import auth
 from vc.exception import NotFoundException, VcException
 from vc.manager import GenerationRequestManager, UserManager
@@ -14,19 +13,13 @@ from .base import BaseController
 from ..exception.tier_exception import TierException
 from ..validator.generation_request import GenerationRequestValidator
 
-ns = api.namespace(
-    'generation-request',
-    description='Generation requests'
-)
-
 private_model = GenerationRequest.private_schema
 public_model = GenerationRequest.public_schema
-post_model = ns.model('Generation Request', {
+post_model = {
     'spec': fields.Nested(GenerationSpec.schema),
-})
+}
 
 
-@ns.route('/')
 class GenerationRequestsController(BaseController):
     validator: GenerationRequestValidator
     manager: GenerationRequestManager
@@ -47,22 +40,22 @@ class GenerationRequestsController(BaseController):
     @auth.login_required(optional=True)
     def get(self):
         if self.is_god():
-            return ns.marshal(self.manager.all(), private_model)
+            return marshal(self.manager.all(), private_model)
         if self.is_artist():
-            return ns.marshal(
+            return marshal(
                 self.manager.mine(self.current_user()),
                 private_model
             )
         if self.is_coder():
-            return ns.marshal(
+            return marshal(
                 self.manager.mine(self.current_user()),
                 public_model
             )
-        return ns.marshal(self.manager.published(), public_model)
+        return marshal(self.manager.published(), public_model)
 
     @auth.login_required()
-    @ns.marshal_with(private_model)
-    @ns.expect(post_model, validate=True)
+    @marshal_with(private_model)
+    # @expect(post_model, validate=True)
     def post(self):
         user = self.current_user()
 
@@ -77,7 +70,6 @@ class GenerationRequestsController(BaseController):
             raise InternalServerError(e.message)
 
 
-@ns.route('/<int:id_>')
 class GenerationRequestController(BaseController):
     validator: GenerationRequestValidator
     manager: GenerationRequestManager
@@ -103,8 +95,8 @@ class GenerationRequestController(BaseController):
             raise NotFound(e.message)
 
         if self.is_artist():
-            return ns.marshal(data, private_model)
-        return ns.marshal(data, public_model)
+            return marshal(data, private_model)
+        return marshal(data, public_model)
 
     @auth.login_required()
     def delete(self, id_):
@@ -114,12 +106,11 @@ class GenerationRequestController(BaseController):
         }
 
     @auth.login_required()
-    @ns.marshal_with(private_model)
+    @marshal_with(private_model)
     def put(self, id_):
         return self.manager.update(id_, request.json, self.current_user())
 
 
-@ns.route('/<int:id_>/<string:action>')
 class GenerationRequestActionController(BaseController):
     validator: GenerationRequestValidator
     manager: GenerationRequestManager
@@ -138,7 +129,7 @@ class GenerationRequestActionController(BaseController):
         self.validator = validator
 
     @auth.login_required()
-    @ns.marshal_with(private_model)
+    @marshal_with(private_model)
     def put(self, id_, action: str):
         if action == 'cancel':
             return self.cancel(id_)

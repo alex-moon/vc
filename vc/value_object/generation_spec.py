@@ -1,9 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-from flask_restplus import fields
-
-from vc.api import api
+from flask_restful import fields
 
 
 @dataclass
@@ -14,13 +12,13 @@ class ImageSpec:
     iterations: int = 200
     upscale: bool = False
 
-    schema = api.model('Image Spec', {
-        'texts': fields.List(fields.String, default_factory=list),
-        'styles': fields.List(fields.String, default_factory=list),
+    schema = {
+        'texts': fields.List(fields.String, default=[]),
+        'styles': fields.List(fields.String, default=[]),
         'ground': fields.String,
         'iterations': fields.Integer(default=200),
         'upscale': fields.Boolean(default=False),
-    })
+    }
 
 
 @dataclass
@@ -38,9 +36,9 @@ class VideoStepSpec(ImageSpec):
     roll_velocity: float = 0.
     random_walk: bool = False
 
-    schema = api.model('Video Step Spec', {
-        'texts': fields.List(fields.String, default_factory=list),
-        'styles': fields.List(fields.String, default_factory=list),
+    schema = {
+        'texts': fields.List(fields.String, default=[]),
+        'styles': fields.List(fields.String, default=[]),
         'ground': fields.String,
         'iterations': fields.Integer(default=20),
         'upscale': fields.Boolean(default=False),
@@ -55,16 +53,16 @@ class VideoStepSpec(ImageSpec):
         'tilt_velocity': fields.Float(default=0.),
         'roll_velocity': fields.Float(default=0.),
         'random_walk': fields.Boolean(default=False),
-    })
+    }
 
 
 @dataclass
 class VideoSpec:
     steps: List[VideoStepSpec]
 
-    schema = api.model('Video Spec', {
+    schema = {
         'steps': fields.List(fields.Nested(VideoStepSpec.schema))
-    })
+    }
 
 
 @dataclass
@@ -72,7 +70,7 @@ class GenerationSpec:
     images: List[ImageSpec] = None
     videos: List[VideoSpec] = None
 
-    schema = api.model('Generation Spec', {
+    schema = {
         'images': fields.List(fields.Nested(ImageSpec.schema)),
         'videos': fields.List(fields.Nested(VideoSpec.schema)),
-    })
+    }

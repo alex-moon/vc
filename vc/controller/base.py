@@ -1,4 +1,4 @@
-from flask_restplus import Resource
+from flask_restful import Resource
 
 from vc.auth import auth
 from vc.manager.user import UserManager
