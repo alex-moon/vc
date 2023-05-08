@@ -12,7 +12,7 @@ services:
       SERVICE: flask
     links:
       - pgsql
-    command: sleep 999999999 # ./docker.flask.sh
+    command: ./docker.flask.sh
 
   nginx:
     build:
