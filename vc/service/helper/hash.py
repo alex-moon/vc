@@ -14,11 +14,15 @@ class HashHelper:
         ).decode()
 
     @classmethod
-    def get_salt(cls, unique_input: str):
+    def get_salt(cls, value: str):
+        return os.getenv('SALT').encode('utf-8')
+
+    @classmethod
+    def get_salt_not_working(cls, value: str):
         secret_key = os.getenv('APP_KEY')
 
         hmac_obj = hashlib.sha256(secret_key.encode('utf-8'))
-        hmac_obj.update(unique_input.encode('utf-8'))
+        hmac_obj.update(value.encode('utf-8'))
         hmac_digest = hmac_obj.digest()
 
         salt_value = base64.b64encode(hmac_digest)[:22]
