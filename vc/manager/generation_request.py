@@ -137,3 +137,12 @@ class GenerationRequestManager(Manager):
         self.save(model)
 
         return model
+
+    def trigger(self, id_):
+        model = self.find_or_throw(id_)
+
+        self.dispatcher.dispatch(
+            GenerationRequestCreatedEvent(model)
+        )
+
+        return model

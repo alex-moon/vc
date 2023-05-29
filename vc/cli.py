@@ -13,6 +13,7 @@ class CommandLoader:
         'rife': command.RifeCommand,
         'rife_steps': command.RifeStepsCommand,
         'video': command.VideoCommand,
+        'trigger': command.TriggerCommand,
     }
 
     @classmethod

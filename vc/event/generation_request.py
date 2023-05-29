@@ -8,7 +8,7 @@ class GenerationRequestCreatedEvent(VcEvent):
     generation_request: GenerationRequest
     user: User
 
-    def __init__(self, generation_request: GenerationRequest, user: User):
+    def __init__(self, generation_request: GenerationRequest, user: User=None):
         self.generation_request = generation_request
         self.user = user
 
