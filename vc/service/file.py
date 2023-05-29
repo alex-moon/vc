@@ -15,13 +15,15 @@ class FileService:
 
     @inject
     def __init__(self, app: Flask):
+        self.bucket = app.config.get('AWS_BUCKET_NAME')
+        self.region = app.config.get('AWS_BUCKET_REGION')
         self.client = boto3.client(
             's3',
+            region_name=self.region,
+            endpoint_url='https://{region}.digitaloceanspaces.com'.format(region=self.region),
             aws_access_key_id=app.config.get('AWS_ACCESS_KEY_ID'),
             aws_secret_access_key=app.config.get('AWS_SECRET_ACCESS_KEY')
         )
-        self.bucket = app.config.get('AWS_BUCKET_NAME')
-        self.region = app.config.get('AWS_BUCKET_REGION')
 
     def put(self, local_file, filename, now: datetime = None):
         filename = self.get_filename(filename, now)
@@ -39,7 +41,8 @@ class FileService:
                 ExtraArgs={'ACL': 'public-read'}
             )
             return url
-        except Exception:
+        except Exception as e:
+            dh.debug("FileService", "put", "Exception", e)
             return None
 
     def get_filename(self, filename, now: datetime = None):
