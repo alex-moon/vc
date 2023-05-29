@@ -35,11 +35,11 @@ class VcApi(Api):
         return jsonify(**err.kwargs), err.http_status_code
 
 api = VcApi()
-api.add_resource(GenerationRequestController, '/generation-request/<int:_id>')
-api.add_resource(GenerationRequestActionController, '/generation-request/<int:_id>/<string:action>')
+api.add_resource(GenerationRequestController, '/generation-request/<int:id_>')
+api.add_resource(GenerationRequestActionController, '/generation-request/<int:id_>/<string:action>')
 api.add_resource(GenerationRequestsController, '/generation-request')
 api.add_resource(MeController, '/user/me')
 api.add_resource(MeTokenController, '/user/me/token')
-api.add_resource(UserController, '/user/<int:_id>')
-api.add_resource(UserTokenController, '/user/<int:_id>/token')
+api.add_resource(UserController, '/user/<int:id_>')
+api.add_resource(UserTokenController, '/user/<int:id_>/token')
 api.add_resource(UsersController, '/user')

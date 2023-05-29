@@ -7,7 +7,8 @@ from vc.service.helper import DiagnosisHelper as dh
 
 
 class FileService:
-    URL_PATTERN = 'https://{bucket}.s3.{region}.amazonaws.com/{filename}'
+    # URL_PATTERN = 'https://{bucket}.s3.{region}.amazonaws.com/{filename}'
+    URL_PATTERN = 'https://{bucket}.{region}.digitaloceanspaces.com/{filename}'
     client = None  # @todo how to typehint this for the IDE?
     bucket: str
     region: str

@@ -78,7 +78,7 @@ class QueueService:
             job.cancel()
             send_stop_job_command(r, job_id)
         except:
-            # don't fail if can't find job or job not running
+            # don't fail if we can't find job or job not running
             pass
 
     def get_worker(self):
