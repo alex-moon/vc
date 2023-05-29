@@ -23,6 +23,10 @@ export abstract class BaseManager<M extends BaseModel> {
                     'Content-Type': 'application/json',
                 },
             }).then((response) => {
+                if (response.status > 200) {
+                    reject(response.json());
+                    return;
+                }
                 resolve(response.json());
             })
         });

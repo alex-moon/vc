@@ -23,5 +23,5 @@ green "Obtaining shell for $service"
 docker-compose exec $service bash -i
 
 green "Your containers are still running"
-echo "Do make sh to obtain another shell"
-echo "Do make run to restart containers"
+echo "Do task sh to obtain another shell"
+echo "Do task run to restart containers"

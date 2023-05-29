@@ -5,7 +5,7 @@ source /opt/vc/.env
 set -x
 
 dbp() {
-  PGPASSWORD=$DB_PASS psql --user=$DB_USER --host=$DB_HOST postgres -c "$@"
+  PGPASSWORD=$DB_PASS psql --user=$DB_USER --host=$DB_HOST --port=$DB_PORT postgres -c "$@"
 }
 dbp "SELECT pg_terminate_backend(pid)
 FROM pg_stat_activity
@@ -14,4 +14,4 @@ AND datname = 'vc'"
 dbp "DROP DATABASE vc"
 dbp "CREATE DATABASE vc WITH OWNER vc"
 
-PGPASSWORD=$DB_PASS psql --user=$DB_USER --host=$DB_HOST vc < backup.sql
+PGPASSWORD=$DB_PASS psql --user=$DB_USER --host=$DB_HOST --port=$DB_PORT $DB_NAME < backup.sql

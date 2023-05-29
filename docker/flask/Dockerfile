@@ -24,6 +24,5 @@ RUN apt install -y \
 RUN pip3 install uwsgi
 
 EXPOSE 5000
-EXPOSE 5001
 
 CMD './docker.flask.sh'

@@ -18,15 +18,15 @@ tasks:
       - task: webpack
       - npx webpack serve --node-env=local
 
-  deploy_backend: scripts/backend.sh
-
-  deploy_frontend: scripts/frontend.sh
-
-  deploy_private:
-    deps: [deploy_backend, deploy_frontend]
-
-  deploy.public: scripts/public.sh
-
+#  deploy_backend: scripts/backend.sh
+#
+#  deploy_frontend: scripts/frontend.sh
+#
+#  deploy_private:
+#    deps: [deploy_backend, deploy_frontend]
+#
+#  deploy.public: scripts/public.sh
+#
 #  deploy:
 #    deps: [deploy_private, deploy_public]
 

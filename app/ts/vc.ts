@@ -116,7 +116,7 @@ export class Vc {
             .catch(this.error.bind(this));
     }
 
-    draw(requests: any) {
+    draw(requests: GenerationRequest[]) {
         this.$requests.update(requests);
     }
 }

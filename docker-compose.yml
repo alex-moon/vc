@@ -13,6 +13,9 @@ services:
     links:
       - pgsql
     command: ./docker.flask.sh
+    # command: sleep 999999999
+    ports:
+      - "15001:5000"
 
   nginx:
     build:
