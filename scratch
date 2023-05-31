@@ -6,3 +6,5 @@ DETAIL:  Failing row contains (null, 7, https://vc-ajmoon.fra1.digitaloceanspace
 
 INSERT INTO generation_result (request_id, url, url_watermarked) VALUES (7, 'https://vc-ajmoon.fra1.digitaloceanspaces.com/2023-05-31-08-16-32-presidency-result-lJGDcVoZTLjHCMAI.mp4', 'https://vc-ajmoon.fra1.digitaloceanspaces.com/2023-05-31-08-16-41-presidency-result-watermarked.mp4');
 
+need to add seq:
+https://gist.github.com/slavamokerov/7f98be752297856109d322d2916f9ee4
