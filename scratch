@@ -1,0 +1,8 @@
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.NotNullViolation) null value in column "id" violates not-null constraint
+DETAIL:  Failing row contains (null, 7, https://vc-ajmoon.fra1.digitaloceanspaces.com/2023-05-31-08-16-3..., 2023-05-31 07:16:49.630945, 2023-05-31 07:16:49.630945, null, https://vc-ajmoon.fra1.digitaloceanspaces.com/2023-05-31-08-16-4...).
+
+[SQL: INSERT INTO generation_result (deleted, request_id, url, url_watermarked) VALUES (%(deleted)s, %(request_id)s, %(url)s, %(url_watermarked)s) RETURNING generation_result.id]
+[parameters: {'deleted': None, 'request_id': 7, 'url': 'https://vc-ajmoon.fra1.digitaloceanspaces.com/2023-05-31-08-16-32-presidency-result-lJGDcVoZTLjHCMAI.mp4', 'url_watermarked': 'https://vc-ajmoon.fra1.digitaloceanspaces.com/2023-05-31-08-16-41-presidency-result-watermarked.mp4'}]
+
+INSERT INTO generation_result (request_id, url, url_watermarked) VALUES (7, 'https://vc-ajmoon.fra1.digitaloceanspaces.com/2023-05-31-08-16-32-presidency-result-lJGDcVoZTLjHCMAI.mp4', 'https://vc-ajmoon.fra1.digitaloceanspaces.com/2023-05-31-08-16-41-presidency-result-watermarked.mp4');
+
