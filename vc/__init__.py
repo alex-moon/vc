@@ -21,7 +21,7 @@ def create_app():
     # initialise the app
     app = Flask(__name__)
     app.config.update(os.environ)
-    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'poolclass': NullPool}
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%s:%s@%s:%s/%s' % (
         app.config['DB_USER'],
         app.config['DB_PASS'],
